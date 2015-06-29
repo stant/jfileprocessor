@@ -36,8 +36,9 @@ public class JFileFinder //  implements Runnable
     static Finder finder = null;
     static Boolean dataSyncLock = false;
     static FilterChain chainFilterList = null;
+    static FilterChain chainFilterFolderList = null;
     
-    public JFileFinder( String startingPathArg, String patternTypeArg, String filePatternArg, FilterChain chainFilterList )
+    public JFileFinder( String startingPathArg, String patternTypeArg, String filePatternArg, FilterChain chainFilterList, FilterChain chainFilterFolderList )
     {
         startingPath = startingPathArg;   //.replace( "\\\\", "/" ).replace( "\\", "/" );
         patternType = patternTypeArg;
@@ -45,6 +46,7 @@ public class JFileFinder //  implements Runnable
         cancelFlag = false;
         matchedPathsList = new ArrayList<Path>();
         this.chainFilterList = chainFilterList;
+        this.chainFilterFolderList = chainFilterFolderList;
     }
 
     public void cancelSearch()
@@ -149,9 +151,8 @@ public class JFileFinder //  implements Runnable
         return resultsData;
     }
     
-    public static class Finder
-        extends SimpleFileVisitor<Path> {
-
+    public static class Finder extends SimpleFileVisitor<Path> 
+        {
         private long numMatches = 0;
         private long numTested = 0;
 
@@ -242,15 +243,33 @@ public class JFileFinder //  implements Runnable
             return FileVisitResult.CONTINUE;
             }
 
-        // Invoke the pattern matching
-        // method on each directory.
-//        @Override
-//        public FileVisitResult
-//            preVisitDirectory(Path dir,
-//                BasicFileAttributes attrs) {
-//            find(dir);
-//            return CONTINUE;
-//        }
+        // Invoke the pattern matching method on each directory.
+        @Override
+        public FileVisitResult preVisitDirectory( Path fpath, BasicFileAttributes attrs )
+            {
+            if ( chainFilterList != null )
+                {
+                BasicFileAttributes attr;
+                try {
+                    //System.err.println( "previsit folder =" + fpath.toString() );
+                    attr = Files.readAttributes( fpath, BasicFileAttributes.class );
+                    if ( chainFilterFolderList.testFilters( fpath, attr ) )
+                        {
+                        return CONTINUE;
+                        }
+                    else
+                        {
+                        System.err.println( "SKIP folder =" + fpath.toString() );
+                        return FileVisitResult.SKIP_SUBTREE;
+                        }
+                    }
+                catch (Exception ex) 
+                    {
+                    Logger.getLogger(JFileFinderWin.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            return FileVisitResult.SKIP_SUBTREE;
+            }
 
         @Override
         public FileVisitResult visitFileFailed( Path file, IOException exc ) 
@@ -324,7 +343,7 @@ public class JFileFinder //  implements Runnable
 //        filePattern = args[1];
         System.err.println("java Find args[0] =" + args[0] +  "=  args[1] =" + args[1] + "=  args[2] =" + args[2] + "=");
 
-        JFileFinder jfilefinder = new JFileFinder( args[0], args[1], args[2], null );
+        JFileFinder jfilefinder = new JFileFinder( args[0], args[1], args[2], null, null );
 
 //        Thread jfinderThread = new Thread( jfilefinder );
 //        jfinderThread.start();

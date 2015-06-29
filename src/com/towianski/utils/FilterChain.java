@@ -41,7 +41,11 @@ public class FilterChain {
         {
         int max = filterList.size();
         //System.out.println( "entered " + this.toString() + ".incAndTest(" + andOrTests + ")   path =" + fpath );
-
+        if ( max < 1 )
+            {
+            return true;
+            }
+        
         for ( int filter = 0; filter < max; filter++ )
             {
             if ( filterList.get( filter ).accept( fpath, attr ) )
