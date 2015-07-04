@@ -25,14 +25,25 @@ public class ChainFilterOfMaxDepth extends FilterChainFilter {
     
     public ChainFilterOfMaxDepth( String startingFolder, String maxDepth ) 
         {
-        this.maxDepth = Paths.get( startingFolder ).getNameCount() + Integer.parseInt( maxDepth ) - 1;
-        System.out.println( "Paths.get( startingFolder ).getNameCount() =" + Paths.get( startingFolder ).getNameCount() + "   Integer.parseInt( maxDepth ) =" + Integer.parseInt( maxDepth ) );
+        this.maxDepth = Paths.get( startingFolder ).getNameCount() + Integer.parseInt( maxDepth );
+        //System.out.println( "Paths.get( startingFolder ).getNameCount() =" + Paths.get( startingFolder ).getNameCount() + "   Integer.parseInt( maxDepth ) =" + Integer.parseInt( maxDepth ) );
         }
     
     // These must be the same parms for all filters that get used.
+    // Second check is do we go into this folder or skip it?
     public Boolean accept( Path fpath, BasicFileAttributes attr )
         {
-        //System.out.println( "maxdepth for path =" + fpath + "   depthcount =" + fpath.getNameCount() + "   max =" + maxDepth + "true/false =" + (fpath.getNameCount() == maxDepth) );
-        return fpath.getNameCount() <= maxDepth ? true : false;
+        //System.out.print( "maxdepth for path =" + fpath + "   depthcount =" + fpath.getNameCount() );
+        //System.out.println( " <  max =" + maxDepth + "  true/false =" + (fpath.getNameCount() < maxDepth) );
+        return fpath.getNameCount() < maxDepth;
+        }
+    
+    // These must be the same parms for all filters that get used.
+    //  First check is do we show this folder?
+    public Boolean accept2( Path fpath, BasicFileAttributes attr )
+        {
+        //System.out.print( "maxdepth for path =" + fpath + "   depthcount =" + fpath.getNameCount() );
+        //System.out.println( " <=  max =" + maxDepth + "  true/false =" + (fpath.getNameCount() <= maxDepth) );
+        return fpath.getNameCount() <= maxDepth;
         }
 }

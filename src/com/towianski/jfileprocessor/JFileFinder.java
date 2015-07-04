@@ -10,6 +10,8 @@ import java.io.File;
 import static java.nio.file.FileVisitResult.CONTINUE;
 
 import java.io.IOException;
+import java.nio.file.FileVisitOption;
+import static java.nio.file.FileVisitOption.FOLLOW_LINKS;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -18,6 +20,7 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -78,18 +81,11 @@ public class JFileFinder //  implements Runnable
                 try {
                     attr = Files.readAttributes( fpath, BasicFileAttributes.class );
 
+                    rowList.add( Files.isSymbolicLink( fpath ) );  // needed to make linux work
+                    rowList.add( attr.isDirectory() );
                     rowList.add( fpath.toString() );
                     rowList.add( new Date( attr.lastModifiedTime().toMillis() ) );
                     rowList.add( attr.size() );
-                    rowList.add( attr.isDirectory() );
-                    rowList.add( attr.isSymbolicLink() );
-
-    //                   // skip reading attr
-    //                rowList.add( fpath.toString() );
-    //                rowList.add( new Date( ) );
-    //                rowList.add( 12345 );
-    //                rowList.add( false );
-    //                rowList.add( true );
 
                     PathsInfoList.add( rowList );
                 } catch (Exception ex) {
@@ -115,11 +111,11 @@ public class JFileFinder //  implements Runnable
                 }
             else
                 {
+                HeaderList.add( "Link" );
+                HeaderList.add( "Dir" );
                 HeaderList.add( "File" );
-                HeaderList.add( "lastModifiedTime" );
+                HeaderList.add( "last Modified Time" );
                 HeaderList.add( "Size" );
-                HeaderList.add( "isDirectory" );
-                HeaderList.add( "isSymbolicLink" );
                 }
 
             //FilesTblModel filesTblModel = new FilesTblModel( HeaderList, PathsInfoList );
@@ -171,15 +167,15 @@ public class JFileFinder //  implements Runnable
 
         // Compares the glob pattern against
         // the file or directory name.
-        void processFile(Path file)
+        void processFile( Path file, BasicFileAttributes attrs )
             {
             numTested++;
             if ( chainFilterList != null )
                 {
-                BasicFileAttributes attr;
+                //BasicFileAttributes attrs;
                 try {
-                    attr = Files.readAttributes( file, BasicFileAttributes.class );
-                    if ( chainFilterList.testFilters( file, attr ) )
+                    //attrs = Files.readAttributes( file, BasicFileAttributes.class );
+                    if ( chainFilterList.testFilters( file, attrs ) )
                         {
 //                      rowList.add( fpath.toString() );
 //                      rowList.add( new Date( attr.lastModifiedTime().toMillis() ) );
@@ -195,6 +191,33 @@ public class JFileFinder //  implements Runnable
 //                      System.out.println( "path separator >" + System.getProperty( "file.separator" ) + "<" );
 //                      System.out.println( "at =" + at );
 //                      String pkgpath = pathStr.substring( startingPathLength, at );
+                        }
+                    } 
+                catch (Exception ex) 
+                    {
+                    Logger.getLogger(JFileFinderWin.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            else
+                {
+                numMatches++;
+                matchedPathsList.add( file );
+                }
+            }
+        
+        // Compares the glob pattern against
+        // the file or directory name.
+        void processFolder( Path file, BasicFileAttributes attrs )
+            {
+            numTested++;
+            if ( chainFilterFolderList != null )
+                {
+                try {
+                    if ( chainFilterFolderList.testFilters2( file, attrs ) )
+                        {
+                        numMatches++;
+//                      System.out.println( "Match =" + file );
+                        matchedPathsList.add( file );
                         }
                     } 
                 catch (Exception ex) 
@@ -233,7 +256,7 @@ public class JFileFinder //  implements Runnable
                     System.out.println( "Search cancelled by user." );
                     return FileVisitResult.TERMINATE;
                     }
-                processFile( file );
+                processFile( file, attrs );
                 }
             catch( Exception ex )
                 {
@@ -247,13 +270,26 @@ public class JFileFinder //  implements Runnable
         @Override
         public FileVisitResult preVisitDirectory( Path fpath, BasicFileAttributes attrs )
             {
+            //  First check is do we show this folder?
+            try {
+                if ( cancelFlag )
+                    {
+                    System.out.println( "Search cancelled by user." );
+                    return FileVisitResult.TERMINATE;
+                    }
+                processFolder( fpath, attrs );
+                }
+            catch (Exception ex) 
+                {
+                Logger.getLogger(JFileFinderWin.class.getName()).log(Level.SEVERE, null, ex);
+                }
+
+            // Second check is do we go into this folder or skip it?
             if ( chainFilterList != null )
                 {
-                BasicFileAttributes attr;
                 try {
                     //System.err.println( "previsit folder =" + fpath.toString() );
-                    attr = Files.readAttributes( fpath, BasicFileAttributes.class );
-                    if ( chainFilterFolderList.testFilters( fpath, attr ) )
+                    if ( chainFilterFolderList.testFilters( fpath, attrs ) )
                         {
                         return CONTINUE;
                         }
@@ -270,6 +306,28 @@ public class JFileFinder //  implements Runnable
                 }
             return FileVisitResult.SKIP_SUBTREE;
             }
+
+        // Print each directory visited.
+//        @Override
+//        public FileVisitResult postVisitDirectory( Path dir, IOException exc )
+//            {
+            //System.out.format("Directory: %s%n", dir);
+//            BasicFileAttributes attrs;
+//            try {
+//                attrs = Files.readAttributes( dir, BasicFileAttributes.class );
+//                if ( cancelFlag )
+//                    {
+//                    System.out.println( "Search cancelled by user." );
+//                    return FileVisitResult.TERMINATE;
+//                    }
+//                processFolder( dir, attrs );
+//                }
+//            catch (Exception ex) 
+//                {
+//                Logger.getLogger(JFileFinderWin.class.getName()).log(Level.SEVERE, null, ex);
+//                }
+//            return CONTINUE;
+//            }
 
         @Override
         public FileVisitResult visitFileFailed( Path file, IOException exc ) 
@@ -320,7 +378,8 @@ public class JFileFinder //  implements Runnable
                 {            
                 cancelFlag = false;
                 cancelFillFlag = false;
-                Files.walkFileTree( startingDir, finder );
+                EnumSet<FileVisitOption> opts = EnumSet.of(FOLLOW_LINKS);
+                Files.walkFileTree( startingDir, opts, Integer.MAX_VALUE, finder );
                 }
         } catch (IOException ex) {
             Logger.getLogger(JFileFinder.class.getName()).log(Level.SEVERE, null, ex);

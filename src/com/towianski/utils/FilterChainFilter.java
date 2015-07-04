@@ -18,4 +18,10 @@ public class FilterChainFilter {
         {
         return false;  // expect this method to be overriden
         }
+
+    public Boolean accept2( Path fpath, BasicFileAttributes attr )
+        {
+        return false;  // expect this method to be overriden
+        }
+    
 }

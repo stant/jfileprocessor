@@ -13,6 +13,11 @@ public class FilesTblModel extends AbstractTableModel
 {
     private ArrayList<String>colNames;
     private ArrayList<ArrayList> data;
+    public static int FILESTBLMODEL_ISLINK = 0;
+    public static int FILESTBLMODEL_ISDIR = 1;
+    public static int FILESTBLMODEL_PATH = 2;
+    public static int FILESTBLMODEL_MODIFIEDDATE = 3;
+    public static int FILESTBLMODEL_SIZE = 4;
     
 //    public PreviewImportTblModel( ArrayList<String> colNamesArg, String[][] dataArg )
 //        {
@@ -61,14 +66,24 @@ public class FilesTblModel extends AbstractTableModel
 
     public Class<?> getColumnClass(int columnIndex)
     {
-        if ( columnIndex == 1 )
-            return Date.class;
-        else if ( columnIndex == 2 )
-            return Long.class;
-        else if ( columnIndex == 3 || columnIndex == 4 )
-            return Boolean.class;
-        else
-            return String.class;
+        try {
+            if ( getColumnCount() > 1 )
+                {
+                if ( columnIndex == FILESTBLMODEL_MODIFIEDDATE )
+                    return Date.class;
+                else if ( columnIndex == FILESTBLMODEL_SIZE )
+                    return Long.class;
+                else if ( columnIndex == FILESTBLMODEL_ISDIR || columnIndex == FILESTBLMODEL_ISLINK )
+                    return Boolean.class;
+                }
+            }
+        catch ( Exception ex )
+            {
+            System.out.println( "column type exc:\n" );
+            ex.printStackTrace();
+            System.out.println( "\n" );
+            }
+        return String.class;
     }
     
     /*
