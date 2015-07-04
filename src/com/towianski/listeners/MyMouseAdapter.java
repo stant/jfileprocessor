@@ -3,8 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.towianski.jfileprocessor;
+package com.towianski.listeners;
 
+import com.towianski.models.FilesTblModel;
+import com.towianski.jfileprocessor.JFileFinderWin;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;

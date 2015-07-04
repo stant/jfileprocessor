@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.towianski.utils;
+package com.towianski.chainfilters;
 
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;

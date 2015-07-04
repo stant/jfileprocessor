@@ -5,8 +5,19 @@
  */
 package com.towianski.jfileprocessor;
 
-import static com.towianski.jfileprocessor.FilesTblModel.FILESTBLMODEL_ISLINK;
-import com.towianski.utils.FilterChain;
+import com.towianski.models.ResultsData;
+import com.towianski.renderers.NumberRenderer;
+import com.towianski.renderers.FormatRenderer;
+import com.towianski.models.CyclingSpinnerListModel;
+import com.towianski.models.FilesTblModel;
+import com.towianski.listeners.MyMouseAdapter;
+import com.towianski.chainfilters.ChainFilterOfNames;
+import com.towianski.chainfilters.ChainFilterOfMaxDepth;
+import com.towianski.chainfilters.ChainFilterOfSizes;
+import com.towianski.chainfilters.ChainFilterOfDates;
+import com.towianski.chainfilters.ChainFilterOfMinDepth;
+import static com.towianski.models.FilesTblModel.FILESTBLMODEL_ISLINK;
+import com.towianski.chainfilters.FilterChain;
 import java.awt.Color;
 import java.awt.Desktop;
 import java.awt.Toolkit;
@@ -454,7 +465,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
         });
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("JFileProcessor v1.3 - Stan Towianski  (c) 2015");
+        setTitle("JFileProcessor v1.3.1 - Stan Towianski  (c) 2015");
 
         jSplitPane1.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
 
@@ -467,6 +478,11 @@ public class JFileFinderWin extends javax.swing.JFrame {
         startingFolder.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 startingFolderActionPerformed(evt);
+            }
+        });
+        startingFolder.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                startingFolderKeyTyped(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -884,7 +900,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void startingFolderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startingFolderActionPerformed
-        // TODO add your handling code here:
+        searchBtnActionPerformed( null );
     }//GEN-LAST:event_startingFolderActionPerformed
 
     private void searchBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchBtnActionPerformed
@@ -1242,6 +1258,10 @@ public class JFileFinderWin extends javax.swing.JFrame {
             maxDepth.setText( "" );
             }
     }//GEN-LAST:event_fileMgrModeActionPerformed
+
+    private void startingFolderKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_startingFolderKeyTyped
+                // TODO add your handling code here:
+    }//GEN-LAST:event_startingFolderKeyTyped
 
     /**
      * @param args the command line arguments

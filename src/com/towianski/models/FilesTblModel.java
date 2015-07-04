@@ -1,4 +1,4 @@
-package com.towianski.jfileprocessor;
+package com.towianski.models;
 
 import java.util.ArrayList;
 import java.util.Date;

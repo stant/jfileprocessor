@@ -5,6 +5,7 @@
  */
 package com.towianski.jfileprocessor;
 
+import com.towianski.models.ResultsData;
 import java.text.NumberFormat;
 import javax.swing.SwingWorker;
 

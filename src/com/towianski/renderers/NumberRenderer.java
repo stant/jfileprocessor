@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.towianski.jfileprocessor;
+package com.towianski.renderers;
 
 import java.text.NumberFormat;
 import javax.swing.SwingConstants;

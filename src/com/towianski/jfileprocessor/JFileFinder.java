@@ -5,7 +5,9 @@ package com.towianski.jfileprocessor;
  * @author Stan Towianski - June 2015
  */
 
-import com.towianski.utils.FilterChain;
+import com.towianski.models.ResultsData;
+import com.towianski.models.FilesTblModel;
+import com.towianski.chainfilters.FilterChain;
 import java.io.File;
 import static java.nio.file.FileVisitResult.CONTINUE;
 
