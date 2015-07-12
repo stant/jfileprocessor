@@ -1,0 +1,406 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.towianski.jfileprocessor;
+
+import com.towianski.chainfilters.FilterChain;
+import com.towianski.models.ResultsData;
+import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowEvent;
+import java.nio.file.CopyOption;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.KeyStroke;
+
+/**
+ *
+ * @author Stan Towianski July 2015
+ */
+public class CopyFrame extends javax.swing.JFrame {
+
+    JFileFinderWin jFileFinderWin = null;
+    Thread jfinderThread = null;
+    JFileFinderSwingWorker jFileFinderSwingWorker = null;
+    ResultsData resultsData = null;
+    JFileCopy jfilecopy = null;
+    Color saveColor = null;
+    
+    public static final String PROCESS_STATUS_COPY_STARTED = "Copy Started . . .";
+    public static final String PROCESS_STATUS_COPY_CANCELED = "Copy canceled";
+    public static final String PROCESS_STATUS_COPY_COMPLETED = "Copy completed";
+    public static final String PROCESS_STATUS_CANCEL_COPY = "Cancel Copy";
+    public static final String PROCESS_STATUS_COPY_READY = "Copy";
+
+    boolean cancelFlag = false;
+    boolean cancelFillFlag = false;
+    String startingPath = null;
+    ArrayList<Path> copyPaths = new ArrayList<Path>();
+    String toPath = null;
+    Copier copier = null;
+    Boolean dataSyncLock = false;
+    FilterChain chainFilterList = null;
+    FilterChain chainFilterFolderList = null;
+    
+    /**
+     * Creates new form CopyFrame
+     */
+    public CopyFrame() {
+        initComponents();
+
+        this.setLocationRelativeTo( getRootPane() );
+        this.addEscapeListener( this );
+    }
+
+    public void setup( JFileFinderWin jFileFinderWin, String startingPath, ArrayList<Path> copyPaths, String toPath )
+        {
+        this.jFileFinderWin = jFileFinderWin;
+        this.startingPath = startingPath;
+        this.copyPaths = copyPaths;
+        this.toPath = toPath;
+        
+        fromPath.setText( copyPaths.get( 0 ).toString() );
+        if ( copyPaths.size() > 1 )
+            {
+            fromPath.setText( copyPaths.get( 0 ) + " + others" );
+            }
+        pastePath.setText( toPath );
+        }
+    
+    public void addEscapeListener(final JFrame win) {
+        ActionListener escListener = new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //System.err.println( "previewImportWin formWindow dispose()" );
+                win.dispatchEvent( new WindowEvent( win, WindowEvent.WINDOW_CLOSING )); 
+                win.dispose();
+            }
+        };
+
+        win.getRootPane().registerKeyboardAction(escListener,
+                KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
+                JComponent.WHEN_IN_FOCUSED_WINDOW);
+    }    
+
+    public void callDoCmdBtnActionPerformed(java.awt.event.ActionEvent evt)
+    {
+        doCmdBtnActionPerformed( evt );
+    }
+            
+    public void stopSearch() {
+        jfilecopy.cancelSearch();
+    }
+
+    public void stopFill() {
+        jfilecopy.cancelFill();
+    }
+
+    public void setDoCmdBtn( String text, Color setColor )
+        {
+        doCmdBtn.setText( text );
+        doCmdBtn.setBackground( setColor );
+        doCmdBtn.setOpaque(true);
+        }
+
+//    public void resetDoCmdBtn() {
+//        doCmdBtn.setText( "Search" );
+//        doCmdBtn.setBackground( saveColor );
+//        doCmdBtn.setOpaque(true);
+//    }
+
+    public void setResultsData( ResultsData resultsData )
+        {
+        this.resultsData = resultsData;
+        }
+
+//    public void setNumFilesInTable()
+//        {
+//        NumberFormat numFormat = NumberFormat.getIntegerInstance();
+//        numFilesInTable.setText( numFormat.format( filesTbl.getModel().getRowCount() ) );
+//        }
+    
+    public void setProcessStatus( String text )
+        {
+        processStatus.setText(text);
+        switch( text )
+            {
+            case PROCESS_STATUS_COPY_STARTED:  
+                processStatus.setBackground( Color.GREEN );
+                setDoCmdBtn( this.PROCESS_STATUS_CANCEL_COPY, Color.RED );
+                setMessage( "" );
+                break;
+            case PROCESS_STATUS_COPY_CANCELED:
+                processStatus.setBackground( Color.YELLOW );
+                setDoCmdBtn( this.PROCESS_STATUS_COPY_READY, saveColor );
+                break;
+            case PROCESS_STATUS_COPY_COMPLETED:
+                processStatus.setBackground( saveColor );
+                setDoCmdBtn( this.PROCESS_STATUS_COPY_READY, saveColor );
+                break;
+            default:
+                processStatus.setBackground( saveColor );
+                setDoCmdBtn( this.PROCESS_STATUS_COPY_READY, saveColor );
+                break;
+            }
+        }
+
+    public String getProcessStatus()
+        {
+        return processStatus.getText();
+        }
+
+    public String getMessage()
+        {
+        return message.getText();
+        }
+
+    public void setMessage( String text )
+        {
+        message.setText(text);
+        }
+
+    ActionListener menuActionListener = new ActionListener()
+        {
+        @Override
+        public void actionPerformed(ActionEvent e) 
+            {
+            message.setText(e.getActionCommand());
+            }          
+        };
+        
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+        java.awt.GridBagConstraints gridBagConstraints;
+
+        doCmdBtn = new javax.swing.JButton();
+        processStatus = new javax.swing.JLabel();
+        message = new javax.swing.JLabel();
+        fromPath = new javax.swing.JLabel();
+        pastePath = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        replaceExisting = new javax.swing.JCheckBox();
+        jLabel3 = new javax.swing.JLabel();
+        copyAttribs = new javax.swing.JCheckBox();
+        noFollowLinks = new javax.swing.JCheckBox();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("Copy Paste to . . .");
+        getContentPane().setLayout(new java.awt.GridBagLayout());
+
+        doCmdBtn.setText("Copy");
+        doCmdBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                doCmdBtnActionPerformed(evt);
+            }
+        });
+        doCmdBtn.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                doCmdBtnKeyPressed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 0);
+        getContentPane().add(doCmdBtn, gridBagConstraints);
+
+        processStatus.setMaximumSize(new java.awt.Dimension(999999, 999999));
+        processStatus.setMinimumSize(new java.awt.Dimension(150, 25));
+        processStatus.setPreferredSize(new java.awt.Dimension(150, 25));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 0);
+        getContentPane().add(processStatus, gridBagConstraints);
+
+        message.setMaximumSize(new java.awt.Dimension(999999, 999999));
+        message.setMinimumSize(new java.awt.Dimension(200, 25));
+        message.setPreferredSize(new java.awt.Dimension(200, 25));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridwidth = 4;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 0);
+        getContentPane().add(message, gridBagConstraints);
+
+        fromPath.setMaximumSize(new java.awt.Dimension(99999, 99999));
+        fromPath.setMinimumSize(new java.awt.Dimension(300, 25));
+        fromPath.setPreferredSize(new java.awt.Dimension(300, 25));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = 4;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 0);
+        getContentPane().add(fromPath, gridBagConstraints);
+
+        pastePath.setMaximumSize(new java.awt.Dimension(99999, 99999));
+        pastePath.setMinimumSize(new java.awt.Dimension(300, 25));
+        pastePath.setPreferredSize(new java.awt.Dimension(300, 25));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = 4;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 0);
+        getContentPane().add(pastePath, gridBagConstraints);
+
+        jLabel1.setText("From Path(s):");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
+        getContentPane().add(jLabel1, gridBagConstraints);
+
+        jLabel2.setText("To Path:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
+        getContentPane().add(jLabel2, gridBagConstraints);
+
+        replaceExisting.setText("Replace Existing");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridwidth = 2;
+        getContentPane().add(replaceExisting, gridBagConstraints);
+
+        jLabel3.setMaximumSize(new java.awt.Dimension(9999, 9999));
+        jLabel3.setMinimumSize(new java.awt.Dimension(40, 40));
+        jLabel3.setPreferredSize(new java.awt.Dimension(40, 40));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 3;
+        getContentPane().add(jLabel3, gridBagConstraints);
+
+        copyAttribs.setText("Copy Attributes");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.insets = new java.awt.Insets(0, 7, 0, 0);
+        getContentPane().add(copyAttribs, gridBagConstraints);
+
+        noFollowLinks.setText("No Follow Links (or copy links as links)");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.insets = new java.awt.Insets(0, 7, 0, 0);
+        getContentPane().add(noFollowLinks, gridBagConstraints);
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void doCmdBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_doCmdBtnActionPerformed
+        if ( doCmdBtn.getText().equalsIgnoreCase( PROCESS_STATUS_CANCEL_COPY ) )
+            {
+            System.err.println( "hit stop button, got rootPaneCheckingEnabled =" + rootPaneCheckingEnabled + "=" );
+            setProcessStatus( PROCESS_STATUS_COPY_CANCELED );
+            this.stopSearch();
+            //JOptionPane.showConfirmDialog( null, "at call stop search" );
+            }
+        else
+            {
+            try {
+                List<CopyOption> copyOpts = new ArrayList<CopyOption>();
+                if ( replaceExisting.isSelected() )
+                    copyOpts.add( StandardCopyOption.REPLACE_EXISTING );
+                if ( copyAttribs.isSelected() )
+                    copyOpts.add( StandardCopyOption.COPY_ATTRIBUTES );
+                if ( noFollowLinks.isSelected() )
+                    copyOpts.add( LinkOption.NOFOLLOW_LINKS );
+
+//                CopyOption[] copyOptsAR = copyOpts.toArray( new CopyOption[ copyOpts.size() ] );
+//
+//                System.err.println( "copyOpts length =" + copyOptsAR.length + "=" );
+//                for ( CopyOption cc : copyOptsAR )
+//                    System.err.println( "cc =" + cc + "=" );
+                
+                jfilecopy = new JFileCopy( startingPath, copyPaths, toPath, copyOpts.toArray( new CopyOption[ copyOpts.size() ] ) );
+                CopyFrameSwingWorker copyFrameSwingWorker = new CopyFrameSwingWorker( jFileFinderWin, this, jfilecopy, copyPaths, toPath );
+                copyFrameSwingWorker.execute();   //doInBackground();
+            } 
+            catch (Exception ex) {
+                Logger.getLogger(JFileCopy.class.getName()).log(Level.SEVERE, null, ex);
+            } 
+        }
+        
+    }//GEN-LAST:event_doCmdBtnActionPerformed
+
+    private void doCmdBtnKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_doCmdBtnKeyPressed
+        if ( evt.getKeyCode() == KeyEvent.VK_ENTER )
+            {
+            doCmdBtnActionPerformed( null );
+            }
+    }//GEN-LAST:event_doCmdBtnKeyPressed
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(CopyFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(CopyFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(CopyFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(CopyFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new CopyFrame().setVisible(true);
+            }
+        });
+    }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JCheckBox copyAttribs;
+    private javax.swing.JButton doCmdBtn;
+    private javax.swing.JLabel fromPath;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel message;
+    private javax.swing.JCheckBox noFollowLinks;
+    private javax.swing.JLabel pastePath;
+    private javax.swing.JLabel processStatus;
+    private javax.swing.JCheckBox replaceExisting;
+    // End of variables declaration//GEN-END:variables
+}

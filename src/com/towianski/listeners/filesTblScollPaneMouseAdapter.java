@@ -11,7 +11,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
 /**
@@ -22,13 +21,11 @@ public class MyMouseAdapter extends MouseAdapter
 { 
     JPopupMenu jPopupMenu = null;
     JFileFinderWin jFileFinderWin = null;
-    JScrollPane filesTblScrollPane = null;
     
-    public MyMouseAdapter( JPopupMenu jPopupMenu, JFileFinderWin jFileFinderWin, JScrollPane filesTblScrollPane )
+    public MyMouseAdapter( JPopupMenu jPopupMenu, JFileFinderWin jFileFinderWin )
         {
         this.jPopupMenu = jPopupMenu;
         this.jFileFinderWin = jFileFinderWin;
-        this.filesTblScrollPane = filesTblScrollPane;
         }
 
         @Override
@@ -50,12 +47,6 @@ public class MyMouseAdapter extends MouseAdapter
 //            if (e.isPopupTrigger()) {
 //                jPopupMenu.show(e.getComponent(), e.getX(), e.getY());
 //            }
-            if ( e.getSource() == filesTblScrollPane )
-                {
-                //System.out.println( "mouseclicked on filesTblScrollPane" );
-                return;
-                }
-            
             if (e.getClickCount() == 2) {
                 JTable filesTbl = (JTable)e.getSource();
                 //int rowIndex = filesTbl.getSelectedRow();

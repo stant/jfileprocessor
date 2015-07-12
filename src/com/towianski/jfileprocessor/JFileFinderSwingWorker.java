@@ -45,15 +45,15 @@ public class JFileFinderSwingWorker extends SwingWorker<ResultsData, Object> {
             //System.err.println( "SwingWork.done() got ans =" + matchedPathsList + "=" );
             //jFileFinderWin.resetSearchBtn();
             NumberFormat numFormat = NumberFormat.getIntegerInstance();
+            jFileFinderWin.setMessage( "Matched " + numFormat.format( resultsData.getFilesMatched() ) + " files and " + numFormat.format( resultsData.getFoldersMatched() ) + " folders out of " + numFormat.format( resultsData.getFilesVisited() ) );
             if ( resultsData.getSearchWasCanceled() )
                 {
                 jFileFinderWin.setProcessStatus( jFileFinderWin.PROCESS_STATUS_SEARCH_CANCELED );
-                jFileFinderWin.setMessage( "Matched " + numFormat.format( resultsData.getFilesMatched() ) + " files out of " + numFormat.format( resultsData.getFilesVisited() ) + " partial files list." );
+                jFileFinderWin.setMessage( jFileFinderWin.getMessage() + " partial files list." );
                 }
             else
                 {
                 jFileFinderWin.setProcessStatus( jFileFinderWin.PROCESS_STATUS_SEARCH_COMPLETED );
-                jFileFinderWin.setMessage( "Matched " + numFormat.format( resultsData.getFilesMatched() ) + " files out of " + numFormat.format( resultsData.getFilesVisited() ) );
                 }
             //SwingUtilities.invokeLater( jFileFinderWin.fillInFilesTable( resultsData ) );
             //jFileFinderWin.fillInFilesTable( resultsData );

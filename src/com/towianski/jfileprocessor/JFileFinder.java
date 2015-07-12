@@ -145,13 +145,14 @@ public class JFileFinder //  implements Runnable
     
     public static ResultsData getResultsData() {
         //ResultsData resultsData = new ResultsData( getFilesTableModel(), cancelFlag, finder.getNumTested(), finder.getNumMatches() );
-        ResultsData resultsData = new ResultsData( matchedPathsList, cancelFlag, cancelFillFlag, finder.getNumTested(), finder.getNumMatches() );
+        ResultsData resultsData = new ResultsData( matchedPathsList, cancelFlag, cancelFillFlag, finder.getNumTested(), finder.getNumFileMatches(), finder.getNumFolderMatches() );
         return resultsData;
     }
     
     public static class Finder extends SimpleFileVisitor<Path> 
         {
-        private long numMatches = 0;
+        private long numFileMatches = 0;
+        private long numFolderMatches = 0;
         private long numTested = 0;
 
         Finder(String pattern) {
@@ -162,7 +163,7 @@ public class JFileFinder //  implements Runnable
 //        void find(Path file) {
 //            Path name = file.getFileName();
 //            if (name != null && matcher.matches(name)) {
-//                numMatches++;
+//                numFileMatches++;
 //                System.out.println( "find =" + file );
 //            }
 //        }
@@ -184,7 +185,7 @@ public class JFileFinder //  implements Runnable
 //                      rowList.add( attr.size() );
 //                      rowList.add( attr.isDirectory() );
 //                      rowList.add( attr.isSymbolicLink() );
-                        numMatches++;
+                        numFileMatches++;
 //                      System.out.println( "Match =" + file );
                         matchedPathsList.add( file );
 //                      int at = pathStr.indexOf( System.getProperty( "file.separator" ), startingPathLength );
@@ -202,7 +203,7 @@ public class JFileFinder //  implements Runnable
                 }
             else
                 {
-                numMatches++;
+                numFileMatches++;
                 matchedPathsList.add( file );
                 }
             }
@@ -217,7 +218,7 @@ public class JFileFinder //  implements Runnable
                 try {
                     if ( chainFilterFolderList.testFilters2( file, attrs ) )
                         {
-                        numMatches++;
+                        numFolderMatches++;
 //                      System.out.println( "Match =" + file );
                         matchedPathsList.add( file );
                         }
@@ -229,7 +230,7 @@ public class JFileFinder //  implements Runnable
                 }
             else
                 {
-                numMatches++;
+                numFolderMatches++;
                 matchedPathsList.add( file );
                 }
             }
@@ -238,7 +239,8 @@ public class JFileFinder //  implements Runnable
         // matches to standard out.
         void done() {
             System.out.println( "Tested:  " + numTested );
-            System.out.println( "Matched count: " + numMatches );
+            System.out.println( "Matched Files count: " + numFileMatches );
+            System.out.println( "Matched Folders count: " + numFolderMatches );
             
 //            for ( Path mpath : matchedPathsList )
 //                {
@@ -348,9 +350,14 @@ public class JFileFinder //  implements Runnable
             return numTested;
             }
             
-        public long getNumMatches()
+        public long getNumFileMatches()
             {
-            return numMatches;
+            return numFileMatches;
+            }
+            
+        public long getNumFolderMatches()
+            {
+            return numFolderMatches;
             }
     }
 

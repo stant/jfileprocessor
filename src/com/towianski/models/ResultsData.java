@@ -21,9 +21,13 @@ public class ResultsData {
     private Boolean fillWasCanceled = false;
     private long filesVisited = 0;
     private long filesMatched = 0;
+    private long foldersMatched = 0;
 
-    public ResultsData( ArrayList<Path> matchedPathsListArg, Boolean searchWasCanceledArg, Boolean fillWasCanceledArg, long filesVisitedArg, long filesMatchedArg )
-    //public ResultsData( FilesTblModel filesTblModelArg, Boolean searchWasCanceledArg, long filesVisitedArg, long filesMatchedArg )
+    public ResultsData()
+        {
+        }
+    
+    public ResultsData( ArrayList<Path> matchedPathsListArg, Boolean searchWasCanceledArg, Boolean fillWasCanceledArg, long filesVisitedArg, long filesMatchedArg, long foldersMatched )
         {
         this.matchedPathsList = matchedPathsListArg;
         //filesTblModel = filesTblModelArg;
@@ -31,6 +35,15 @@ public class ResultsData {
         this.fillWasCanceled = fillWasCanceledArg;
         this.filesVisited = filesVisitedArg;
         this.filesMatched = filesMatchedArg;
+        this.foldersMatched = foldersMatched;
+        }
+    
+    public ResultsData( Boolean searchWasCanceledArg, long filesVisitedArg, long filesMatchedArg, long foldersMatched )
+        {
+        this.searchWasCanceled = searchWasCanceledArg;
+        this.filesVisited = filesVisitedArg;
+        this.filesMatched = filesMatchedArg;
+        this.foldersMatched = foldersMatched;
         }
     
     public ArrayList<Path> getMatchedPathsList() {
@@ -75,6 +88,14 @@ public class ResultsData {
 
     public long getFilesMatched() {
         return filesMatched;
+    }
+
+    public long getFoldersMatched() {
+        return foldersMatched;
+    }
+
+    public void setFoldersMatched(long foldersMatched) {
+        this.foldersMatched = foldersMatched;
     }
 
     public void setFilesMatched(long filesMatched) {

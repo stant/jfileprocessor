@@ -1,8 +1,11 @@
 package com.towianski.models;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableColumnModel;
 
 /**
  *
@@ -18,7 +21,8 @@ public class FilesTblModel extends AbstractTableModel
     public static int FILESTBLMODEL_PATH = 2;
     public static int FILESTBLMODEL_MODIFIEDDATE = 3;
     public static int FILESTBLMODEL_SIZE = 4;
-    
+    private HashMap<String,Boolean> editableCells = new HashMap<String,Boolean>(); // 2d array to represent rows and columns
+        
 //    public PreviewImportTblModel( ArrayList<String> colNamesArg, String[][] dataArg )
 //        {
 //        colNames = colNamesArg;
@@ -58,6 +62,30 @@ public class FilesTblModel extends AbstractTableModel
             return "";
             }
         return data.get(row).get(col); 
+        }
+    
+    @Override
+    public void setValueAt(Object aValue, int row, int col) 
+        {
+        //System.err.println( "setValueAt  value =" + aValue + "=  row =" + row + "  col =" + col );
+        //if ( 1 == 1 ) return;
+        try {
+            if ( row < data.size() && col < data.get( row ).size() )
+                {
+                if ( col == FILESTBLMODEL_MODIFIEDDATE )
+                    data.get( row ).set( col, (Date) aValue );
+                else if ( col == FILESTBLMODEL_SIZE )
+                    data.get( row ).set( col, (Long) aValue );
+                else if ( col == FILESTBLMODEL_ISDIR || col == FILESTBLMODEL_ISLINK )
+                    data.get( row ).set( col, (Boolean) aValue );
+                else
+                    data.get( row ).set( col, (String) aValue );
+                }
+            } 
+        catch( Exception ex )
+            {
+            }
+        //refresh();   NOTE:  DOING THIS CAUSED IT TO DROP A WHOLE COLUMN ! !
         }
     
     public String getColumnName(int col) {
@@ -110,11 +138,59 @@ public class FilesTblModel extends AbstractTableModel
         refresh();
         }
     
+    /*
+    public int getColumnCount() { return 10; }
+    public int getRowCount() { return 10;}
+    public Object getValueAt(int row, int col) { return new Integer(row*col); }
+    */    
+    public void insertRowAt( int row, String Path ) 
+        {
+        //System.err.println( "getValueAt row =" + row + "  col =" + col );
+        try {
+            //System.out.println( "before add row table col count =" + this.getColumnCount() );
+            ArrayList newRow = new ArrayList();
+            newRow.add( false );
+            newRow.add( true );
+            newRow.add( Path );
+            newRow.add( Calendar.getInstance().getTime() );
+            newRow.add( (long) 0 );
+            
+            data.add( 0, newRow );
+            //System.out.println( "after add row table col count =" + this.getColumnCount() );
+            } 
+        catch( Exception ex )
+            {
+            return;
+            }
+        refresh();
+        }
+    
     public void refresh()
-    {
+        {
         fireTableChanged(null);
-    }
+        }
 
+    @Override
+    public boolean isCellEditable( int row, int col )  // custom isCellEditable function
+        {
+        //if ( editableCells.containsKey( row + "-" + col ) )
+        //    System.out.println( "cell " + row + ", " + col + " is edittable" );
+        return editableCells.containsKey( row + "-" + col );
+        }
+    
+    public void setCellEditable( int row, int col, boolean value )
+        {
+        if ( value )
+            {   
+            editableCells.put( row + "-" + col, true );
+            }
+        else
+            {
+            editableCells.remove( row + "-" + col );
+            }
+        this.fireTableCellUpdated( row, col );
+        }
+    
 //    //previewImportTbl.getTableHeader().addMouseListener(new         
 //    class ColumnListener extends MouseAdapter() {
 //      @Override
