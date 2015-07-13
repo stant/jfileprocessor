@@ -1,14 +1,19 @@
 # jfileprocessor
 
 This is a File Manager with search features: 
+
 Does: Copy, (cut coming), Paste, Delete, New Folder,...
 
 Search:
 file finder by Name, Dates, or Sizes. MinDepth, MaxDepth.
+
 You can Open, Edit, Copy filename, save list to a file.
 
 Escape: closes windows
+
 Shift-Escape: close main window
+
+![jfileprocessor](https://cloud.githubusercontent.com/assets/1928413/8658274/d4b649dc-2970-11e5-9363-4a737167aa40.JPG)
 
 icons from:
 
