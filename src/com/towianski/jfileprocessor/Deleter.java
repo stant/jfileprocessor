@@ -32,11 +32,13 @@ public class Deleter extends SimpleFileVisitor<Path>
     boolean cancelFlag = false;
     ArrayList<Path> copyPaths = new ArrayList<Path>();
     Boolean dataSyncLock = false;
+    Boolean deleteFilesOnlyFlag = false;
     
-    public Deleter( String startingPath, ArrayList<Path> copyPaths )
+    public Deleter( String startingPath, ArrayList<Path> copyPaths, Boolean deleteFilesOnlyFlag )
     {
         this.fromPath = Paths.get( startingPath );
         this.copyPaths = copyPaths;
+        this.deleteFilesOnlyFlag = deleteFilesOnlyFlag;
         System.err.println( "Deleter this.fromPath =" + this.fromPath + "=" );
         cancelFlag = false;
     }
@@ -69,8 +71,11 @@ public class Deleter extends SimpleFileVisitor<Path>
         //if ( ex == null )
         try {
             numTested++;
-            Files.delete( dir );
-            numFoldersDeleted++;
+            if ( ! deleteFilesOnlyFlag )
+                {
+                Files.delete( dir );
+                numFoldersDeleted++;
+                }
             //System.out.println( "would delete folder =" + dir );
             return FileVisitResult.CONTINUE;
             }

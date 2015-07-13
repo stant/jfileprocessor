@@ -171,6 +171,8 @@ public class DeleteFrame extends javax.swing.JFrame {
         message = new javax.swing.JLabel();
         fromPath = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
+        deleteFilesOnlyFlag = new javax.swing.JCheckBox();
+        jLabel2 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Delete . . .");
@@ -198,17 +200,18 @@ public class DeleteFrame extends javax.swing.JFrame {
         processStatus.setPreferredSize(new java.awt.Dimension(150, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridy = 4;
         gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.insets = new java.awt.Insets(10, 4, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 0);
         getContentPane().add(processStatus, gridBagConstraints);
 
         message.setMaximumSize(new java.awt.Dimension(999999, 999999));
         message.setMinimumSize(new java.awt.Dimension(200, 25));
         message.setPreferredSize(new java.awt.Dimension(200, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridwidth = 4;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 0);
         getContentPane().add(message, gridBagConstraints);
@@ -230,6 +233,22 @@ public class DeleteFrame extends javax.swing.JFrame {
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
         getContentPane().add(jLabel1, gridBagConstraints);
 
+        deleteFilesOnlyFlag.setText("Delete Files Only (leave folders)");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        getContentPane().add(deleteFilesOnlyFlag, gridBagConstraints);
+
+        jLabel2.setMaximumSize(new java.awt.Dimension(999, 999));
+        jLabel2.setMinimumSize(new java.awt.Dimension(20, 40));
+        jLabel2.setPreferredSize(new java.awt.Dimension(20, 40));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        getContentPane().add(jLabel2, gridBagConstraints);
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
@@ -244,8 +263,7 @@ public class DeleteFrame extends javax.swing.JFrame {
         else
             {
             try {
-                
-                jfiledelete = new JFileDelete( startingPath, copyPaths );
+                jfiledelete = new JFileDelete( startingPath, copyPaths, deleteFilesOnlyFlag.isSelected() );
                 DeleteFrameSwingWorker deleteFrameSwingWorker = new DeleteFrameSwingWorker( jFileFinderWin, this, jfiledelete, copyPaths );
                 deleteFrameSwingWorker.execute();   //doInBackground();
             } 
@@ -300,9 +318,11 @@ public class DeleteFrame extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JCheckBox deleteFilesOnlyFlag;
     private javax.swing.JButton doCmdBtn;
     private javax.swing.JLabel fromPath;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel message;
     private javax.swing.JLabel processStatus;
     // End of variables declaration//GEN-END:variables

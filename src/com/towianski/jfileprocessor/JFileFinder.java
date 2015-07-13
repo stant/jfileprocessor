@@ -21,6 +21,7 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.logging.Level;
@@ -107,9 +108,13 @@ public class JFileFinder //  implements Runnable
             if ( PathsInfoList.size() < 1 )
                 {
                 HeaderList.add( " " );
-                ArrayList<Object> rowList = new ArrayList<Object>();
-                rowList.add( "No Files Found" );
-                PathsInfoList.add( rowList );
+                ArrayList<Object> newRow = new ArrayList<Object>();
+//                newRow.add( false );
+//                newRow.add( true );
+                newRow.add( "No Files Found" );
+//                newRow.add( Calendar.getInstance().getTime() );
+//                newRow.add( (long) 0 );
+                PathsInfoList.add( newRow );
                 }
             else
                 {
@@ -299,7 +304,7 @@ public class JFileFinder //  implements Runnable
                         }
                     else
                         {
-                        System.err.println( "SKIP folder =" + fpath.toString() );
+                        //System.err.println( "SKIP folder =" + fpath.toString() );
                         return FileVisitResult.SKIP_SUBTREE;
                         }
                     }

@@ -18,6 +18,9 @@ import com.towianski.chainfilters.ChainFilterOfSizes;
 import com.towianski.chainfilters.ChainFilterOfDates;
 import com.towianski.chainfilters.ChainFilterOfMinDepth;
 import com.towianski.chainfilters.FilterChain;
+import com.towianski.renderers.FiletypeCBCellRenderer;
+import com.towianski.renderers.LinktypeCBCellRenderer;
+import com.towianski.renderers.PathRenderer;
 import com.towianski.renderers.TableCellListener;
 import static com.towianski.utils.ClipboardFilesList.getClipboardFilesList;
 import java.awt.Color;
@@ -40,6 +43,7 @@ import java.nio.file.Paths;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.AbstractAction;
@@ -52,7 +56,10 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JRadioButton;
 import javax.swing.KeyStroke;
+import javax.swing.RowSorter;
+import javax.swing.SortOrder;
 import javax.swing.SpinnerListModel;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
@@ -389,10 +396,25 @@ class DeleteAction extends AbstractAction
     public void setColumnSizes()
         {
         TableColumnModel tblColModel = filesTbl.getColumnModel();
+        if ( tblColModel.getColumnCount() < 2 )
+            {
+            return;
+            }
         System.out.println( "setColumnSizes() table col count =" + tblColModel.getColumnCount() );
-        tblColModel.getColumn( FilesTblModel.FILESTBLMODEL_ISLINK ).setMaxWidth( 40 );
-        tblColModel.getColumn( FilesTblModel.FILESTBLMODEL_ISDIR ).setMaxWidth( 40 );
-        tblColModel.getColumn( FilesTblModel.FILESTBLMODEL_PATH ).setPreferredWidth( 600 );
+        tblColModel.getColumn( FilesTblModel.FILESTBLMODEL_ISLINK ).setMaxWidth( 25 );
+        tblColModel.getColumn( FilesTblModel.FILESTBLMODEL_ISLINK ).setCellRenderer( new LinktypeCBCellRenderer() );
+        tblColModel.getColumn( FilesTblModel.FILESTBLMODEL_ISDIR ).setMaxWidth( 25 );
+        tblColModel.getColumn( FilesTblModel.FILESTBLMODEL_ISDIR ).setCellRenderer( new FiletypeCBCellRenderer() );
+        if ( showJustFilenameFlag.isSelected() )
+            {
+            tblColModel.getColumn( FilesTblModel.FILESTBLMODEL_PATH ).setPreferredWidth( 300 );
+            tblColModel.getColumn( FilesTblModel.FILESTBLMODEL_PATH ).setCellRenderer( new PathRenderer() );
+            }
+        else
+            {
+            tblColModel.getColumn( FilesTblModel.FILESTBLMODEL_PATH ).setPreferredWidth( 600 );
+            tblColModel.getColumn( FilesTblModel.FILESTBLMODEL_PATH ).setCellRenderer( new DefaultTableCellRenderer() );
+            }
         tblColModel.getColumn( FilesTblModel.FILESTBLMODEL_MODIFIEDDATE ).setCellRenderer( FormatRenderer.getDateTimeRenderer() );
         tblColModel.getColumn( FilesTblModel.FILESTBLMODEL_SIZE ).setCellRenderer( NumberRenderer.getIntegerRenderer() );
         }
@@ -414,6 +436,16 @@ class DeleteAction extends AbstractAction
         sorter.setSortsOnUpdates( false );
         //TableSorter<TableModel> sorter = new TableSorter<TableModel>( filesTblModel );
         filesTbl.setRowSorter( sorter );
+        
+        //int dirRowIndex = filesTbl.convertRowIndexToModel( filesTbl.getSelectedRow() );
+
+        if ( filesTbl.getModel().getColumnCount() > 1 )
+            {
+            List <RowSorter.SortKey> sortKeys = new ArrayList<RowSorter.SortKey>();
+            sortKeys.add( new RowSorter.SortKey( FilesTblModel.FILESTBLMODEL_ISDIR, SortOrder.DESCENDING ) );
+            sortKeys.add( new RowSorter.SortKey( FilesTblModel.FILESTBLMODEL_PATH, SortOrder.ASCENDING ) );
+            sorter.setSortKeys( sortKeys );
+            }
         }
 
     public void desktopOpen( File file )
@@ -494,7 +526,7 @@ class DeleteAction extends AbstractAction
         };
 
         win.getRootPane().registerKeyboardAction(escListener,
-                KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
+                KeyStroke.getKeyStroke( KeyEvent.VK_ESCAPE, KeyEvent.SHIFT_DOWN_MASK ),
                 JComponent.WHEN_IN_FOCUSED_WINDOW);
     }    
     
@@ -584,6 +616,8 @@ class DeleteAction extends AbstractAction
         SpinnerListModel sizeAndOrSpinModel = new CyclingSpinnerListModel( andOrSpinModelList );
         sizeLogicOp = new javax.swing.JSpinner( sizeAndOrSpinModel );
         size1 = new javax.swing.JFormattedTextField();
+        jPanel5 = new javax.swing.JPanel();
+        showJustFilenameFlag = new javax.swing.JCheckBox();
         jPanel7 = new javax.swing.JPanel();
         searchBtn = new javax.swing.JButton();
         jLabel3 = new javax.swing.JLabel();
@@ -719,11 +753,11 @@ class DeleteAction extends AbstractAction
             jPopupMenu2.add(savePathsToFile1);
 
             setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-            setTitle("JFileProcessor v1.4 - Stan Towianski  (c) 2015");
+            setTitle("JFileProcessor v1.4.1 - Stan Towianski  (c) 2015");
 
             jSplitPane1.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
 
-            jPanel6.setMinimumSize(new java.awt.Dimension(400, 70));
+            jPanel6.setMinimumSize(new java.awt.Dimension(400, 35));
             jPanel6.setPreferredSize(new java.awt.Dimension(400, 130));
             jPanel6.setLayout(new java.awt.GridBagLayout());
 
@@ -756,7 +790,7 @@ class DeleteAction extends AbstractAction
             gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 0);
             jPanel6.add(jLabel1, gridBagConstraints);
 
-            jButton1.setText(". . .");
+            jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/yellow/Search-icon-16.png"))); // NOI18N
             jButton1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
             jButton1.setMargin(new java.awt.Insets(2, 14, 2, 0));
             jButton1.setMaximumSize(new java.awt.Dimension(40, 23));
@@ -1046,6 +1080,18 @@ class DeleteAction extends AbstractAction
 
             jTabbedPane1.addTab("Sizes", jPanel3);
 
+            jPanel5.setLayout(new java.awt.GridBagLayout());
+
+            showJustFilenameFlag.setText("Show Just Filename");
+            showJustFilenameFlag.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    showJustFilenameFlagActionPerformed(evt);
+                }
+            });
+            jPanel5.add(showJustFilenameFlag, new java.awt.GridBagConstraints());
+
+            jTabbedPane1.addTab("View", jPanel5);
+
             gridBagConstraints = new java.awt.GridBagConstraints();
             gridBagConstraints.gridx = 0;
             gridBagConstraints.gridy = 1;
@@ -1133,7 +1179,8 @@ class DeleteAction extends AbstractAction
             gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
             jPanel7.add(numFilesInTable, gridBagConstraints);
 
-            upFolder.setText("Up Folder");
+            upFolder.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/yellow/Folder-Upload-icon-16.png"))); // NOI18N
+            upFolder.setText("Up");
             upFolder.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
                     upFolderActionPerformed(evt);
@@ -1500,11 +1547,13 @@ class DeleteAction extends AbstractAction
             {
             minDepth.setText( "1" );
             maxDepth.setText( "1" );
+            showJustFilenameFlag.setSelected( true );
             }
         else
             {
             minDepth.setText( "" );
             maxDepth.setText( "" );
+            showJustFilenameFlag.setSelected( false );
             }
     }//GEN-LAST:event_fileMgrModeActionPerformed
 
@@ -1670,6 +1719,10 @@ class DeleteAction extends AbstractAction
         filesTbl.changeSelection( rowIndex, FilesTblModel.FILESTBLMODEL_PATH, false, false );        
     }//GEN-LAST:event_RenameActionPerformed
 
+    private void showJustFilenameFlagActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showJustFilenameFlagActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_showJustFilenameFlagActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -1747,6 +1800,7 @@ class DeleteAction extends AbstractAction
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
+    private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
     private javax.swing.JPopupMenu jPopupMenu1;
@@ -1766,6 +1820,7 @@ class DeleteAction extends AbstractAction
     private javax.swing.JMenuItem savePathsToFile;
     private javax.swing.JMenuItem savePathsToFile1;
     javax.swing.JButton searchBtn;
+    private javax.swing.JCheckBox showJustFilenameFlag;
     private javax.swing.JFormattedTextField size1;
     private javax.swing.JComboBox size1Op;
     private javax.swing.JTextField size2;

@@ -5,7 +5,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableColumnModel;
 
 /**
  *
@@ -42,7 +41,12 @@ public class FilesTblModel extends AbstractTableModel
         }
 
     @Override
-    public int getColumnCount() { return data.get(0).size(); }
+    public int getColumnCount() 
+    {
+        if ( data.size() < 1 )
+            return 0;
+        return data.get(0).size(); 
+    }
     
     @Override
     public int getRowCount() { return data.size();}
