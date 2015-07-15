@@ -12,9 +12,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
-import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -22,6 +23,7 @@ import java.util.ArrayList;
  */
 public class Copier extends SimpleFileVisitor<Path> 
 {
+    private Boolean isDoingCutFlag = false;
     private Path fromPath;
     private Path toPath;
     private CopyOption[] copyOptions = null;
@@ -34,13 +36,15 @@ public class Copier extends SimpleFileVisitor<Path>
     ArrayList<Path> copyPaths = new ArrayList<Path>();
     Boolean dataSyncLock = false;
     
-    public Copier( String startingPath, ArrayList<Path> copyPaths, String toPath, CopyOption[] copyOptions )
+    public Copier( Boolean isDoingCutFlag, String startingPath, ArrayList<Path> copyPaths, String toPath, CopyOption[] copyOptions )
     {
+        this.isDoingCutFlag = isDoingCutFlag;
         this.fromPath = Paths.get( startingPath );
         this.copyPaths = copyPaths;
         this.toPath = Paths.get( toPath );
         this.copyOptions = copyOptions;
         System.err.println( "Copier this.fromPath =" + this.fromPath + "   this.toPath =" + this.toPath + "=" );
+        System.out.println( "isDoingCutFlag =" + isDoingCutFlag );
         cancelFlag = false;
     }
 
@@ -85,24 +89,67 @@ public class Copier extends SimpleFileVisitor<Path>
             }
         numTested++;
         
+        if ( file.compareTo( toPath.resolve( fromPath.relativize( file ) ) ) == 0 )
+            {
+            System.out.println( "Skip Copy to Itself." );
+            return FileVisitResult.CONTINUE;
+            }
+
 //            CopyOption[] copyOpts = new CopyOption[3];
 //            //copyOpts[0] = StandardCopyOption.REPLACE_EXISTING;
 //            copyOpts[1] = StandardCopyOption.COPY_ATTRIBUTES;
 //            //copyOpts[2] = LinkOption.NOFOLLOW_LINKS;
-
+        
         if ( copyOptions == null || copyOptions.length < 1 )
             {
-            System.err.println( "copy with default options" );
+            //System.err.println( "copy with default options" );
             Files.copy( file, toPath.resolve( fromPath.relativize( file ) ) );
             }
         else
             {
             Files.copy( file, toPath.resolve( fromPath.relativize( file ) ), copyOptions );
             }
+    
+        if ( isDoingCutFlag )
+            {
+            Files.delete( file );
+            //System.out.println( "would delete file =" + file );
+            }
         
         numFileMatches++;
         return FileVisitResult.CONTINUE;
         }
+
+    @Override
+    public FileVisitResult postVisitDirectory(Path dir, IOException ex) 
+            throws IOException
+        {
+        try {
+            //numTested++;
+            if ( isDoingCutFlag )
+                {
+                Files.delete( dir );
+                //System.out.println( "would delete folder =" + dir );
+                //numFoldersDeleted++;
+                }
+            return FileVisitResult.CONTINUE;
+            }
+        //throw ex;
+//        catch (RuntimeException ex3) 
+//            {
+//            Logger.getLogger(Deleter.class.getName()).log(Level.SEVERE, null, ex3 );
+//        System.out.println( "CAUGHT RUNTIME ERROR  " + "my error msg" + ex3.getClass().getSimpleName() + ": " + dir );
+//            throw new IOException( "my runtime msg" + ex3.getClass().getSimpleName() + ": " + dir );
+//            }
+        catch (Exception ex2) 
+            {
+            Logger.getLogger(Copier.class.getName()).log(Level.SEVERE, null, ex2 );
+        System.out.println( "CAUGHT ERROR  " + "my error msg" + ex2.getClass().getSimpleName() + ": " + dir );
+            throw new IOException( "my error msg" + ex2.getClass().getSimpleName() + ": " + dir );
+            }
+        //return FileVisitResult.TERMINATE;
+        }
+    
         
     // Prints the total number of
     // matches to standard out.

@@ -20,17 +20,19 @@ import javax.swing.JOptionPane;
 public class JFileDelete //  implements Runnable 
 {
     Boolean deleteFilesOnlyFlag = false;
+    boolean deleteToTrashFlag = true;
     Boolean cancelFlag = false;
     String startingPath = null;
     ArrayList<Path> copyPaths = new ArrayList<Path>();
     Boolean dataSyncLock = false;
     Deleter deleter = null;
     
-    public JFileDelete( String startingPath, ArrayList<Path> copyPaths, Boolean deleteFilesOnlyFlag )
+    public JFileDelete( String startingPath, ArrayList<Path> copyPaths, Boolean deleteFilesOnlyFlag, Boolean deleteToTrashFlag )
     {
         this.startingPath = startingPath;
         this.copyPaths = copyPaths;
         this.deleteFilesOnlyFlag = deleteFilesOnlyFlag;
+        this.deleteToTrashFlag = deleteToTrashFlag;
         cancelFlag = false;
     }
 
@@ -61,7 +63,7 @@ public class JFileDelete //  implements Runnable
 
     public void run() 
         {
-        deleter = new Deleter( startingPath, copyPaths, deleteFilesOnlyFlag );
+        deleter = new Deleter( startingPath, copyPaths, deleteFilesOnlyFlag, deleteToTrashFlag );
         try {
             synchronized( dataSyncLock ) 
                 {

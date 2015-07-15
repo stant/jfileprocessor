@@ -45,6 +45,7 @@ public class CopyFrame extends javax.swing.JFrame {
 
     boolean cancelFlag = false;
     boolean cancelFillFlag = false;
+    boolean isDoingCutFlag = false;
     String startingPath = null;
     ArrayList<Path> copyPaths = new ArrayList<Path>();
     String toPath = null;
@@ -58,18 +59,24 @@ public class CopyFrame extends javax.swing.JFrame {
      */
     public CopyFrame() {
         initComponents();
+        System.err.println( "CopyFrame constructor()" );
 
         this.setLocationRelativeTo( getRootPane() );
         this.addEscapeListener( this );
+        this.getRootPane().setDefaultButton( doCmdBtn );
+        doCmdBtn.requestFocusInWindow();
     }
 
-    public void setup( JFileFinderWin jFileFinderWin, String startingPath, ArrayList<Path> copyPaths, String toPath )
+    public void setup( JFileFinderWin jFileFinderWin, Boolean isDoingCutFlag, String startingPath, ArrayList<Path> copyPaths, String toPath )
         {
         this.jFileFinderWin = jFileFinderWin;
+        this.isDoingCutFlag = isDoingCutFlag;
         this.startingPath = startingPath;
         this.copyPaths = copyPaths;
         this.toPath = toPath;
         
+        this.doCmdBtn.setText( isDoingCutFlag ? "Cut/Paste" : "Copy/Paste" );
+
         fromPath.setText( copyPaths.get( 0 ).toString() );
         if ( copyPaths.size() > 1 )
             {
@@ -203,18 +210,13 @@ public class CopyFrame extends javax.swing.JFrame {
         noFollowLinks = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("Copy Paste to . . .");
+        setTitle("Paste");
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
         doCmdBtn.setText("Copy");
         doCmdBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 doCmdBtnActionPerformed(evt);
-            }
-        });
-        doCmdBtn.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
-                doCmdBtnKeyPressed(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -337,7 +339,7 @@ public class CopyFrame extends javax.swing.JFrame {
 //                for ( CopyOption cc : copyOptsAR )
 //                    System.err.println( "cc =" + cc + "=" );
                 
-                jfilecopy = new JFileCopy( startingPath, copyPaths, toPath, copyOpts.toArray( new CopyOption[ copyOpts.size() ] ) );
+                jfilecopy = new JFileCopy( isDoingCutFlag, startingPath, copyPaths, toPath, copyOpts.toArray( new CopyOption[ copyOpts.size() ] ) );
                 CopyFrameSwingWorker copyFrameSwingWorker = new CopyFrameSwingWorker( jFileFinderWin, this, jfilecopy, copyPaths, toPath );
                 copyFrameSwingWorker.execute();   //doInBackground();
             } 
@@ -347,13 +349,6 @@ public class CopyFrame extends javax.swing.JFrame {
         }
         
     }//GEN-LAST:event_doCmdBtnActionPerformed
-
-    private void doCmdBtnKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_doCmdBtnKeyPressed
-        if ( evt.getKeyCode() == KeyEvent.VK_ENTER )
-            {
-            doCmdBtnActionPerformed( null );
-            }
-    }//GEN-LAST:event_doCmdBtnKeyPressed
 
     /**
      * @param args the command line arguments

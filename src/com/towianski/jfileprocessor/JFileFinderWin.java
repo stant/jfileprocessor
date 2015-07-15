@@ -5,7 +5,6 @@
  */
 package com.towianski.jfileprocessor;
 
-import com.omt.clipboard.main.ClipboardFiles;
 import com.towianski.models.ResultsData;
 import com.towianski.renderers.NumberRenderer;
 import com.towianski.renderers.FormatRenderer;
@@ -18,11 +17,18 @@ import com.towianski.chainfilters.ChainFilterOfSizes;
 import com.towianski.chainfilters.ChainFilterOfDates;
 import com.towianski.chainfilters.ChainFilterOfMinDepth;
 import com.towianski.chainfilters.FilterChain;
+import com.towianski.jfileprocess.actions.CopyAction;
+import com.towianski.jfileprocess.actions.CutAction;
+import com.towianski.jfileprocess.actions.DeleteAction;
+import com.towianski.jfileprocess.actions.PasteAction;
+import com.towianski.jfileprocess.actions.RenameAction;
+import com.towianski.jfileprocess.actions.UpFolderAction;
 import com.towianski.renderers.FiletypeCBCellRenderer;
 import com.towianski.renderers.LinktypeCBCellRenderer;
 import com.towianski.renderers.PathRenderer;
 import com.towianski.renderers.TableCellListener;
-import static com.towianski.utils.ClipboardFilesList.getClipboardFilesList;
+import static com.towianski.utils.ClipboardUtils.getClipboardStringsList;
+import static com.towianski.utils.ClipboardUtils.setClipboardContents;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Desktop;
@@ -31,6 +37,7 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 import java.io.BufferedWriter;
@@ -78,7 +85,8 @@ public class JFileFinderWin extends javax.swing.JFrame {
     ArrayList<Path> copyPaths = new ArrayList<Path>();
     String copyPathStartPath = null;
     private TableCellListener filesTblCellListener = null;
-
+    Boolean isDoingCutFlag = false;
+    
     public static final String PROCESS_STATUS_SEARCH_STARTED = "Search Started . . .";
     public static final String PROCESS_STATUS_FILL_STARTED = "Fill Started . . .";
     public static final String PROCESS_STATUS_SEARCH_CANCELED = "Search canceled";
@@ -131,58 +139,15 @@ public class JFileFinderWin extends javax.swing.JFrame {
 //        SpinnerListModel andOrSpinModel = new CyclingSpinnerListModel( andOrSpinModelList );
 //        jSpinner1 = new javax.swing.JSpinner( andOrSpinModel );        
     }
-
-class RenameAction extends AbstractAction
-   {
-   public RenameAction()
-      {
-         setEnabled( true );
-         putValue(Action.NAME, "Rename    F2");
-      }
-
-      public void actionPerformed(ActionEvent e)
-      {
-        //System.out.println("RenameActionPerformed( null ) do action");
-         try
-         {
-            RenameActionPerformed( null );
-         } catch (Exception ex)
-         {
-            System.out.println("RenameActionPerformed( null ) " + ex);
-            ex.printStackTrace();
-         }
-      }
-
-   }
-
-
-class DeleteAction extends AbstractAction
-   {
-   public DeleteAction()
-      {
-         setEnabled( true );
-         putValue(Action.NAME, "Delete    Del");
-      }
-
-      public void actionPerformed(ActionEvent e)
-      {
-            //System.out.println("DeleteActionPerformed( null ) do action");
-         try
-         {
-            DeleteActionPerformed( null );
-         } catch (Exception ex)
-         {
-            System.out.println("DeleteAction( null ) " + ex);
-            ex.printStackTrace();
-         }
-      }
-
-   }
         
     public void addkeymapstuff()
     {
-       RenameAction renameAction = new RenameAction();
-       DeleteAction deleteAction = new DeleteAction();
+       RenameAction renameAction = new RenameAction( this );
+       DeleteAction deleteAction = new DeleteAction( this );
+       UpFolderAction upFolderAction = new UpFolderAction( this );
+       CopyAction copyAction = new CopyAction( this );
+       CutAction cutAction = new CutAction( this );
+       PasteAction pasteAction = new PasteAction( this );
        
         InputMap inputMap = filesTbl.getInputMap();
         ActionMap actionMap = filesTbl.getActionMap();
@@ -192,7 +157,20 @@ class DeleteAction extends AbstractAction
  
         inputMap.put( KeyStroke.getKeyStroke( KeyEvent.VK_DELETE, 0 ), "deleteAction" );
         actionMap.put( "deleteAction", deleteAction );
+ 
+        inputMap.put( KeyStroke.getKeyStroke( KeyEvent.VK_BACK_SPACE, 0 ), "upFolderAction" );
+        actionMap.put( "upFolderAction", upFolderAction );
+ 
+        inputMap.put( KeyStroke.getKeyStroke( KeyEvent.VK_C, InputEvent.CTRL_MASK ), "copyAction" );
+        actionMap.put( "copyAction", copyAction );
+ 
+        inputMap.put( KeyStroke.getKeyStroke( KeyEvent.VK_X, InputEvent.CTRL_MASK ), "cutAction" );
+        actionMap.put( "cutAction", cutAction );
+ 
+        inputMap.put( KeyStroke.getKeyStroke( KeyEvent.VK_V, InputEvent.CTRL_MASK ), "pasteAction" );
+        actionMap.put( "pasteAction", pasteAction );
     }
+    
     public JRadioButton getUseGlobPattern() {
         return useGlobPattern;
     }
@@ -218,10 +196,40 @@ class DeleteAction extends AbstractAction
     }
 
     public void callSearchBtnActionPerformed(java.awt.event.ActionEvent evt)
-    {
+        {
         searchBtnActionPerformed( evt );
-    }
+        }
             
+    public void callDeleteActionPerformed(java.awt.event.ActionEvent evt)
+        {
+        DeleteActionPerformed( evt );
+        }
+            
+    public void callRenameActionPerformed(java.awt.event.ActionEvent evt)
+        {
+        RenameActionPerformed( evt );
+        }
+                        
+    public void callUpFolderActionPerformed(java.awt.event.ActionEvent evt)
+        {
+        upFolderActionPerformed( evt );
+        }
+                        
+    public void callCopyActionPerformed(java.awt.event.ActionEvent evt)
+        {
+        CopyActionPerformed( evt );
+        }
+                        
+    public void callCutActionPerformed(java.awt.event.ActionEvent evt)
+        {
+        CutActionPerformed( evt );
+        }
+                        
+    public void callPasteActionPerformed(java.awt.event.ActionEvent evt)
+        {
+        PasteActionPerformed( evt );
+        }
+                        
     public void stopSearch() {
         jfilefinder.cancelSearch();
 //        jFileFinderSwingWorker.cancel(rootPaneCheckingEnabled);
@@ -547,6 +555,44 @@ class DeleteAction extends AbstractAction
 //                JComponent.WHEN_IN_FOCUSED_WINDOW);
 //    }    
 
+    public void copyOrCut()
+    {
+        if ( filesTbl.getSelectedRow() < 0 )
+            {
+            JOptionPane.showMessageDialog( this, "Please select an item first.", "Error", JOptionPane.ERROR_MESSAGE );
+            return;
+            }
+        FilesTblModel filesTblModel = (FilesTblModel) filesTbl.getModel();
+ 
+        //copyPaths = new ArrayList<Path>();
+        //ArrayList<String> filesList = new ArrayList<String>();
+        
+        // DESIGN NOTE:  first file on clipboard is starting/from path ! - 2nd is word cut or copy
+        StringBuffer stringBuf = new StringBuffer();
+        copyPathStartPath = startingFolder.getText().trim();
+        //filesList.add( new File( copyPathStartPath ) );
+        //filesList.add( copyPathStartPath );
+        //filesList.add( ( isDoingCutFlag ? "CUT" : "COPY" ) );
+        stringBuf.append( copyPathStartPath ).append( "?" );
+        stringBuf.append( ( isDoingCutFlag ? "CUT" : "COPY" ) ).append( "?" );
+        
+        for( int row : filesTbl.getSelectedRows() )
+            {
+            int rowIndex = filesTbl.convertRowIndexToModel( row );
+            //System.out.println( "add copy path  row =" + row + "   rowIndex = " + rowIndex );
+            //System.out.println( "copy path  =" + ((String) filesTblModel.getValueAt( rowIndex, FilesTblModel.FILESTBLMODEL_PATH ) ) + "=" );
+            //copyPaths.add( Paths.get( (String) filesTblModel.getValueAt( rowIndex, FilesTblModel.FILESTBLMODEL_PATH ) ) );
+            //filesList.add( new File( (String) filesTblModel.getValueAt( rowIndex, FilesTblModel.FILESTBLMODEL_PATH ) ) );
+            stringBuf.append( (String) filesTblModel.getValueAt( rowIndex, FilesTblModel.FILESTBLMODEL_PATH ) ).append( "?" );
+            System.out.println( "add fpath =" + (String) filesTblModel.getValueAt( rowIndex, FilesTblModel.FILESTBLMODEL_PATH ) + "=" );
+            }   
+
+//        ClipboardFiles clipboardFiles = new ClipboardFiles( filesList );
+//        clipboard.setContents( clipboardFiles, clipboardFiles );  );        
+
+        setClipboardContents( stringBuf.toString() );
+        filesTbl.clearSelection();
+    }
     
     /**
      * This method is called from within the constructor to initialize the form.
@@ -647,7 +693,11 @@ class DeleteAction extends AbstractAction
             jPopupMenu1.add(Copy);
 
             Cut.setText("Cut");
-            Cut.setEnabled(false);
+            Cut.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    CutActionPerformed(evt);
+                }
+            });
             jPopupMenu1.add(Cut);
 
             Paste.setText("Paste");
@@ -753,7 +803,7 @@ class DeleteAction extends AbstractAction
             jPopupMenu2.add(savePathsToFile1);
 
             setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-            setTitle("JFileProcessor v1.4.1 - Stan Towianski  (c) 2015");
+            setTitle("JFileProcessor v1.4.2 - Stan Towianski  (c) 2015");
 
             jSplitPane1.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
 
@@ -1563,40 +1613,13 @@ class DeleteAction extends AbstractAction
 
     private void CopyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CopyActionPerformed
 
-        if ( filesTbl.getSelectedRow() < 0 )
-            {
-            JOptionPane.showMessageDialog( this, "Please select an item first.", "Error", JOptionPane.ERROR_MESSAGE );
-            return;
-            }
-        FilesTblModel filesTblModel = (FilesTblModel) filesTbl.getModel();
-        
-        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
- 
-        //copyPaths = new ArrayList<Path>();
-        ArrayList<File> filesList = new ArrayList<File>();
-        
-        // DESIGN NOTE:  first file on clipboard is starting/from path !
-        copyPathStartPath = startingFolder.getText().trim();
-        filesList.add( new File( copyPathStartPath ) );
- 
-        for( int row : filesTbl.getSelectedRows() )
-            {
-            int rowIndex = filesTbl.convertRowIndexToModel( row );
-            //System.out.println( "add copy path  row =" + row + "   rowIndex = " + rowIndex );
-            //System.out.println( "copy path  =" + ((String) filesTblModel.getValueAt( rowIndex, FilesTblModel.FILESTBLMODEL_PATH ) ) + "=" );
-            //copyPaths.add( Paths.get( (String) filesTblModel.getValueAt( rowIndex, FilesTblModel.FILESTBLMODEL_PATH ) ) );
-            filesList.add( new File( (String) filesTblModel.getValueAt( rowIndex, FilesTblModel.FILESTBLMODEL_PATH ) ) );
-            System.out.println( "add filesList =" + filesList.get( filesList.size() - 1 ) );
-            }   
-
-        ClipboardFiles clipboardFiles = new ClipboardFiles( filesList );
- 
-        clipboard.setContents( clipboardFiles, clipboardFiles );        
+        isDoingCutFlag = false;  // copy or cut starting?
+        copyOrCut();
     }//GEN-LAST:event_CopyActionPerformed
 
     private void PasteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PasteActionPerformed
         try {
-            System.out.println( "PasteActionPerformed evt.getSource() =" + evt.getSource() );
+            System.out.println( "PasteActionPerformed" );
             String selectedPath = startingFolder.getText().trim();
             if ( filesTbl.getSelectedRow() >= 0 )
                 {
@@ -1611,22 +1634,34 @@ class DeleteAction extends AbstractAction
                     }
                 }
             CopyFrame copyFrame = new CopyFrame();
-            //copyFrame.setup( copyPathStartPath, copyPaths, selectedPath );
-        // DESIGN NOTE:  first file on clipboard is starting/from path !
-            copyPaths = getClipboardFilesList();
-            if ( copyPaths == null || copyPaths.size() < 2 )
+        // DESIGN NOTE:  first file on clipboard is starting/from path ! - 2nd is word cut or copy
+            //copyPaths = getClipboardFilesList();
+            ArrayList<String> StringsList = getClipboardStringsList( "\\?" );
+    
+            if ( StringsList == null || StringsList.size() < 3 )
                 {
                 JOptionPane.showMessageDialog( this, "No Files selected to Copy.", "Error", JOptionPane.ERROR_MESSAGE );
                 return;
                 }
-            copyPathStartPath = copyPaths.remove( 0 ).toString();
-            copyFrame.setup( this, copyPathStartPath, copyPaths, selectedPath );
+            copyPathStartPath = StringsList.remove( 0 );
+            String tmp = StringsList.remove( 0 );
+            isDoingCutFlag = tmp.equalsIgnoreCase( "CUT" ) ? true : false;
+            System.out.println( "read clipboard isDoingCutFlag =" + isDoingCutFlag );
+            copyPaths.clear();
+            for ( String fpath : StringsList )
+                {
+                copyPaths.add( Paths.get( fpath ) );
+                System.out.println( "read clipboard fpath =" + Paths.get( fpath ) );
+                }
+            //if ( 1 == 1 ) return;
+            copyFrame.setup( this, isDoingCutFlag, copyPathStartPath, copyPaths, selectedPath );
             copyFrame.pack();
             copyFrame.setVisible( true );
-                } 
-                catch (Exception ex) {
-                    Logger.getLogger(JFileFinder.class.getName()).log(Level.SEVERE, null, ex);
-                } 
+            } 
+        catch (Exception ex) 
+            {
+            Logger.getLogger(JFileFinder.class.getName()).log(Level.SEVERE, null, ex);
+            }                     
     }//GEN-LAST:event_PasteActionPerformed
 
     private void saveAllAttrsToFile1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveAllAttrsToFile1ActionPerformed
@@ -1722,6 +1757,12 @@ class DeleteAction extends AbstractAction
     private void showJustFilenameFlagActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showJustFilenameFlagActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_showJustFilenameFlagActionPerformed
+
+    private void CutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CutActionPerformed
+        
+        isDoingCutFlag = true;  // copy or cut starting?
+        copyOrCut();
+    }//GEN-LAST:event_CutActionPerformed
 
     /**
      * @param args the command line arguments

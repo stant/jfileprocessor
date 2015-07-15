@@ -5,6 +5,7 @@
  */
 package com.towianski.jfileprocessor;
 
+import com.towianski.utils.DesktopUtils;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -24,7 +25,6 @@ import java.util.logging.Logger;
 public class Deleter extends SimpleFileVisitor<Path> 
 {
     private Path fromPath;
-    private StandardCopyOption copyOption = StandardCopyOption.REPLACE_EXISTING;
     private long numFilesDeleted = 0;
     private long numFoldersDeleted = 0;
     private long numTested = 0;
@@ -33,12 +33,15 @@ public class Deleter extends SimpleFileVisitor<Path>
     ArrayList<Path> copyPaths = new ArrayList<Path>();
     Boolean dataSyncLock = false;
     Boolean deleteFilesOnlyFlag = false;
+    Boolean deleteToTrashFlag = true;
+    Path trashFolder = DesktopUtils.getTrashFolder().toPath();
     
-    public Deleter( String startingPath, ArrayList<Path> copyPaths, Boolean deleteFilesOnlyFlag )
+    public Deleter( String startingPath, ArrayList<Path> copyPaths, Boolean deleteFilesOnlyFlag, Boolean deleteToTrashFlag )
     {
         this.fromPath = Paths.get( startingPath );
         this.copyPaths = copyPaths;
         this.deleteFilesOnlyFlag = deleteFilesOnlyFlag;
+        this.deleteToTrashFlag = deleteToTrashFlag;
         System.err.println( "Deleter this.fromPath =" + this.fromPath + "=" );
         cancelFlag = false;
     }
@@ -58,6 +61,14 @@ public class Deleter extends SimpleFileVisitor<Path>
             return FileVisitResult.TERMINATE;
             }
         numTested++;
+        if ( deleteToTrashFlag )
+            {
+            Path trashparent = trashFolder.resolve( fromPath.relativize( file ) ).getParent();
+            //System.out.println( "trashparent =" + trashparent );
+            trashparent.toFile().mkdirs();
+            Files.copy( file, trashFolder.resolve( fromPath.relativize( file ) ), StandardCopyOption.REPLACE_EXISTING );
+            
+            }
         Files.delete( file );
         //System.out.println( "would delete file =" + file );
         numFilesDeleted++;

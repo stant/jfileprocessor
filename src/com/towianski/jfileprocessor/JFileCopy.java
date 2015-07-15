@@ -24,6 +24,7 @@ public class JFileCopy //  implements Runnable
 {
     Boolean cancelFlag = false;
     Boolean cancelFillFlag = false;
+    Boolean isDoingCutFlag = false;
     String startingPath = null;
     ArrayList<Path> copyPaths = new ArrayList<Path>();
     String toPath = null;
@@ -31,8 +32,9 @@ public class JFileCopy //  implements Runnable
     Copier copier = null;
     private CopyOption[] copyOptions = null;
     
-    public JFileCopy( String startingPath, ArrayList<Path> copyPaths, String toPath, CopyOption[] copyOptions )
+    public JFileCopy( Boolean isDoingCutFlag, String startingPath, ArrayList<Path> copyPaths, String toPath, CopyOption[] copyOptions )
     {
+        this.isDoingCutFlag = isDoingCutFlag;
         this.startingPath = startingPath;
         this.copyPaths = copyPaths;
         this.toPath = toPath;
@@ -74,7 +76,7 @@ public class JFileCopy //  implements Runnable
         {
         System.err.println( "toPath =" + toPath + "=" );
         
-        copier = new Copier( startingPath, copyPaths, toPath, copyOptions );
+        copier = new Copier( isDoingCutFlag, startingPath, copyPaths, toPath, copyOptions );
         try {
             synchronized( dataSyncLock ) 
                 {
