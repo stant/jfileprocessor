@@ -12,16 +12,11 @@ import java.nio.file.attribute.BasicFileAttributes;
  *
  * @author Stan Towianski - June 2015
  */
-public class FilterChainFilter {
+interface FilterChainFilter {
     
-    public Boolean accept( Path fpath, BasicFileAttributes attr )
-        {
-        return false;  // expect this method to be overriden
-        }
-
-    public Boolean accept2( Path fpath, BasicFileAttributes attr )
-        {
-        return false;  // expect this method to be overriden
-        }
+    public Boolean accept( Path fpath, BasicFileAttributes attr );
+//        {
+//        return false;  // expect this method to be overriden
+//        }
     
 }

@@ -12,7 +12,7 @@ import java.nio.file.attribute.BasicFileAttributes;
  *
  * @author Stan Towianski - June 2015
  */
-public class ChainFilterOfSizes extends FilterChainFilter {
+public class ChainFilterOfSizes implements FilterChainFilter {
 
     String op1 = "";
     long setSize1 = 0;

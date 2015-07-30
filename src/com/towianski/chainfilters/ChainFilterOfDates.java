@@ -14,7 +14,7 @@ import java.util.Date;
  *
  * @author Stan Towianski - June 2015
  */
-public class ChainFilterOfDates extends FilterChainFilter {
+public class ChainFilterOfDates implements FilterChainFilter {
 
     String op1 = "";
     long setDate1 = 0;

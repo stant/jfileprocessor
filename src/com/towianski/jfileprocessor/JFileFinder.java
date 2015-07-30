@@ -20,6 +20,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -43,8 +44,12 @@ public class JFileFinder //  implements Runnable
     static Boolean dataSyncLock = false;
     static FilterChain chainFilterList = null;
     static FilterChain chainFilterFolderList = null;
+    static FilterChain chainFilterPreVisitFolderList = null;
+    SimpleDateFormat sdf = new SimpleDateFormat( "yyyy/MM/dd hh:mm:ss");
+    Date begDate = null;
+    Date endDate = null;
     
-    public JFileFinder( String startingPathArg, String patternTypeArg, String filePatternArg, FilterChain chainFilterList, FilterChain chainFilterFolderList )
+    public JFileFinder( String startingPathArg, String patternTypeArg, String filePatternArg, FilterChain chainFilterList, FilterChain chainFilterFolderList, FilterChain chainFilterPreVisitFolderList )
     {
         startingPath = startingPathArg;   //.replace( "\\\\", "/" ).replace( "\\", "/" );
         patternType = patternTypeArg;
@@ -53,6 +58,7 @@ public class JFileFinder //  implements Runnable
         matchedPathsList = new ArrayList<Path>();
         this.chainFilterList = chainFilterList;
         this.chainFilterFolderList = chainFilterFolderList;
+        this.chainFilterPreVisitFolderList = chainFilterPreVisitFolderList;
     }
 
     public void cancelSearch()
@@ -175,7 +181,7 @@ public class JFileFinder //  implements Runnable
 
         // Compares the glob pattern against
         // the file or directory name.
-        void processFile( Path file, BasicFileAttributes attrs )
+        Boolean processFile( Path file, BasicFileAttributes attrs )
             {
             numTested++;
             if ( chainFilterList != null )
@@ -204,6 +210,7 @@ public class JFileFinder //  implements Runnable
                 catch (Exception ex) 
                     {
                     Logger.getLogger(JFileFinderWin.class.getName()).log(Level.SEVERE, null, ex);
+                    return false;
                     }
                 }
             else
@@ -211,33 +218,37 @@ public class JFileFinder //  implements Runnable
                 numFileMatches++;
                 matchedPathsList.add( file );
                 }
+            return true;
             }
         
         // Compares the glob pattern against
         // the file or directory name.
-        void processFolder( Path file, BasicFileAttributes attrs )
+        Boolean processFolder( Path fpath, BasicFileAttributes attrs )
             {
             numTested++;
             if ( chainFilterFolderList != null )
                 {
                 try {
-                    if ( chainFilterFolderList.testFilters2( file, attrs ) )
+                    //System.err.println( "folder match ? =" + fpath.toString() );
+                    if ( chainFilterFolderList.testFilters( fpath, attrs ) )
                         {
                         numFolderMatches++;
-//                      System.out.println( "Match =" + file );
-                        matchedPathsList.add( file );
+                        //System.out.println( "Match =" + fpath );
+                        matchedPathsList.add( fpath );
                         }
                     } 
                 catch (Exception ex) 
                     {
                     Logger.getLogger(JFileFinderWin.class.getName()).log(Level.SEVERE, null, ex);
+                    return false;
                     }
                 }
             else
                 {
                 numFolderMatches++;
-                matchedPathsList.add( file );
+                matchedPathsList.add( fpath );
                 }
+            return true;
             }
         
         // Prints the total number of
@@ -256,7 +267,7 @@ public class JFileFinder //  implements Runnable
         // Invoke the pattern matching
         // method on each file.
         @Override
-        public FileVisitResult visitFile( Path file, BasicFileAttributes attrs )
+        public FileVisitResult visitFile( Path fpath, BasicFileAttributes attrs )
             {
             try
                 {
@@ -265,11 +276,12 @@ public class JFileFinder //  implements Runnable
                     System.out.println( "Search cancelled by user." );
                     return FileVisitResult.TERMINATE;
                     }
-                processFile( file, attrs );
+                //System.err.println( "test file ? =" + fpath.toString() );
+                processFile( fpath, attrs );
                 }
             catch( Exception ex )
                 {
-                System.err.println( "Error parsing file =" + file + "=" );
+                System.err.println( "Error parsing file =" + fpath + "=" );
                 return FileVisitResult.TERMINATE;
                 }
             return FileVisitResult.CONTINUE;
@@ -279,6 +291,9 @@ public class JFileFinder //  implements Runnable
         @Override
         public FileVisitResult preVisitDirectory( Path fpath, BasicFileAttributes attrs )
             {
+//            System.err.println( "preVisitDirectory() chainFilterFolderlist.size() =" + chainFilterFolderList.size() + "=" );
+//            System.err.println( "preVisitDirectory() chainFilterPreVisitFolderList.size() =" + chainFilterPreVisitFolderList.size() + "=" );
+
             //  First check is do we show this folder?
             try {
                 if ( cancelFlag )
@@ -286,7 +301,12 @@ public class JFileFinder //  implements Runnable
                     System.out.println( "Search cancelled by user." );
                     return FileVisitResult.TERMINATE;
                     }
-                processFolder( fpath, attrs );
+//                processFolder( fpath, attrs );
+                if ( processFolder( fpath, attrs ) )
+                    {
+                    //System.err.println( "EARLY FIND" );
+                    return CONTINUE;
+                    }
                 }
             catch (Exception ex) 
                 {
@@ -294,11 +314,11 @@ public class JFileFinder //  implements Runnable
                 }
 
             // Second check is do we go into this folder or skip it?
-            if ( chainFilterList != null )
+            if ( chainFilterPreVisitFolderList != null )
                 {
                 try {
-                    //System.err.println( "previsit folder =" + fpath.toString() );
-                    if ( chainFilterFolderList.testFilters( fpath, attrs ) )
+                    //System.err.println( "previsit folder ? =" + fpath.toString() );
+                    if ( chainFilterPreVisitFolderList.testFilters( fpath, attrs ) )
                         {
                         return CONTINUE;
                         }
@@ -393,7 +413,13 @@ public class JFileFinder //  implements Runnable
                 cancelFlag = false;
                 cancelFillFlag = false;
                 EnumSet<FileVisitOption> opts = EnumSet.of(FOLLOW_LINKS);
+
+                begDate = Calendar.getInstance().getTime();
                 Files.walkFileTree( startingDir, opts, Integer.MAX_VALUE, finder );
+                endDate = Calendar.getInstance().getTime();
+
+                System.out.println( "BEG: " + sdf.format( begDate ) );
+                System.out.println( "END: " + sdf.format( endDate ) );
                 }
         } catch (IOException ex) {
             Logger.getLogger(JFileFinder.class.getName()).log(Level.SEVERE, null, ex);
@@ -416,7 +442,7 @@ public class JFileFinder //  implements Runnable
 //        filePattern = args[1];
         System.err.println("java Find args[0] =" + args[0] +  "=  args[1] =" + args[1] + "=  args[2] =" + args[2] + "=");
 
-        JFileFinder jfilefinder = new JFileFinder( args[0], args[1], args[2], null, null );
+        JFileFinder jfilefinder = new JFileFinder( args[0], args[1], args[2], null, null, null );
 
 //        Thread jfinderThread = new Thread( jfilefinder );
 //        jfinderThread.start();

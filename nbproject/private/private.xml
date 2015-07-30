@@ -3,13 +3,20 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
+            <file>file:/F:/github/JFileProcessor/src/com/towianski/chainfilters/FilterChain.java</file>
+            <file>file:/F:/github/JFileProcessor/src/com/towianski/jfileprocessor/JFileDelete.java</file>
+            <file>file:/F:/github/JFileProcessor/src/com/towianski/jfileprocessor/JFileCopy.java</file>
+            <file>file:/F:/github/JFileProcessor/src/com/towianski/chainfilters/ChainFilterOfMaxDepth.java</file>
+            <file>file:/F:/github/JFileProcessor/src/com/towianski/chainfilters/ChainFilterOfNames.java</file>
+            <file>file:/F:/github/JFileProcessor/src/com/towianski/chainfilters/FilterChainFilter.java</file>
             <file>file:/F:/github/JFileProcessor/src/com/towianski/jfileprocessor/CopyFrame.java</file>
+            <file>file:/F:/github/JFileProcessor/src/com/towianski/jfileprocessor/JFileFinder.java</file>
             <file>file:/F:/github/JFileProcessor/src/com/towianski/jfileprocessor/DeleteFrame.java</file>
-            <file>file:/F:/github/JFileProcessor/src/com/towianski/utils/ClipboardFilesList.java</file>
             <file>file:/F:/github/JFileProcessor/src/com/towianski/jfileprocessor/JFileFinderWin.java</file>
             <file>file:/F:/github/JFileProcessor/src/com/towianski/jfileprocessor/Copier.java</file>
-            <file>file:/F:/github/JFileProcessor/src/com/towianski/jfileprocessor/JFileCopy.java</file>
-            <file>file:/F:/github/JFileProcessor/src/com/omt/clipboard/main/ClipboardStrings.java</file>
+            <file>file:/F:/github/JFileProcessor/src/com/towianski/jfileprocessor/Deleter.java</file>
+            <file>file:/F:/github/JFileProcessor/src/com/towianski/chainfilters/ChainFilterOfMinDepth.java</file>
+            <file>file:/F:/github/JFileProcessor/src/com/towianski/chainfilters/ChainFilterOfDates.java</file>
         </group>
     </open-files>
 </project-private>

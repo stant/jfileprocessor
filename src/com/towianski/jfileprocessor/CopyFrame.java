@@ -5,7 +5,6 @@
  */
 package com.towianski.jfileprocessor;
 
-import com.towianski.chainfilters.FilterChain;
 import com.towianski.models.ResultsData;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
@@ -51,8 +50,6 @@ public class CopyFrame extends javax.swing.JFrame {
     String toPath = null;
     Copier copier = null;
     Boolean dataSyncLock = false;
-    FilterChain chainFilterList = null;
-    FilterChain chainFilterFolderList = null;
     
     /**
      * Creates new form CopyFrame

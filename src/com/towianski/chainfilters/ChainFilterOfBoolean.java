@@ -14,37 +14,24 @@ import java.nio.file.attribute.BasicFileAttributes;
  *
  * @author Stan Towianski - June 2015
  */
-public class ChainFilterOfNames implements FilterChainFilter {
+public class ChainFilterOfBoolean implements FilterChainFilter {
 
-    private PathMatcher matcher;
+    private Boolean flag = true;
     
-    public ChainFilterOfNames()
+    public ChainFilterOfBoolean()
         {
         //System.out.println( "new ChainFilterOfSizes()" );
         }
     
-    public ChainFilterOfNames( String patternType, String pattern ) 
+    public ChainFilterOfBoolean( Boolean flag ) 
         {
-        if ( patternType.equalsIgnoreCase( "-regex" ) )
-            {
-            matcher = FileSystems.getDefault().getPathMatcher("regex:" + pattern);
-            System.out.println( "matching by regex" );
-            }
-        else
-            {
-            matcher = FileSystems.getDefault().getPathMatcher("glob:" + pattern);
-            System.out.println( "matching by glob" );
-            }
+        this.flag = flag;
         }
     
     // These must be the same parms for all filters that get used.
     public Boolean accept( Path fpath, BasicFileAttributes attr )
         {
         //System.out.println( "\ntest chainfilterofNames =" + fpath + "=" );
-        if ( fpath.getFileName() != null && matcher.matches( fpath  ) )
-            {
-            return true;
-            }
-        return false; 
+        return flag; 
         }
 }

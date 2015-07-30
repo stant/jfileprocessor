@@ -13,7 +13,7 @@ import java.nio.file.attribute.BasicFileAttributes;
  *
  * @author Stan Towianski - June 2015
  */
-public class ChainFilterOfMaxDepth extends FilterChainFilter {
+public class ChainFilterOfMaxDepth implements FilterChainFilter {
 
     int maxDepth;
     
@@ -29,20 +29,19 @@ public class ChainFilterOfMaxDepth extends FilterChainFilter {
         }
     
     // These must be the same parms for all filters that get used.
-    // Second check is do we go into this folder or skip it?
+    //  First check is do we show this folder?
     public Boolean accept( Path fpath, BasicFileAttributes attr )
         {
         //System.out.print( "maxdepth for path =" + fpath + "   depthcount =" + fpath.getNameCount() );
-        //System.out.println( " <  max =" + maxDepth + "  true/false =" + (fpath.getNameCount() < maxDepth) );
-        return fpath.getNameCount() < maxDepth;
-        }
-    
-    // These must be the same parms for all filters that get used.
-    //  First check is do we show this folder?
-    public Boolean accept2( Path fpath, BasicFileAttributes attr )
-        {
-        //System.out.print( "maxdepth for path =" + fpath + "   depthcount =" + fpath.getNameCount() );
-        //System.out.println( " <=  max =" + maxDepth + "  true/false =" + (fpath.getNameCount() <= maxDepth) );
-        return fpath.getNameCount() <= maxDepth;
+//        if ( attr.isDirectory() )
+//            {
+            //System.out.println( " folder <=  max =" + maxDepth + "  true/false =" + (fpath.getNameCount() <= maxDepth) );
+            return fpath.getNameCount() <= maxDepth;
+//            }
+//        else
+//            {
+//            System.out.println( " file   <  max =" + maxDepth + "  true/false =" + (fpath.getNameCount() < maxDepth) );
+//            return fpath.getNameCount() < maxDepth;
+//            }
         }
 }

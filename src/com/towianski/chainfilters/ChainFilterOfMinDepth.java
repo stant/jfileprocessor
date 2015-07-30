@@ -13,7 +13,7 @@ import java.nio.file.attribute.BasicFileAttributes;
  *
  * @author Stan Towianski - June 2015
  */
-public class ChainFilterOfMinDepth extends FilterChainFilter {
+public class ChainFilterOfMinDepth implements FilterChainFilter {
 
     int minDepth;
     
@@ -31,29 +31,16 @@ public class ChainFilterOfMinDepth extends FilterChainFilter {
     // These must be the same parms for all filters that get used.
     public Boolean accept( Path fpath, BasicFileAttributes attr )
         {
-        //System.out.print( "mindepth filevisit for path =" + fpath + "   depthcount =" + fpath.getNameCount() );
-        if ( ! attr.isDirectory() )
-            {
-            //System.out.println( "not dir and >  min =" + minDepth + "  true/false =" + (fpath.getNameCount() > minDepth) );
-            return fpath.getNameCount() > minDepth;
-            }
-        //System.out.println( " IS DIR true/false =true always" );
-        return true;
-        }
-    
-    // These must be the same parms for all filters that get used.
-    public Boolean accept2( Path fpath, BasicFileAttributes attr )
-        {
         //System.out.print( "mindepth accept2 it for path =" + fpath + "   depthcount =" + fpath.getNameCount() );
-        if ( attr.isDirectory() )
-            {
-            //System.out.println( " >=  min =" + minDepth + "  true/false =" + (fpath.getNameCount() >= minDepth) );
+//        if ( attr.isDirectory() )
+//            {
+            //System.out.println( " folder  >=  min =" + minDepth + "  true/false =" + (fpath.getNameCount() >= minDepth) );
             return fpath.getNameCount() >= minDepth;
-            }
-        else
-            {
-            //System.out.println( " >  min =" + minDepth + "  true/false =" + (fpath.getNameCount() > minDepth) );
-            return fpath.getNameCount() > minDepth;
-            }
+//            }
+//        else
+//            {
+//            System.out.println( " file   >  min =" + minDepth + "  true/false =" + (fpath.getNameCount() > minDepth) );
+//            return fpath.getNameCount() > minDepth;
+//            }
         }
 }
