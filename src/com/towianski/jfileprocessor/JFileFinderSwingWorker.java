@@ -19,15 +19,17 @@ public class JFileFinderSwingWorker extends SwingWorker<ResultsData, Object> {
     static String startingPath = null;
     static String patternType = null;
     static String filePattern = null;
+    static Boolean countOnlyFlag = false;
     JFileFinder jfilefinder = null;
 
-    public JFileFinderSwingWorker( JFileFinderWin jFileFinderWinArg, JFileFinder jfilefinderArg, String startingPathArg, String patternTypeArg, String filePatternArg )
+    public JFileFinderSwingWorker( JFileFinderWin jFileFinderWinArg, JFileFinder jfilefinderArg, String startingPathArg, String patternTypeArg, String filePatternArg, Boolean countOnlyFlag )
         {
         jFileFinderWin = jFileFinderWinArg;
         startingPath = startingPathArg;
         patternType = patternTypeArg;
         filePattern = filePatternArg;
         jfilefinder = jfilefinderArg;
+        this.countOnlyFlag = countOnlyFlag;
         }
 
     @Override
@@ -45,7 +47,9 @@ public class JFileFinderSwingWorker extends SwingWorker<ResultsData, Object> {
             //System.err.println( "SwingWork.done() got ans =" + matchedPathsList + "=" );
             //jFileFinderWin.resetSearchBtn();
             NumberFormat numFormat = NumberFormat.getIntegerInstance();
-            jFileFinderWin.setMessage( "Matched " + numFormat.format( resultsData.getFilesMatched() ) + " files and " + numFormat.format( resultsData.getFoldersMatched() ) + " folders out of " + numFormat.format( resultsData.getFilesVisited() ) );
+            jFileFinderWin.setMessage( "Matched " + numFormat.format( resultsData.getFilesMatched() ) + " files and " + numFormat.format( resultsData.getFoldersMatched() ) 
+                    + " folders out of " + numFormat.format( resultsData.getFilesTested() ) + " files and " + numFormat.format( resultsData.getFoldersTested() ) + " folders.  Total "
+                    + numFormat.format( resultsData.getFilesVisited() ) );
             if ( resultsData.getSearchWasCanceled() )
                 {
                 jFileFinderWin.setProcessStatus( jFileFinderWin.PROCESS_STATUS_SEARCH_CANCELED );
@@ -61,8 +65,11 @@ public class JFileFinderSwingWorker extends SwingWorker<ResultsData, Object> {
 
             jFileFinderWin.emptyFilesTable();
             
-            FillTableModelSwingWorker fillTableModelSwingWorker = new FillTableModelSwingWorker( jFileFinderWin, jfilefinder );
-            fillTableModelSwingWorker.execute();   //doInBackground();
+            if ( ! countOnlyFlag )
+                {
+                FillTableModelSwingWorker fillTableModelSwingWorker = new FillTableModelSwingWorker( jFileFinderWin, jfilefinder );
+                fillTableModelSwingWorker.execute();   //doInBackground();
+                }
             
             System.out.println( "exiting SwingWork.done()" );
         } catch (InterruptedException ignore) {}

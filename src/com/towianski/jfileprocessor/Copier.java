@@ -72,7 +72,7 @@ public class Copier extends SimpleFileVisitor<Path>
         if( ! Files.exists( targetPath ) )
             {
             Files.createDirectory( targetPath );
-            System.err.println( "preVisitDir would do Files.createDirectory( " + targetPath + ")" );
+            //System.err.println( "preVisitDir would do Files.createDirectory( " + targetPath + ")" );
             }
         return FileVisitResult.CONTINUE;
         }
@@ -144,8 +144,8 @@ public class Copier extends SimpleFileVisitor<Path>
         catch (Exception ex2) 
             {
             Logger.getLogger(Copier.class.getName()).log(Level.SEVERE, null, ex2 );
-        System.out.println( "CAUGHT ERROR  " + "my error msg" + ex2.getClass().getSimpleName() + ": " + dir );
-            throw new IOException( "my error msg" + ex2.getClass().getSimpleName() + ": " + dir );
+            System.out.println( "CAUGHT ERROR  " + "my error msg" + ex2.getClass().getSimpleName() + ": " + dir );
+            throw new IOException( ex2.getClass().getSimpleName() + ": " + dir );
             }
         //return FileVisitResult.TERMINATE;
         }

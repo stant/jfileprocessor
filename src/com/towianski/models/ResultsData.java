@@ -22,20 +22,24 @@ public class ResultsData {
     private long filesVisited = 0;
     private long filesMatched = 0;
     private long foldersMatched = 0;
+    private long filesTested = 0;
+    private long foldersTested = 0;
 
     public ResultsData()
         {
         }
     
-    public ResultsData( ArrayList<Path> matchedPathsListArg, Boolean searchWasCanceledArg, Boolean fillWasCanceledArg, long filesVisitedArg, long filesMatchedArg, long foldersMatched )
+    public ResultsData( ArrayList<Path> matchedPathsList, Boolean searchWasCanceled, Boolean fillWasCanceled, long filesVisited
+            , long filesMatched, long foldersMatched , long filesTested, long foldersTested )
         {
-        this.matchedPathsList = matchedPathsListArg;
-        //filesTblModel = filesTblModelArg;
-        this.searchWasCanceled = searchWasCanceledArg;
-        this.fillWasCanceled = fillWasCanceledArg;
-        this.filesVisited = filesVisitedArg;
-        this.filesMatched = filesMatchedArg;
+        this.matchedPathsList = matchedPathsList;
+        this.searchWasCanceled = searchWasCanceled;
+        this.fillWasCanceled = fillWasCanceled;
+        this.filesVisited = filesVisited;
+        this.filesMatched = filesMatched;
         this.foldersMatched = foldersMatched;
+        this.filesTested = filesTested;
+        this.foldersTested = foldersTested;
         }
     
     public ResultsData( Boolean searchWasCanceledArg, long filesVisitedArg, long filesMatchedArg, long foldersMatched )
@@ -101,5 +105,21 @@ public class ResultsData {
     public void setFilesMatched(long filesMatched) {
         this.filesMatched = filesMatched;
     }
-    
+
+    public long getFilesTested() {
+        return filesTested;
+    }
+
+    public void setFilesTested(long filesTested) {
+        this.filesTested = filesTested;
+    }
+
+    public long getFoldersTested() {
+        return foldersTested;
+    }
+
+    public void setFoldersTested(long foldersTested) {
+        this.foldersTested = foldersTested;
+    }
+        
 }

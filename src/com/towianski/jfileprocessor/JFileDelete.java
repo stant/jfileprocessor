@@ -21,18 +21,20 @@ public class JFileDelete //  implements Runnable
 {
     Boolean deleteFilesOnlyFlag = false;
     boolean deleteToTrashFlag = true;
+    Boolean deleteReadonlyFlag = false;
     Boolean cancelFlag = false;
     String startingPath = null;
     ArrayList<Path> copyPaths = new ArrayList<Path>();
     Boolean dataSyncLock = false;
     Deleter deleter = null;
     
-    public JFileDelete( String startingPath, ArrayList<Path> copyPaths, Boolean deleteFilesOnlyFlag, Boolean deleteToTrashFlag )
+    public JFileDelete( String startingPath, ArrayList<Path> copyPaths, Boolean deleteFilesOnlyFlag, Boolean deleteToTrashFlag, Boolean deleteReadonlyFlag )
     {
         this.startingPath = startingPath;
         this.copyPaths = copyPaths;
         this.deleteFilesOnlyFlag = deleteFilesOnlyFlag;
         this.deleteToTrashFlag = deleteToTrashFlag;
+        this.deleteReadonlyFlag = deleteReadonlyFlag;
         cancelFlag = false;
     }
 
@@ -63,33 +65,36 @@ public class JFileDelete //  implements Runnable
 
     public void run() 
         {
-        deleter = new Deleter( startingPath, copyPaths, deleteFilesOnlyFlag, deleteToTrashFlag );
-        try {
-            synchronized( dataSyncLock ) 
-                {
+        deleter = new Deleter( startingPath, copyPaths, deleteFilesOnlyFlag, deleteToTrashFlag, deleteReadonlyFlag );
+//            synchronized( dataSyncLock ) 
+//                {
                 cancelFlag = false;
                 for ( Path fpath : copyPaths )
                     {
                     //System.err.println( "delete path =" + fpath + "=" );
                     //EnumSet<FileVisitOption> opts = EnumSet.of( FOLLOW_LINKS );
-                    Files.walkFileTree( fpath, deleter );
+                    if ( fpath.toFile().exists() )
+                        {
+                        try {
+                            Files.walkFileTree( fpath, deleter );
+                            } 
+                        catch (IOException ioex) 
+                            {
+                            //System.out.println( "up ERROR  " + "my error getSimpleName" + ioex.getClass().getSimpleName() );
+                            //System.out.println( "up ERROR  " + "my error msg" + ioex.getMessage() );
+                            JOptionPane.showMessageDialog( null, ioex.getClass().getSimpleName() + ": " + ioex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE );
+                            Logger.getLogger(JFileDelete.class.getName()).log(Level.SEVERE, null, ioex);
+                            }
+                        catch (Exception ex) 
+                            {
+                            JOptionPane.showMessageDialog( null, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE );
+                            Logger.getLogger(JFileDelete.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        }
                     
                     //break;  for testing to do just 1st path
                     }
-                }
-            } 
-        catch (IOException ioex) 
-            {
-            //System.out.println( "up ERROR  " + "my error getSimpleName" + ioex.getClass().getSimpleName() );
-            //System.out.println( "up ERROR  " + "my error msg" + ioex.getMessage() );
-            JOptionPane.showMessageDialog( null, ioex.getClass().getSimpleName() + ": " + ioex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE );
-            Logger.getLogger(JFileDelete.class.getName()).log(Level.SEVERE, null, ioex);
-            }
-        catch (Exception ex) 
-            {
-            JOptionPane.showMessageDialog( null, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE );
-            Logger.getLogger(JFileDelete.class.getName()).log(Level.SEVERE, null, ex);
-            }
+//                }
         deleter.done();
         }
         

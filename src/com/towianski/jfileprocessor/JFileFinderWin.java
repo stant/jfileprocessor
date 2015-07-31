@@ -35,6 +35,7 @@ import static com.towianski.utils.ClipboardUtils.setClipboardContents;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Desktop;
+import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
@@ -89,6 +90,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
     String copyPathStartPath = null;
     private TableCellListener filesTblCellListener = null;
     Boolean isDoingCutFlag = false;
+    Boolean countOnlyFlag = false;
     
     public static final String PROCESS_STATUS_SEARCH_STARTED = "Search Started . . .";
     public static final String PROCESS_STATUS_FILL_STARTED = "Fill Started . . .";
@@ -100,6 +102,11 @@ public class JFileFinderWin extends javax.swing.JFrame {
     public static final String PROCESS_STATUS_CANCEL_FILL = "Cancel Fill";
     public static final String PROCESS_STATUS_SEARCH_READY = "Search";
 
+    public static final String SHOWFILESFOLDERSCB_BOTH = "Files & Folders";
+    public static final String SHOWFILESFOLDERSCB_FILES_ONLY = "Files Only";
+    public static final String SHOWFILESFOLDERSCB_FOLDERS_ONLY = "Folders Only";
+    public static final String SHOWFILESFOLDERSCB_NEITHER = "Neither";
+            
 //    JDatePickerImpl date1 = null;
 //    JDatePickerImpl date2 = null;
     
@@ -133,6 +140,8 @@ public class JFileFinderWin extends javax.swing.JFrame {
         filesTbl.putClientProperty( "terminateEditOnFocusLost", Boolean.TRUE );
         
         addkeymapstuff();
+
+        startingFolder.requestFocus();
         
 //        filesTbl.getInputMap().put(
 //            KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "startEditing");
@@ -199,8 +208,8 @@ public class JFileFinderWin extends javax.swing.JFrame {
     }
 
     public void callSearchBtnActionPerformed(java.awt.event.ActionEvent evt)
-        {
-        searchBtnActionPerformed( evt );
+        {   // FIXXX  I can get rid of this method !
+        searchBtnAction( evt );
         }
             
     public void callDeleteActionPerformed(java.awt.event.ActionEvent evt)
@@ -396,11 +405,199 @@ public class JFileFinderWin extends javax.swing.JFrame {
             setColumnSizes();
             }
         };
+
+    public void searchBtnAction( java.awt.event.ActionEvent evt )
+    {
+        if ( searchBtn.getText().equalsIgnoreCase( PROCESS_STATUS_CANCEL_SEARCH ) )
+            {
+            System.err.println( "hit stop button, got rootPaneCheckingEnabled =" + rootPaneCheckingEnabled + "=" );
+            setProcessStatus( PROCESS_STATUS_SEARCH_CANCELED );
+            this.stopSearch();
+            //JOptionPane.showConfirmDialog( null, "at call stop search" );
+            }
+        else if ( searchBtn.getText().equalsIgnoreCase( PROCESS_STATUS_CANCEL_FILL ) )
+            {
+            System.err.println( "hit stop fill button, got rootPaneCheckingEnabled =" + rootPaneCheckingEnabled + "=" );
+            setProcessStatus( PROCESS_STATUS_FILL_CANCELED );
+            this.stopFill();
+            //JOptionPane.showConfirmDialog( null, "at call stop fill" );
+            }
+        else
+            {
+            //JOptionPane.showConfirmDialog( null, "at call do search" );
+            try {
+                String[] args = new String[3];
+                args[0] = startingFolder.getText().trim();
+                //int startingPathLength = (args[0].endsWith( System.getProperty( "file.separator" ) ) || args[0].endsWith( "/" ) ) ? args[0].length() - 1 : args[0].length();
+                //args[0] = args[0].substring( 0, startingPathLength );
+                if ( ! ( args[0].endsWith(System.getProperty( "file.separator" ) )
+                         || args[0].endsWith( "/" ) ) ) 
+                    {
+                    args[0] += System.getProperty( "file.separator" );
+                    }
+                startingFolder.setText( args[0] );
+
+                args[1] = useRegexPattern.isSelected() ? "-regex" : "-glob";
+                args[2] = filePattern.getText().trim();
+                
+                if ( useGlobPattern.isSelected()
+                        && ! ( args[0].endsWith(System.getProperty( "file.separator" ) )
+                         || args[0].endsWith( "/" ) )
+                        && ! args[2].startsWith( "**" )
+                        && ! (args[2].startsWith( System.getProperty( "file.separator" ) ) || args[2].startsWith( "/" )) )
+                    {
+                    int result = JOptionPane.showConfirmDialog( null, 
+                       "There is no file separator (/ or \\ or **) between starting folder and pattern. Do you want to insert one?"
+                            ,null, JOptionPane.YES_NO_OPTION );
+                    if ( result == JOptionPane.YES_OPTION )
+                        {
+                        filePattern.setText( System.getProperty( "file.separator" ) + args[2] );
+                        args[2] = filePattern.getText();
+                        }
+                    }
+                
+                //public ChainFilterA( ChainFilterA nextChainFilter )
+                //Long size1Long = Long.parseLong( size1.getText().trim() );
+                System.err.println( "tabsLogic button.getText() =" + (tabsLogicAndBtn.isSelected() ? tabsLogicAndBtn.getText() : tabsLogicOrBtn.getText()) + "=" );
+                FilterChain chainFilterList = new FilterChain( tabsLogicAndBtn.isSelected() ? tabsLogicAndBtn.getText() : tabsLogicOrBtn.getText() );
+                FilterChain chainFilterFolderList = new FilterChain( tabsLogicAndBtn.isSelected() ? tabsLogicAndBtn.getText() : tabsLogicOrBtn.getText() );
+                FilterChain chainFilterPreVisitFolderList = new FilterChain( tabsLogicAndBtn.isSelected() ? tabsLogicAndBtn.getText() : tabsLogicOrBtn.getText() );
+
+                try {
+                    if ( ! filePattern.getText().trim().equals( "" ) )
+                        {
+                        System.err.println( "add filter of names!" );
+                        ChainFilterOfNames chainFilterOfNames = new ChainFilterOfNames( args[1], (args[0] + args[2]).replace( "\\", "\\\\" ) );
+                        chainFilterList.addFilter( chainFilterOfNames );
+                        }
+                    }
+                catch( Exception ex )
+                    {
+                    JOptionPane.showMessageDialog( this, "Error in a Name filter", "Error", JOptionPane.ERROR_MESSAGE );
+                    setProcessStatus( PROCESS_STATUS_SEARCH_CANCELED );
+                    return;
+                    }
+
+                try {
+                    if ( ! size1.getText().trim().equals( "" ) )
+                        {
+                        System.err.println( "add filter of sizes!" );
+                        ChainFilterOfSizes chainFilterOfSizes = new ChainFilterOfSizes( (String)size1Op.getSelectedItem(), size1.getText().trim(), ((String) sizeLogicOp.getValue()).trim(), (String)size2Op.getSelectedItem(), size2.getText().trim() );
+                        chainFilterList.addFilter( chainFilterOfSizes );
+                        }
+                    }
+                catch( Exception ex )
+                    {
+                    JOptionPane.showMessageDialog( this, "Error in a Size filter", "Error", JOptionPane.ERROR_MESSAGE );
+                    setProcessStatus( PROCESS_STATUS_SEARCH_CANCELED );
+                    return;
+                    }
+
+                try {
+                    if ( (Date) date1.getModel().getValue() != null )
+                        {
+                        System.err.println( "add filter of dates!" );
+                        System.err.println( "selected date =" + (Date) date1.getModel().getValue() + "=" );
+                        ChainFilterOfDates chainFilterOfDates = new ChainFilterOfDates( (String)date1Op.getSelectedItem(), (Date) date1.getModel().getValue(), ((String) dateLogicOp.getValue()).trim(), (String)date2Op.getSelectedItem(), (Date) date2.getModel().getValue() );
+                        chainFilterList.addFilter( chainFilterOfDates );
+                        }
+                    }
+                catch( Exception ex )
+                    {
+                    JOptionPane.showMessageDialog( this, "Error in a Date filter", "Error", JOptionPane.ERROR_MESSAGE );
+                    setProcessStatus( PROCESS_STATUS_SEARCH_CANCELED );
+                    return;
+                    }
+
+                try {
+                    if ( ! maxDepth.getText().trim().equals( "" ) )
+                        {
+                        System.err.println( "add filter of maxdepth!" );
+                        System.err.println( "selected maxdepth =" + maxDepth.getText().trim() + "=" );
+                        ChainFilterOfMaxDepth chainFilterOfMaxDepth = new ChainFilterOfMaxDepth( args[0], maxDepth.getText().trim() );
+                        chainFilterFolderList.addFilter( chainFilterOfMaxDepth );
+                        chainFilterList.addFilter( chainFilterOfMaxDepth );
+                        ChainFilterOfPreVisitMaxDepth chainFilterOfPreVisitMaxDepth = new ChainFilterOfPreVisitMaxDepth( args[0], maxDepth.getText().trim() );
+                        chainFilterPreVisitFolderList.addFilter( chainFilterOfPreVisitMaxDepth );
+                        }
+                    }
+                catch( Exception ex )
+                    {
+                    JOptionPane.showMessageDialog( this, "Error in Max Depth filter", "Error", JOptionPane.ERROR_MESSAGE );
+                    setProcessStatus( PROCESS_STATUS_SEARCH_CANCELED );
+                    return;
+                    }
+
+                try {
+                    if ( ! minDepth.getText().trim().equals( "" ) )
+                        {
+                        System.err.println( "add filter of minDepth!" );
+                        System.err.println( "selected minDepth =" + minDepth.getText().trim() + "=" );
+                        ChainFilterOfMinDepth chainFilterOfMinDepth = new ChainFilterOfMinDepth( args[0], minDepth.getText().trim() );
+                        chainFilterFolderList.addFilter( chainFilterOfMinDepth );
+                        chainFilterList.addFilter( chainFilterOfMinDepth );
+                        ChainFilterOfPreVisitMinDepth chainFilterOfPreVisitMinDepth = new ChainFilterOfPreVisitMinDepth( args[0], minDepth.getText().trim() );
+                        chainFilterPreVisitFolderList.addFilter( chainFilterOfPreVisitMinDepth );
+                        }
+                    }
+                catch( Exception ex )
+                    {
+                    JOptionPane.showMessageDialog( this, "Error in Max Depth filter", "Error", JOptionPane.ERROR_MESSAGE );
+                    setProcessStatus( PROCESS_STATUS_SEARCH_CANCELED );
+                    return;
+                    }
+                
+                try {
+                    System.err.println( "showFilesFoldersCb.getSelectedItem() =" + showFilesFoldersCb.getSelectedItem() + "=" );
+                    if ( showFilesFoldersCb.getSelectedItem().equals( SHOWFILESFOLDERSCB_FILES_ONLY ) 
+                         || showFilesFoldersCb.getSelectedItem().equals( SHOWFILESFOLDERSCB_NEITHER ) )
+                        {
+                        System.err.println( "add filter Boolean False for folders" );
+                        ChainFilterOfBoolean chainFilterOfBoolean = new ChainFilterOfBoolean( false );
+                        chainFilterFolderList.addFilter( chainFilterOfBoolean );
+                        }
+                    if ( showFilesFoldersCb.getSelectedItem().equals( SHOWFILESFOLDERSCB_FOLDERS_ONLY ) 
+                         || showFilesFoldersCb.getSelectedItem().equals( SHOWFILESFOLDERSCB_NEITHER ) )
+                        {
+                        System.err.println( "add filter Boolean False for files" );
+                        ChainFilterOfBoolean chainFilterOfBoolean = new ChainFilterOfBoolean( false );
+                        chainFilterList.addFilter( chainFilterOfBoolean );
+                        }
+                    }
+                catch( Exception ex )
+                    {
+                    JOptionPane.showMessageDialog( this, "Error in a Boolean filter", "Error", JOptionPane.ERROR_MESSAGE );
+                    setProcessStatus( PROCESS_STATUS_SEARCH_CANCELED );
+                    return;
+                    }
+
+                // if it matters for speed I could pass countOnlyFlag to jFileFinder too and not create the arrayList of paths !
+                jfilefinder = new JFileFinder( args[0], args[1], args[2], chainFilterList, chainFilterFolderList, chainFilterPreVisitFolderList );
+                jFileFinderSwingWorker = new JFileFinderSwingWorker( this, jfilefinder, args[0], args[1], args[2], countOnlyFlag );
+//                searchBtn.setText( "Stop" );
+//                searchBtn.setBackground(Color.RED);
+//                searchBtn.setOpaque(true);
+//                searchBtn.setBorderPainted(false);
+//                message.setText( "Search started . . ." );
+                //setProcessStatus( PROCESS_STATUS_SEARCH_STARTED );
+                jFileFinderSwingWorker.execute();   //doInBackground();
+                //jfinderThread = new Thread( jfilefinder );
+//                        jfinderThread.start();
+//                        jfinderThread.join();
+//                        searchBtn.setText( "Search" );
+//                        searchBtn.setBackground( saveColor );
+//                        searchBtn.setOpaque(true);
+            } 
+            catch (Exception ex) {
+                Logger.getLogger(JFileFinder.class.getName()).log(Level.SEVERE, null, ex);
+            } 
+        }
+    }
     
     public void emptyFilesTable()
         {
         System.out.println( "entered JFileFinderWin.emptyFilesTable()" );
-        filesTbl.setModel( JFileFinder.emptyFilesTableModel() );
+        filesTbl.setModel( JFileFinder.emptyFilesTableModel( countOnlyFlag ) );
         setNumFilesInTable();
         }
     
@@ -629,13 +826,13 @@ public class JFileFinderWin extends javax.swing.JFrame {
         savePathsToFile1 = new javax.swing.JMenuItem();
         jSplitPane1 = new javax.swing.JSplitPane();
         jPanel6 = new javax.swing.JPanel();
+        fileMgrMode = new javax.swing.JCheckBox();
         startingFolder = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
         jTabbedPane1 = new javax.swing.JTabbedPane();
         jPanel5 = new javax.swing.JPanel();
         showJustFilenameFlag = new javax.swing.JCheckBox();
-        showFoldersFlag = new javax.swing.JCheckBox();
         jPanel4 = new javax.swing.JPanel();
         tabsLogicAndBtn = new javax.swing.JRadioButton();
         tabsLogicOrBtn = new javax.swing.JRadioButton();
@@ -649,7 +846,8 @@ public class JFileFinderWin extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         minDepth = new javax.swing.JTextField();
-        fileMgrMode = new javax.swing.JCheckBox();
+        showFilesFoldersCb = new javax.swing.JComboBox();
+        jLabel9 = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
         jLabel5 = new javax.swing.JLabel();
         date1Op = new javax.swing.JComboBox();
@@ -688,6 +886,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
             message = new javax.swing.JLabel();
             numFilesInTable = new javax.swing.JLabel();
             upFolder = new javax.swing.JButton();
+            countBtn = new javax.swing.JButton();
 
             Copy.setText("Copy");
             Copy.addActionListener(new java.awt.event.ActionListener() {
@@ -808,13 +1007,24 @@ public class JFileFinderWin extends javax.swing.JFrame {
             jPopupMenu2.add(savePathsToFile1);
 
             setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-            setTitle("JFileProcessor v1.4.3 - Stan Towianski  (c) 2015");
+            setTitle("JFileProcessor v1.4.4 - Stan Towianski  (c) 2015");
 
             jSplitPane1.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
 
             jPanel6.setMinimumSize(new java.awt.Dimension(400, 35));
             jPanel6.setPreferredSize(new java.awt.Dimension(400, 130));
             jPanel6.setLayout(new java.awt.GridBagLayout());
+
+            fileMgrMode.setText("File Mgr Mode");
+            fileMgrMode.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    fileMgrModeActionPerformed(evt);
+                }
+            });
+            gridBagConstraints = new java.awt.GridBagConstraints();
+            gridBagConstraints.gridx = 0;
+            gridBagConstraints.gridy = 0;
+            jPanel6.add(fileMgrMode, gridBagConstraints);
 
             startingFolder.setMinimumSize(new java.awt.Dimension(200, 26));
             startingFolder.setPreferredSize(new java.awt.Dimension(200, 26));
@@ -829,20 +1039,21 @@ public class JFileFinderWin extends javax.swing.JFrame {
                 }
             });
             gridBagConstraints = new java.awt.GridBagConstraints();
-            gridBagConstraints.gridx = 1;
+            gridBagConstraints.gridx = 2;
             gridBagConstraints.gridy = 0;
-            gridBagConstraints.gridwidth = 3;
-            gridBagConstraints.ipadx = 282;
-            gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+            gridBagConstraints.gridwidth = 5;
+            gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+            gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+            gridBagConstraints.weightx = 0.2;
             gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 0);
             jPanel6.add(startingFolder, gridBagConstraints);
 
             jLabel1.setText("Starting Folder: ");
             gridBagConstraints = new java.awt.GridBagConstraints();
-            gridBagConstraints.gridx = 0;
+            gridBagConstraints.gridx = 1;
             gridBagConstraints.gridy = 0;
             gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
-            gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 0);
+            gridBagConstraints.insets = new java.awt.Insets(5, 12, 5, 0);
             jPanel6.add(jLabel1, gridBagConstraints);
 
             jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/yellow/Search-icon-16.png"))); // NOI18N
@@ -857,10 +1068,9 @@ public class JFileFinderWin extends javax.swing.JFrame {
                 }
             });
             gridBagConstraints = new java.awt.GridBagConstraints();
-            gridBagConstraints.gridx = 4;
+            gridBagConstraints.gridx = 7;
             gridBagConstraints.gridy = 0;
-            gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-            gridBagConstraints.weightx = 0.2;
+            gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
             gridBagConstraints.insets = new java.awt.Insets(5, 10, 0, 0);
             jPanel6.add(jButton1, gridBagConstraints);
 
@@ -876,16 +1086,12 @@ public class JFileFinderWin extends javax.swing.JFrame {
                 }
             });
             gridBagConstraints = new java.awt.GridBagConstraints();
-            gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-            gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 0);
-            jPanel5.add(showJustFilenameFlag, gridBagConstraints);
-
-            showFoldersFlag.setText("Show Folders");
-            gridBagConstraints = new java.awt.GridBagConstraints();
+            gridBagConstraints.gridx = 0;
+            gridBagConstraints.gridy = 0;
             gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
             gridBagConstraints.weightx = 0.2;
             gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 0);
-            jPanel5.add(showFoldersFlag, gridBagConstraints);
+            jPanel5.add(showJustFilenameFlag, gridBagConstraints);
 
             jTabbedPane1.addTab("View", jPanel5);
 
@@ -962,7 +1168,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
             gridBagConstraints = new java.awt.GridBagConstraints();
             gridBagConstraints.gridx = 5;
             gridBagConstraints.gridy = 0;
-            gridBagConstraints.gridwidth = 3;
+            gridBagConstraints.gridwidth = 4;
             gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
             gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
             gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 0);
@@ -985,7 +1191,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
                 }
             });
             gridBagConstraints = new java.awt.GridBagConstraints();
-            gridBagConstraints.gridx = 6;
+            gridBagConstraints.gridx = 3;
             gridBagConstraints.gridy = 1;
             gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
             gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 0);
@@ -993,14 +1199,14 @@ public class JFileFinderWin extends javax.swing.JFrame {
 
             jLabel2.setText("Max Depth:");
             gridBagConstraints = new java.awt.GridBagConstraints();
-            gridBagConstraints.gridx = 5;
+            gridBagConstraints.gridx = 2;
             gridBagConstraints.gridy = 1;
             gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
             jPanel1.add(jLabel2, gridBagConstraints);
 
             jLabel4.setText("Min Depth:");
             gridBagConstraints = new java.awt.GridBagConstraints();
-            gridBagConstraints.gridx = 2;
+            gridBagConstraints.gridx = 0;
             gridBagConstraints.gridy = 1;
             gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
             jPanel1.add(jLabel4, gridBagConstraints);
@@ -1013,21 +1219,29 @@ public class JFileFinderWin extends javax.swing.JFrame {
                 }
             });
             gridBagConstraints = new java.awt.GridBagConstraints();
-            gridBagConstraints.gridx = 3;
+            gridBagConstraints.gridx = 1;
             gridBagConstraints.gridy = 1;
             gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 0);
             jPanel1.add(minDepth, gridBagConstraints);
 
-            fileMgrMode.setText("File Mgr Mode");
-            fileMgrMode.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent evt) {
-                    fileMgrModeActionPerformed(evt);
-                }
-            });
+            showFilesFoldersCb.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Files & Folders", "Files Only", "Folders Only", "Neither" }));
+            showFilesFoldersCb.setMinimumSize(new java.awt.Dimension(120, 26));
+            showFilesFoldersCb.setPreferredSize(new java.awt.Dimension(120, 26));
             gridBagConstraints = new java.awt.GridBagConstraints();
-            gridBagConstraints.gridx = 0;
+            gridBagConstraints.gridx = 6;
             gridBagConstraints.gridy = 1;
-            jPanel1.add(fileMgrMode, gridBagConstraints);
+            gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+            gridBagConstraints.weightx = 0.2;
+            gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 0);
+            jPanel1.add(showFilesFoldersCb, gridBagConstraints);
+
+            jLabel9.setText("Files and/or Folders: ");
+            gridBagConstraints = new java.awt.GridBagConstraints();
+            gridBagConstraints.gridx = 5;
+            gridBagConstraints.gridy = 1;
+            gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+            gridBagConstraints.insets = new java.awt.Insets(0, 14, 0, 0);
+            jPanel1.add(jLabel9, gridBagConstraints);
 
             jTabbedPane1.addTab("Name", jPanel1);
 
@@ -1171,7 +1385,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
             gridBagConstraints = new java.awt.GridBagConstraints();
             gridBagConstraints.gridx = 0;
             gridBagConstraints.gridy = 1;
-            gridBagConstraints.gridwidth = 7;
+            gridBagConstraints.gridwidth = 8;
             gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
             gridBagConstraints.weightx = 1.0;
             gridBagConstraints.weighty = 1.0;
@@ -1198,7 +1412,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
 
             jLabel3.setText("Files in Table:");
             gridBagConstraints = new java.awt.GridBagConstraints();
-            gridBagConstraints.gridx = 6;
+            gridBagConstraints.gridx = 7;
             gridBagConstraints.gridy = 0;
             gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 0);
             jPanel7.add(jLabel3, gridBagConstraints);
@@ -1219,7 +1433,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
             gridBagConstraints = new java.awt.GridBagConstraints();
             gridBagConstraints.gridx = 0;
             gridBagConstraints.gridy = 1;
-            gridBagConstraints.gridwidth = 8;
+            gridBagConstraints.gridwidth = 9;
             gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
             gridBagConstraints.weighty = 1.0;
             jPanel7.add(jScrollPane1, gridBagConstraints);
@@ -1229,14 +1443,14 @@ public class JFileFinderWin extends javax.swing.JFrame {
             processStatus.setMinimumSize(new java.awt.Dimension(115, 26));
             processStatus.setPreferredSize(new java.awt.Dimension(140, 26));
             gridBagConstraints = new java.awt.GridBagConstraints();
-            gridBagConstraints.gridx = 2;
+            gridBagConstraints.gridx = 3;
             gridBagConstraints.gridy = 0;
             gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 0);
             jPanel7.add(processStatus, gridBagConstraints);
 
             message.setText(" ");
             gridBagConstraints = new java.awt.GridBagConstraints();
-            gridBagConstraints.gridx = 3;
+            gridBagConstraints.gridx = 4;
             gridBagConstraints.gridy = 0;
             gridBagConstraints.gridwidth = 3;
             gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
@@ -1250,7 +1464,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
             numFilesInTable.setMinimumSize(new java.awt.Dimension(100, 26));
             numFilesInTable.setPreferredSize(new java.awt.Dimension(100, 26));
             gridBagConstraints = new java.awt.GridBagConstraints();
-            gridBagConstraints.gridx = 7;
+            gridBagConstraints.gridx = 8;
             gridBagConstraints.gridy = 0;
             gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
             jPanel7.add(numFilesInTable, gridBagConstraints);
@@ -1268,6 +1482,18 @@ public class JFileFinderWin extends javax.swing.JFrame {
             gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 0);
             jPanel7.add(upFolder, gridBagConstraints);
 
+            countBtn.setText("Count");
+            countBtn.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    countBtnActionPerformed(evt);
+                }
+            });
+            gridBagConstraints = new java.awt.GridBagConstraints();
+            gridBagConstraints.gridx = 2;
+            gridBagConstraints.gridy = 0;
+            gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 0);
+            jPanel7.add(countBtn, gridBagConstraints);
+
             jSplitPane1.setRightComponent(jPanel7);
 
             getContentPane().add(jSplitPane1, java.awt.BorderLayout.CENTER);
@@ -1280,180 +1506,8 @@ public class JFileFinderWin extends javax.swing.JFrame {
     }//GEN-LAST:event_startingFolderActionPerformed
 
     private void searchBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchBtnActionPerformed
-        if ( searchBtn.getText().equalsIgnoreCase( PROCESS_STATUS_CANCEL_SEARCH ) )
-            {
-            System.err.println( "hit stop button, got rootPaneCheckingEnabled =" + rootPaneCheckingEnabled + "=" );
-            setProcessStatus( PROCESS_STATUS_SEARCH_CANCELED );
-            this.stopSearch();
-            //JOptionPane.showConfirmDialog( null, "at call stop search" );
-            }
-        else if ( searchBtn.getText().equalsIgnoreCase( PROCESS_STATUS_CANCEL_FILL ) )
-            {
-            System.err.println( "hit stop fill button, got rootPaneCheckingEnabled =" + rootPaneCheckingEnabled + "=" );
-            setProcessStatus( PROCESS_STATUS_FILL_CANCELED );
-            this.stopFill();
-            //JOptionPane.showConfirmDialog( null, "at call stop fill" );
-            }
-        else
-            {
-            //JOptionPane.showConfirmDialog( null, "at call do search" );
-            try {
-                String[] args = new String[3];
-                args[0] = startingFolder.getText().trim();
-                //int startingPathLength = (args[0].endsWith( System.getProperty( "file.separator" ) ) || args[0].endsWith( "/" ) ) ? args[0].length() - 1 : args[0].length();
-                //args[0] = args[0].substring( 0, startingPathLength );
-                if ( ! ( args[0].endsWith(System.getProperty( "file.separator" ) )
-                         || args[0].endsWith( "/" ) ) ) 
-                    {
-                    args[0] += System.getProperty( "file.separator" );
-                    }
-                startingFolder.setText( args[0] );
-
-                args[1] = useRegexPattern.isSelected() ? "-regex" : "-glob";
-                args[2] = filePattern.getText().trim();
-                
-                if ( useGlobPattern.isSelected()
-                        && ! ( args[0].endsWith(System.getProperty( "file.separator" ) )
-                         || args[0].endsWith( "/" ) )
-                        && ! args[2].startsWith( "**" )
-                        && ! (args[2].startsWith( System.getProperty( "file.separator" ) ) || args[2].startsWith( "/" )) )
-                    {
-                    int result = JOptionPane.showConfirmDialog( null, 
-                       "There is no file separator (/ or \\ or **) between starting folder and pattern. Do you want to insert one?"
-                            ,null, JOptionPane.YES_NO_OPTION );
-                    if ( result == JOptionPane.YES_OPTION )
-                        {
-                        filePattern.setText( System.getProperty( "file.separator" ) + args[2] );
-                        args[2] = filePattern.getText();
-                        }
-                    }
-                
-                //public ChainFilterA( ChainFilterA nextChainFilter )
-                //Long size1Long = Long.parseLong( size1.getText().trim() );
-                System.err.println( "tabsLogic button.getText() =" + (tabsLogicAndBtn.isSelected() ? tabsLogicAndBtn.getText() : tabsLogicOrBtn.getText()) + "=" );
-                FilterChain chainFilterList = new FilterChain( tabsLogicAndBtn.isSelected() ? tabsLogicAndBtn.getText() : tabsLogicOrBtn.getText() );
-                FilterChain chainFilterFolderList = new FilterChain( tabsLogicAndBtn.isSelected() ? tabsLogicAndBtn.getText() : tabsLogicOrBtn.getText() );
-                FilterChain chainFilterPreVisitFolderList = new FilterChain( tabsLogicAndBtn.isSelected() ? tabsLogicAndBtn.getText() : tabsLogicOrBtn.getText() );
-
-                try {
-                    if ( ! filePattern.getText().trim().equals( "" ) )
-                        {
-                        System.err.println( "add filter of names!" );
-                        ChainFilterOfNames chainFilterOfNames = new ChainFilterOfNames( args[1], (args[0] + args[2]).replace( "\\", "\\\\" ) );
-                        chainFilterList.addFilter( chainFilterOfNames );
-                        }
-                    }
-                catch( Exception ex )
-                    {
-                    JOptionPane.showMessageDialog( this, "Error in a Name filter", "Error", JOptionPane.ERROR_MESSAGE );
-                    setProcessStatus( PROCESS_STATUS_SEARCH_CANCELED );
-                    return;
-                    }
-
-                try {
-                    if ( ! size1.getText().trim().equals( "" ) )
-                        {
-                        System.err.println( "add filter of sizes!" );
-                        ChainFilterOfSizes chainFilterOfSizes = new ChainFilterOfSizes( (String)size1Op.getSelectedItem(), size1.getText().trim(), ((String) sizeLogicOp.getValue()).trim(), (String)size2Op.getSelectedItem(), size2.getText().trim() );
-                        chainFilterList.addFilter( chainFilterOfSizes );
-                        }
-                    }
-                catch( Exception ex )
-                    {
-                    JOptionPane.showMessageDialog( this, "Error in a Size filter", "Error", JOptionPane.ERROR_MESSAGE );
-                    setProcessStatus( PROCESS_STATUS_SEARCH_CANCELED );
-                    return;
-                    }
-
-                try {
-                    if ( (Date) date1.getModel().getValue() != null )
-                        {
-                        System.err.println( "add filter of dates!" );
-                        System.err.println( "selected date =" + (Date) date1.getModel().getValue() + "=" );
-                        ChainFilterOfDates chainFilterOfDates = new ChainFilterOfDates( (String)date1Op.getSelectedItem(), (Date) date1.getModel().getValue(), ((String) dateLogicOp.getValue()).trim(), (String)date2Op.getSelectedItem(), (Date) date2.getModel().getValue() );
-                        chainFilterList.addFilter( chainFilterOfDates );
-                        }
-                    }
-                catch( Exception ex )
-                    {
-                    JOptionPane.showMessageDialog( this, "Error in a Date filter", "Error", JOptionPane.ERROR_MESSAGE );
-                    setProcessStatus( PROCESS_STATUS_SEARCH_CANCELED );
-                    return;
-                    }
-
-                try {
-                    if ( ! maxDepth.getText().trim().equals( "" ) )
-                        {
-                        System.err.println( "add filter of maxdepth!" );
-                        System.err.println( "selected maxdepth =" + maxDepth.getText().trim() + "=" );
-                        ChainFilterOfMaxDepth chainFilterOfMaxDepth = new ChainFilterOfMaxDepth( args[0], maxDepth.getText().trim() );
-                        chainFilterFolderList.addFilter( chainFilterOfMaxDepth );
-                        chainFilterList.addFilter( chainFilterOfMaxDepth );
-                        ChainFilterOfPreVisitMaxDepth chainFilterOfPreVisitMaxDepth = new ChainFilterOfPreVisitMaxDepth( args[0], maxDepth.getText().trim() );
-                        chainFilterPreVisitFolderList.addFilter( chainFilterOfPreVisitMaxDepth );
-                        }
-                    }
-                catch( Exception ex )
-                    {
-                    JOptionPane.showMessageDialog( this, "Error in Max Depth filter", "Error", JOptionPane.ERROR_MESSAGE );
-                    setProcessStatus( PROCESS_STATUS_SEARCH_CANCELED );
-                    return;
-                    }
-
-                try {
-                    if ( ! minDepth.getText().trim().equals( "" ) )
-                        {
-                        System.err.println( "add filter of minDepth!" );
-                        System.err.println( "selected minDepth =" + minDepth.getText().trim() + "=" );
-                        ChainFilterOfMinDepth chainFilterOfMinDepth = new ChainFilterOfMinDepth( args[0], minDepth.getText().trim() );
-                        chainFilterFolderList.addFilter( chainFilterOfMinDepth );
-                        chainFilterList.addFilter( chainFilterOfMinDepth );
-                        ChainFilterOfPreVisitMinDepth chainFilterOfPreVisitMinDepth = new ChainFilterOfPreVisitMinDepth( args[0], minDepth.getText().trim() );
-                        chainFilterPreVisitFolderList.addFilter( chainFilterOfPreVisitMinDepth );
-                        }
-                    }
-                catch( Exception ex )
-                    {
-                    JOptionPane.showMessageDialog( this, "Error in Max Depth filter", "Error", JOptionPane.ERROR_MESSAGE );
-                    setProcessStatus( PROCESS_STATUS_SEARCH_CANCELED );
-                    return;
-                    }
-                
-                try {
-                    if ( ! showFoldersFlag.isSelected() )
-                        {
-                        System.err.println( "add filter Boolean False" );
-                        ChainFilterOfBoolean chainFilterOfBoolean = new ChainFilterOfBoolean( false );
-                        chainFilterFolderList.addFilter( chainFilterOfBoolean );
-                        }
-                    }
-                catch( Exception ex )
-                    {
-                    JOptionPane.showMessageDialog( this, "Error in a Boolean filter", "Error", JOptionPane.ERROR_MESSAGE );
-                    setProcessStatus( PROCESS_STATUS_SEARCH_CANCELED );
-                    return;
-                    }
-
-                jfilefinder = new JFileFinder( args[0], args[1], args[2], chainFilterList, chainFilterFolderList, chainFilterPreVisitFolderList );
-                jFileFinderSwingWorker = new JFileFinderSwingWorker( this, jfilefinder, args[0], args[1], args[2] );
-//                searchBtn.setText( "Stop" );
-//                searchBtn.setBackground(Color.RED);
-//                searchBtn.setOpaque(true);
-//                searchBtn.setBorderPainted(false);
-//                message.setText( "Search started . . ." );
-                //setProcessStatus( PROCESS_STATUS_SEARCH_STARTED );
-                jFileFinderSwingWorker.execute();   //doInBackground();
-                //jfinderThread = new Thread( jfilefinder );
-//                        jfinderThread.start();
-//                        jfinderThread.join();
-//                        searchBtn.setText( "Search" );
-//                        searchBtn.setBackground( saveColor );
-//                        searchBtn.setOpaque(true);
-            } 
-            catch (Exception ex) {
-                Logger.getLogger(JFileFinder.class.getName()).log(Level.SEVERE, null, ex);
-            } 
-        }
+        countOnlyFlag = false;
+        searchBtnAction( evt );
     }//GEN-LAST:event_searchBtnActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
@@ -1645,14 +1699,16 @@ public class JFileFinderWin extends javax.swing.JFrame {
             minDepth.setText( "1" );
             maxDepth.setText( "1" );
             showJustFilenameFlag.setSelected( true );
-            showFoldersFlag.setSelected( true );
+            showFilesFoldersCb.setSelectedItem( SHOWFILESFOLDERSCB_BOTH );
+            jSplitPane1.setDividerLocation( jSplitPane1.getMinimumDividerLocation() );
             }
         else
             {
             minDepth.setText( "" );
             maxDepth.setText( "" );
             showJustFilenameFlag.setSelected( false );
-            showFoldersFlag.setSelected( false );
+            showFilesFoldersCb.setSelectedItem( SHOWFILESFOLDERSCB_FILES_ONLY );
+            jSplitPane1.setDividerLocation( jSplitPane1.getLastDividerLocation() );
             }
     }//GEN-LAST:event_fileMgrModeActionPerformed
 
@@ -1821,6 +1877,11 @@ public class JFileFinderWin extends javax.swing.JFrame {
         searchBtnActionPerformed( null );
     }//GEN-LAST:event_maxDepthActionPerformed
 
+    private void countBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_countBtnActionPerformed
+        countOnlyFlag = true;
+        searchBtnAction( evt );
+    }//GEN-LAST:event_countBtnActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -1876,6 +1937,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.ButtonGroup buttonGroup2;
     private javax.swing.JMenuItem copyFilename;
+    private javax.swing.JButton countBtn;
     private org.jdatepicker.impl.JDatePickerImpl date1;
     private javax.swing.JComboBox date1Op;
     private org.jdatepicker.impl.JDatePickerImpl date2;
@@ -1894,6 +1956,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
@@ -1919,7 +1982,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
     private javax.swing.JMenuItem savePathsToFile;
     private javax.swing.JMenuItem savePathsToFile1;
     javax.swing.JButton searchBtn;
-    private javax.swing.JCheckBox showFoldersFlag;
+    private javax.swing.JComboBox showFilesFoldersCb;
     private javax.swing.JCheckBox showJustFilenameFlag;
     private javax.swing.JFormattedTextField size1;
     private javax.swing.JComboBox size1Op;

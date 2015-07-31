@@ -176,6 +176,7 @@ public class DeleteFrame extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
         deleteToTrashFlag = new javax.swing.JCheckBox();
         jLabel3 = new javax.swing.JLabel();
+        deleteReadonlyFlag = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Delete");
@@ -200,6 +201,7 @@ public class DeleteFrame extends javax.swing.JFrame {
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 6;
         gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 0);
         getContentPane().add(processStatus, gridBagConstraints);
 
@@ -211,7 +213,7 @@ public class DeleteFrame extends javax.swing.JFrame {
         gridBagConstraints.gridy = 6;
         gridBagConstraints.gridwidth = 4;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
         getContentPane().add(message, gridBagConstraints);
 
         fromPath.setMaximumSize(new java.awt.Dimension(99999, 99999));
@@ -221,6 +223,7 @@ public class DeleteFrame extends javax.swing.JFrame {
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 0);
         getContentPane().add(fromPath, gridBagConstraints);
 
@@ -234,9 +237,9 @@ public class DeleteFrame extends javax.swing.JFrame {
         deleteFilesOnlyFlag.setText("Delete Files Only (leave folders)");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 3;
-        gridBagConstraints.gridwidth = 3;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         getContentPane().add(deleteFilesOnlyFlag, gridBagConstraints);
 
         jLabel2.setMaximumSize(new java.awt.Dimension(999, 999));
@@ -252,6 +255,8 @@ public class DeleteFrame extends javax.swing.JFrame {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         getContentPane().add(deleteToTrashFlag, gridBagConstraints);
 
         jLabel3.setMinimumSize(new java.awt.Dimension(20, 15));
@@ -260,6 +265,14 @@ public class DeleteFrame extends javax.swing.JFrame {
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 4;
         getContentPane().add(jLabel3, gridBagConstraints);
+
+        deleteReadonlyFlag.setText("Delete Read-Only");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        getContentPane().add(deleteReadonlyFlag, gridBagConstraints);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -278,7 +291,7 @@ public class DeleteFrame extends javax.swing.JFrame {
             {
             try {
                 //JOptionPane.showConfirmDialog( null, "hit key" );  if ( 1 == 1 ) return;
-                jfiledelete = new JFileDelete( startingPath, copyPaths, deleteFilesOnlyFlag.isSelected(), deleteToTrashFlag.isSelected() );
+                jfiledelete = new JFileDelete( startingPath, copyPaths, deleteFilesOnlyFlag.isSelected(), deleteToTrashFlag.isSelected(), deleteReadonlyFlag.isSelected() );
                 DeleteFrameSwingWorker deleteFrameSwingWorker = new DeleteFrameSwingWorker( jFileFinderWin, this, jfiledelete, copyPaths );
                 deleteFrameSwingWorker.execute();   //doInBackground();
             } 
@@ -327,6 +340,7 @@ public class DeleteFrame extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JCheckBox deleteFilesOnlyFlag;
+    private javax.swing.JCheckBox deleteReadonlyFlag;
     private javax.swing.JCheckBox deleteToTrashFlag;
     private javax.swing.JButton doCmdBtn;
     private javax.swing.JLabel fromPath;

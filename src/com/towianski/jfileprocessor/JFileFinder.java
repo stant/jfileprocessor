@@ -136,7 +136,7 @@ public class JFileFinder //  implements Runnable
             }
     }
     
-    public static FilesTblModel emptyFilesTableModel() 
+    public static FilesTblModel emptyFilesTableModel( Boolean countOnlyFlag ) 
         {
         synchronized( dataSyncLock ) 
             {
@@ -147,7 +147,14 @@ public class JFileFinder //  implements Runnable
             HeaderList.add( " " );
             
             ArrayList<Object> rowList = new ArrayList<Object>();
-            rowList.add( "filling table . . ." );
+            if ( countOnlyFlag )
+                {
+                rowList.add( "count only." );
+                }
+            else
+                {
+                rowList.add( "filling table . . ." );
+                }
             PathsInfoList.add( rowList );
 
             return new FilesTblModel( HeaderList, PathsInfoList );
@@ -156,7 +163,8 @@ public class JFileFinder //  implements Runnable
     
     public static ResultsData getResultsData() {
         //ResultsData resultsData = new ResultsData( getFilesTableModel(), cancelFlag, finder.getNumTested(), finder.getNumMatches() );
-        ResultsData resultsData = new ResultsData( matchedPathsList, cancelFlag, cancelFillFlag, finder.getNumTested(), finder.getNumFileMatches(), finder.getNumFolderMatches() );
+        ResultsData resultsData = new ResultsData( matchedPathsList, cancelFlag, cancelFillFlag, finder.getNumTested()
+                    , finder.getNumFileMatches(), finder.getNumFolderMatches() , finder.getNumFileTests(), finder.getNumFolderTests() );
         return resultsData;
     }
     
@@ -164,6 +172,8 @@ public class JFileFinder //  implements Runnable
         {
         private long numFileMatches = 0;
         private long numFolderMatches = 0;
+        private long numFileTests = 0;
+        private long numFolderTests = 0;
         private long numTested = 0;
 
         Finder(String pattern) {
@@ -183,6 +193,7 @@ public class JFileFinder //  implements Runnable
         // the file or directory name.
         Boolean processFile( Path file, BasicFileAttributes attrs )
             {
+            numFileTests++;
             numTested++;
             if ( chainFilterList != null )
                 {
@@ -225,6 +236,7 @@ public class JFileFinder //  implements Runnable
         // the file or directory name.
         Boolean processFolder( Path fpath, BasicFileAttributes attrs )
             {
+            numFolderTests++;
             numTested++;
             if ( chainFilterFolderList != null )
                 {
@@ -301,12 +313,7 @@ public class JFileFinder //  implements Runnable
                     System.out.println( "Search cancelled by user." );
                     return FileVisitResult.TERMINATE;
                     }
-//                processFolder( fpath, attrs );
-                if ( processFolder( fpath, attrs ) )
-                    {
-                    //System.err.println( "EARLY FIND" );
-                    return CONTINUE;
-                    }
+                processFolder( fpath, attrs );
                 }
             catch (Exception ex) 
                 {
@@ -384,6 +391,15 @@ public class JFileFinder //  implements Runnable
             {
             return numFolderMatches;
             }
+
+        public long getNumFileTests() {
+            return numFileTests;
+        }
+
+        public long getNumFolderTests() {
+            return numFolderTests;
+        }
+        
     }
 
     static void usage() {

@@ -34,14 +34,16 @@ public class Deleter extends SimpleFileVisitor<Path>
     Boolean dataSyncLock = false;
     Boolean deleteFilesOnlyFlag = false;
     Boolean deleteToTrashFlag = true;
+    Boolean deleteReadonlyFlag = false;
     Path trashFolder = DesktopUtils.getTrashFolder().toPath();
     
-    public Deleter( String startingPath, ArrayList<Path> copyPaths, Boolean deleteFilesOnlyFlag, Boolean deleteToTrashFlag )
+    public Deleter( String startingPath, ArrayList<Path> copyPaths, Boolean deleteFilesOnlyFlag, Boolean deleteToTrashFlag, Boolean deleteReadonlyFlag )
     {
         this.fromPath = Paths.get( startingPath );
         this.copyPaths = copyPaths;
         this.deleteFilesOnlyFlag = deleteFilesOnlyFlag;
         this.deleteToTrashFlag = deleteToTrashFlag;
+        this.deleteReadonlyFlag = deleteReadonlyFlag;
         System.err.println( "Deleter this.fromPath =" + this.fromPath + "=" );
         cancelFlag = false;
     }
@@ -52,7 +54,7 @@ public class Deleter extends SimpleFileVisitor<Path>
         }
 
     @Override
-    public FileVisitResult visitFile( Path file, BasicFileAttributes attrs ) 
+    public FileVisitResult visitFile( Path fpath, BasicFileAttributes attrs ) 
             throws IOException 
         {
         if ( cancelFlag )
@@ -61,15 +63,35 @@ public class Deleter extends SimpleFileVisitor<Path>
             return FileVisitResult.TERMINATE;
             }
         numTested++;
-        if ( deleteToTrashFlag )
-            {
-            Path trashparent = trashFolder.resolve( fromPath.relativize( file ) ).getParent();
-            //System.out.println( "trashparent =" + trashparent );
-            trashparent.toFile().mkdirs();
-            Files.copy( file, trashFolder.resolve( fromPath.relativize( file ) ), StandardCopyOption.REPLACE_EXISTING );
-            
+        try {
+            if ( deleteReadonlyFlag )
+                {
+                fpath.toFile().setWritable( true );
+                }
+            if ( deleteToTrashFlag )
+                {
+                Path trashparent = trashFolder.resolve( fromPath.relativize( fpath ) ).getParent();
+                //System.out.println( "trashparent =" + trashparent );
+                trashparent.toFile().mkdirs();
+                Files.copy( fpath, trashFolder.resolve( fromPath.relativize( fpath ) ), StandardCopyOption.REPLACE_EXISTING );
+                }
+            Files.delete( fpath );
             }
-        Files.delete( file );
+        catch ( java.nio.file.AccessDeniedException exAccessDenied ) 
+            {
+            Logger.getLogger(Deleter.class.getName()).log(Level.SEVERE, null, exAccessDenied );
+            System.out.println( "CAUGHT ERROR  " + "  " + exAccessDenied.getClass().getSimpleName() + ": " + fpath );
+            // I tried to catch accessDenied from an error trying to delete a readOnly file
+            // and then do file.setwritable(true) and delete it again, but it did not work and 
+            // just cascaded errors down the road. Stan
+            return FileVisitResult.TERMINATE;
+            }
+        catch ( Exception ex ) 
+            {
+            Logger.getLogger(Deleter.class.getName()).log(Level.SEVERE, null, ex );
+            System.out.println( "CAUGHT ERROR  " + "  " + ex.getClass().getSimpleName() + ": " + fpath );
+            return FileVisitResult.TERMINATE;
+            }
         //System.out.println( "would delete file =" + file );
         numFilesDeleted++;
         return FileVisitResult.CONTINUE;
@@ -100,10 +122,10 @@ public class Deleter extends SimpleFileVisitor<Path>
         catch (Exception ex2) 
             {
             Logger.getLogger(Deleter.class.getName()).log(Level.SEVERE, null, ex2 );
-        System.out.println( "CAUGHT ERROR  " + "my error msg" + ex2.getClass().getSimpleName() + ": " + dir );
-            throw new IOException( "my error msg" + ex2.getClass().getSimpleName() + ": " + dir );
+            System.out.println( "CAUGHT ERROR  " + "  " + ex2.getClass().getSimpleName() + ": " + dir );
+            return FileVisitResult.TERMINATE;
             }
-        //return FileVisitResult.TERMINATE;
+        //return FileVisitResult.CONTINUE;
         }
     
     // Prints the total number of
