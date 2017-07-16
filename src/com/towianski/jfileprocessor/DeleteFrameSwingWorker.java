@@ -46,8 +46,19 @@ public class DeleteFrameSwingWorker extends SwingWorker<ResultsData, Object> {
             //System.out.println( "SwingWork.done() at 2  ii = " + ii );
             //System.err.println( "SwingWork.done() got ans =" + matchedPathsList + "=" );
             NumberFormat numFormat = NumberFormat.getIntegerInstance();
-            deleteFrame.setMessage( "Deleted " + numFormat.format( resultsData.getFilesMatched() ) + " files and " + numFormat.format( resultsData.getFoldersMatched() ) + " folders out of " + numFormat.format( resultsData.getFilesVisited() ) );
-            if ( resultsData.getSearchWasCanceled() )
+            if ( ! resultsData.getMessage().equals( "" ) )
+                {
+                deleteFrame.setMessage( resultsData.getMessage() );
+                }
+            else
+                {
+                deleteFrame.setMessage( "Deleted " + numFormat.format( resultsData.getFilesMatched() ) + " files and " + numFormat.format( resultsData.getFoldersMatched() ) + " folders out of " + numFormat.format( resultsData.getFilesVisited() ) );
+                }
+            if ( ! resultsData.getProcessStatus().equals( "" ) )
+                {
+                deleteFrame.setProcessStatus( resultsData.getProcessStatus() );
+                }
+            else if ( resultsData.getSearchWasCanceled() )
                 {
                 deleteFrame.setProcessStatus( deleteFrame.PROCESS_STATUS_DELETE_CANCELED );
                 deleteFrame.setMessage( deleteFrame.getMessage() + " partial files list." );

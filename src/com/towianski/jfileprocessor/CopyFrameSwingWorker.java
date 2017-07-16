@@ -52,12 +52,25 @@ public class CopyFrameSwingWorker extends SwingWorker<ResultsData, Object> {
             if ( resultsData.getSearchWasCanceled() )
                 {
                 copyFrame.setProcessStatus( copyFrame.PROCESS_STATUS_COPY_CANCELED );
-                copyFrame.setMessage( copyFrame.getMessage() + " partial files list." );
+//                else
+                    {
+                    copyFrame.setMessage( copyFrame.getMessage() + " partial files list." );
+                    }
                 }
             else
                 {
                 copyFrame.setProcessStatus( copyFrame.PROCESS_STATUS_COPY_COMPLETED );
                 }
+
+            if ( ! resultsData.getProcessStatus().trim().equals( "" ) )
+                {
+                copyFrame.setProcessStatus( resultsData.getProcessStatus() );
+                }
+            if ( ! resultsData.getMessage().trim().equals( "" ) )
+                {
+                copyFrame.setMessage( resultsData.getMessage() );
+                }
+
             copyFrame.setResultsData( resultsData );
             
             jFileFinderWin.callSearchBtnActionPerformed( null );
@@ -75,6 +88,7 @@ public class CopyFrameSwingWorker extends SwingWorker<ResultsData, Object> {
                 why = e.getMessage();
             }
             System.err.println( "Error in CopyFrameSwingWorker(): " + why);
+            e.printStackTrace();
             }
     }    
 }

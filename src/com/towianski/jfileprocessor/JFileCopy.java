@@ -23,6 +23,8 @@ import java.util.logging.Logger;
 public class JFileCopy //  implements Runnable 
 {
     Boolean cancelFlag = false;
+    String processStatus = "";
+    String message = "";
     Boolean cancelFillFlag = false;
     Boolean isDoingCutFlag = false;
     String startingPath = null;
@@ -31,9 +33,13 @@ public class JFileCopy //  implements Runnable
     Boolean dataSyncLock = false;
     Copier copier = null;
     private CopyOption[] copyOptions = null;
+    CopyFrame copyFrame = null;
+    JFileFinderWin jFileFinderWin = null;
     
-    public JFileCopy( Boolean isDoingCutFlag, String startingPath, ArrayList<Path> copyPaths, String toPath, CopyOption[] copyOptions )
+    public JFileCopy( JFileFinderWin jFileFinderWin, CopyFrame copyFrame, Boolean isDoingCutFlag, String startingPath, ArrayList<Path> copyPaths, String toPath, CopyOption[] copyOptions )
     {
+        this.jFileFinderWin = jFileFinderWin;
+        this.copyFrame = copyFrame;
         this.isDoingCutFlag = isDoingCutFlag;
         this.startingPath = startingPath;
         this.copyPaths = copyPaths;
@@ -57,7 +63,7 @@ public class JFileCopy //  implements Runnable
         //System.err.println( "entered jfilecopy getResultsData()" );
         ResultsData resultsData = new ResultsData();
         try {
-            resultsData = new ResultsData( cancelFlag, copier.getNumTested(), copier.getNumFileMatches(), copier.getNumFolderMatches() );
+            resultsData = new ResultsData( cancelFlag, copier.getProcessStatus(), copier.getMessage(), copier.getNumTested(), copier.getNumFileMatches(), copier.getNumFolderMatches() );
             }
         catch( Exception ex )
             {
@@ -76,7 +82,7 @@ public class JFileCopy //  implements Runnable
         {
         System.err.println( "toPath =" + toPath + "=" );
         
-        copier = new Copier( isDoingCutFlag, startingPath, copyPaths, toPath, copyOptions );
+        copier = new Copier( jFileFinderWin, isDoingCutFlag, copyOptions );
         try {
             synchronized( dataSyncLock ) 
                 {
@@ -84,8 +90,9 @@ public class JFileCopy //  implements Runnable
                 cancelFillFlag = false;
                 for ( Path fpath : copyPaths )
                     {
-                    //System.err.println( "copy path =" + fpath + "=" );
+                    System.err.println( "\n-------  new filewalk: copy path =" + fpath + "=" );
                     EnumSet<FileVisitOption> opts = EnumSet.of( FOLLOW_LINKS );
+                    copier.setPaths( fpath, startingPath, toPath );
                     Files.walkFileTree( fpath, opts, Integer.MAX_VALUE, copier );
                     
                     //break;  for testing to do just 1st path
@@ -97,6 +104,10 @@ public class JFileCopy //  implements Runnable
             Logger.getLogger(JFileCopy.class.getName()).log(Level.SEVERE, null, ex);
             }
         copier.done();
+        if ( copier.getProcessStatus().equals( "" ) )
+            {
+            copier.setProcessStatus( CopyFrame.PROCESS_STATUS_COPY_COMPLETED );
+            }
         }
         
     public static void main(String[] args) throws IOException 

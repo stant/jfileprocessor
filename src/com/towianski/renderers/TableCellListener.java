@@ -29,6 +29,7 @@ public class TableCellListener implements PropertyChangeListener, Runnable
 	private Object newValue;
         private Boolean onOffFlag = true;
         private String skipFirstPath = "";
+        private Boolean doingCancel = false;
         
 	/**
 	 *  Create a TableCellListener.
@@ -150,6 +151,27 @@ public class TableCellListener implements PropertyChangeListener, Runnable
 	/*
 	 *  Save information of the cell about to be edited
 	 */
+	public void processEditingCanceled()
+            {
+            if (table.isEditing())
+                {
+                System.out.println( "processEditingCanceled()" );
+                doingCancel = true;
+//                //System.out.println( "tbl cell editor stopping() table.getEditingRow() = " + table.getEditingRow() );
+//                row = table.convertRowIndexToModel( table.getEditingRow() );
+//                //System.out.println( "tbl cell editor stopping() row = " + row );
+//                //System.out.println( "tbl cell editor stopping() table.getEditingColumn() = " + table.getEditingColumn() );
+//                column = table.convertColumnIndexToModel( table.getEditingColumn() );
+//                //System.out.println( "tbl cell editor stopping() column = " + column );
+//
+//                FilesTblModel filesTblModel = (FilesTblModel) table.getModel();
+//                filesTblModel.setCellEditable( row, column, false );
+                }
+            }
+
+	/*
+	 *  Save information of the cell about to be edited
+	 */
 	private void processEditingStarted()
 	{
             //  The invokeLater is necessary because the editing row and editing
@@ -183,7 +205,8 @@ public class TableCellListener implements PropertyChangeListener, Runnable
             //oldValue = table.getModel().getValueAt(row, column);
             oldValue = filesTblModel.getValueAt(row, column);
             newValue = null;
-	}
+            doingCancel = false;
+        }
 
 	/*
 	 *	Update the Cell history when necessary
@@ -222,10 +245,14 @@ public class TableCellListener implements PropertyChangeListener, Runnable
             System.out.println("stopping() Old   : " + getOldValue());
             System.out.println("stopping() New   : " + getNewValue());
 
-            if ( newValue.equals( oldValue )
-                   && newValue.equals( skipFirstPath ) )  // old and new == new file path
+            if ( oldValue.equals( skipFirstPath ) )  // New Folder
                 {
                 oldValue = null;
+                }
+            
+            if ( newValue.equals( oldValue ) )
+                {
+                filesTblModel.setCellEditable( row, column, false );
                 }
             
             if ( ! newValue.equals( oldValue ) )
@@ -237,15 +264,22 @@ public class TableCellListener implements PropertyChangeListener, Runnable
                 //  Make a copy of the data in case another cell starts editing
                 //  while processing this change
 
-                TableCellListener tcl = new TableCellListener(
-                        getTable(), getRow(), getColumn(), getOldValue(), getNewValue());
-                //System.out.println( "processEditingStopped() tcl tbl col count =" + filesTblModel.getColumnCount() );
+                if ( doingCancel )
+                    {
+                    filesTblModel.setValueAt( oldValue, getRow(), getColumn() );
+                    }
+                else
+                    {
+                    TableCellListener tcl = new TableCellListener(
+                            getTable(), getRow(), getColumn(), getOldValue(), getNewValue());
+                    //System.out.println( "processEditingStopped() tcl tbl col count =" + filesTblModel.getColumnCount() );
 
-                ActionEvent event = new ActionEvent(
-                        tcl,
-                        ActionEvent.ACTION_PERFORMED,
-                        "");
-                action.actionPerformed(event);
+                    ActionEvent event = new ActionEvent(
+                            tcl,
+                            ActionEvent.ACTION_PERFORMED,
+                            "");
+                    action.actionPerformed(event);
+                    }
                 }
 	}
 }

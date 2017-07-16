@@ -24,7 +24,9 @@ public class ResultsData {
     private long foldersMatched = 0;
     private long filesTested = 0;
     private long foldersTested = 0;
-
+    private String processStatus = "";
+    private String message = "";
+    
     public ResultsData()
         {
         }
@@ -42,9 +44,11 @@ public class ResultsData {
         this.foldersTested = foldersTested;
         }
     
-    public ResultsData( Boolean searchWasCanceledArg, long filesVisitedArg, long filesMatchedArg, long foldersMatched )
+    public ResultsData( Boolean searchWasCanceledArg, String processStatus, String message, long filesVisitedArg, long filesMatchedArg, long foldersMatched )
         {
         this.searchWasCanceled = searchWasCanceledArg;
+        this.processStatus = processStatus;
+        this.message = message;
         this.filesVisited = filesVisitedArg;
         this.filesMatched = filesMatchedArg;
         this.foldersMatched = foldersMatched;
@@ -120,6 +124,22 @@ public class ResultsData {
 
     public void setFoldersTested(long foldersTested) {
         this.foldersTested = foldersTested;
+    }
+
+    public String getProcessStatus() {
+        return processStatus;
+    }
+
+    public void setProcessStatus(String processStatus) {
+        this.processStatus = processStatus;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
         
 }

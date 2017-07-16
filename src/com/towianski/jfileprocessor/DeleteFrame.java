@@ -125,6 +125,7 @@ public class DeleteFrame extends javax.swing.JFrame {
             case PROCESS_STATUS_DELETE_COMPLETED:
                 processStatus.setBackground( saveColor );
                 setDoCmdBtn( this.PROCESS_STATUS_DELETE_READY, saveColor );
+                doCmdBtn.setEnabled(false);
                 break;
             default:
                 processStatus.setBackground( saveColor );

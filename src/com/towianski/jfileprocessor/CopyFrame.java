@@ -6,6 +6,7 @@
 package com.towianski.jfileprocessor;
 
 import com.towianski.models.ResultsData;
+import com.towianski.utils.MyLogger;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -18,9 +19,10 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JComponent;
+import javax.swing.JEditorPane;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
 /**
@@ -28,6 +30,9 @@ import javax.swing.KeyStroke;
  * @author Stan Towianski July 2015
  */
 public class CopyFrame extends javax.swing.JFrame {
+
+//    private final static MyLogger logger = new MyLogger( Logger.getLogger( CopyFrame.class.getName() ) );
+    MyLogger logger = MyLogger.getLogger( CopyFrame.class.getName() );
 
     JFileFinderWin jFileFinderWin = null;
     Thread jfinderThread = null;
@@ -57,7 +62,8 @@ public class CopyFrame extends javax.swing.JFrame {
     public CopyFrame() {
         initComponents();
         System.err.println( "CopyFrame constructor()" );
-
+//        MyLogger.init();
+        
         this.setLocationRelativeTo( getRootPane() );
         this.addEscapeListener( this );
         this.getRootPane().setDefaultButton( doCmdBtn );
@@ -118,12 +124,6 @@ public class CopyFrame extends javax.swing.JFrame {
         doCmdBtn.setOpaque(true);
         }
 
-//    public void resetDoCmdBtn() {
-//        doCmdBtn.setText( "Search" );
-//        doCmdBtn.setBackground( saveColor );
-//        doCmdBtn.setOpaque(true);
-//    }
-
     public void setResultsData( ResultsData resultsData )
         {
         this.resultsData = resultsData;
@@ -152,6 +152,7 @@ public class CopyFrame extends javax.swing.JFrame {
             case PROCESS_STATUS_COPY_COMPLETED:
                 processStatus.setBackground( saveColor );
                 setDoCmdBtn( this.PROCESS_STATUS_COPY_READY, saveColor );
+                doCmdBtn.setEnabled(false);
                 break;
             default:
                 processStatus.setBackground( saveColor );
@@ -205,6 +206,7 @@ public class CopyFrame extends javax.swing.JFrame {
         jLabel3 = new javax.swing.JLabel();
         copyAttribs = new javax.swing.JCheckBox();
         noFollowLinks = new javax.swing.JCheckBox();
+        jButton1 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Paste");
@@ -294,19 +296,37 @@ public class CopyFrame extends javax.swing.JFrame {
         gridBagConstraints.gridy = 3;
         getContentPane().add(jLabel3, gridBagConstraints);
 
+        copyAttribs.setSelected(true);
         copyAttribs.setText("Copy Attributes");
+        copyAttribs.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                copyAttribsActionPerformed(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 3;
         gridBagConstraints.insets = new java.awt.Insets(0, 7, 0, 0);
         getContentPane().add(copyAttribs, gridBagConstraints);
 
-        noFollowLinks.setText("No Follow Links (or copy links as links)");
+        noFollowLinks.setText("No Follow Links (copy links as links)");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
         gridBagConstraints.gridy = 3;
         gridBagConstraints.insets = new java.awt.Insets(0, 7, 0, 0);
         getContentPane().add(noFollowLinks, gridBagConstraints);
+
+        jButton1.setText("Log");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 0);
+        getContentPane().add(jButton1, gridBagConstraints);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -336,16 +356,33 @@ public class CopyFrame extends javax.swing.JFrame {
 //                for ( CopyOption cc : copyOptsAR )
 //                    System.err.println( "cc =" + cc + "=" );
                 
-                jfilecopy = new JFileCopy( isDoingCutFlag, startingPath, copyPaths, toPath, copyOpts.toArray( new CopyOption[ copyOpts.size() ] ) );
+                jfilecopy = new JFileCopy( jFileFinderWin, this, isDoingCutFlag, startingPath, copyPaths, toPath, copyOpts.toArray( new CopyOption[ copyOpts.size() ] ) );
                 CopyFrameSwingWorker copyFrameSwingWorker = new CopyFrameSwingWorker( jFileFinderWin, this, jfilecopy, copyPaths, toPath );
                 copyFrameSwingWorker.execute();   //doInBackground();
             } 
             catch (Exception ex) {
-                Logger.getLogger(JFileCopy.class.getName()).log(Level.SEVERE, null, ex);
+                logger.log(Level.SEVERE, null, ex);
             } 
         }
         
     }//GEN-LAST:event_doCmdBtnActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+
+        System.out.println( "log string =\n" + logger.getLogString() + "\n=" );
+
+        JEditorPane ep = new JEditorPane( "text/text", logger.getLogString() );
+        ep.setVisible(true);
+        ep.setSize( 900,800 );
+
+    // show
+    JOptionPane.showMessageDialog( null, ep );
+        
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void copyAttribsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_copyAttribsActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_copyAttribsActionPerformed
 
     /**
      * @param args the command line arguments
@@ -356,6 +393,8 @@ public class CopyFrame extends javax.swing.JFrame {
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
          * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
          */
+        MyLogger logger = MyLogger.getLogger( CopyFrame.class.getName() );
+
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
@@ -364,13 +403,13 @@ public class CopyFrame extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(CopyFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            logger.log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(CopyFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            logger.log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(CopyFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            logger.log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(CopyFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            logger.log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
@@ -386,6 +425,7 @@ public class CopyFrame extends javax.swing.JFrame {
     private javax.swing.JCheckBox copyAttribs;
     private javax.swing.JButton doCmdBtn;
     private javax.swing.JLabel fromPath;
+    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;

@@ -23,19 +23,23 @@ import com.towianski.chainfilters.FilterChain;
 import com.towianski.jfileprocess.actions.CopyAction;
 import com.towianski.jfileprocess.actions.CutAction;
 import com.towianski.jfileprocess.actions.DeleteAction;
+import com.towianski.jfileprocess.actions.EnterAction;
 import com.towianski.jfileprocess.actions.PasteAction;
 import com.towianski.jfileprocess.actions.RenameAction;
 import com.towianski.jfileprocess.actions.UpFolderAction;
+import com.towianski.jfileprocess.actions.JavaProcess;
+import com.towianski.listeners.MyFocusAdapter;
 import com.towianski.renderers.FiletypeCBCellRenderer;
 import com.towianski.renderers.LinktypeCBCellRenderer;
 import com.towianski.renderers.PathRenderer;
 import com.towianski.renderers.TableCellListener;
 import static com.towianski.utils.ClipboardUtils.getClipboardStringsList;
 import static com.towianski.utils.ClipboardUtils.setClipboardContents;
+import com.towianski.utils.DesktopUtils;
+import com.towianski.utils.MyLogger;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Desktop;
-import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
@@ -54,6 +58,7 @@ import java.nio.file.Paths;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -80,6 +85,8 @@ import javax.swing.table.TableRowSorter;
  * @author Stan Towianski - June 2015
  */
 public class JFileFinderWin extends javax.swing.JFrame {
+
+    MyLogger logger = MyLogger.getLogger( JFileFinderWin.class.getName() );
 
     Thread jfinderThread = null;
     JFileFinderSwingWorker jFileFinderSwingWorker = null;
@@ -137,7 +144,9 @@ public class JFileFinderWin extends javax.swing.JFrame {
         this.setLocationRelativeTo( getRootPane() );
 
         filesTblCellListener = new TableCellListener( filesTbl, filesTblCellChangedAction );
-        filesTbl.putClientProperty( "terminateEditOnFocusLost", Boolean.TRUE );
+//        filesTbl.putClientProperty( "terminateEditOnFocusLost", Boolean.TRUE );
+
+        filesTbl.addFocusListener( new MyFocusAdapter( filesTblCellListener, this ) );
         
         addkeymapstuff();
 
@@ -154,6 +163,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
         
     public void addkeymapstuff()
     {
+       EnterAction enterAction = new EnterAction( this );
        RenameAction renameAction = new RenameAction( this );
        DeleteAction deleteAction = new DeleteAction( this );
        UpFolderAction upFolderAction = new UpFolderAction( this );
@@ -163,6 +173,9 @@ public class JFileFinderWin extends javax.swing.JFrame {
        
         InputMap inputMap = filesTbl.getInputMap();
         ActionMap actionMap = filesTbl.getActionMap();
+ 
+        inputMap.put( KeyStroke.getKeyStroke( KeyEvent.VK_ENTER, 0 ), "enterAction" );
+        actionMap.put( "enterAction", enterAction );
  
         inputMap.put( KeyStroke.getKeyStroke( KeyEvent.VK_F2, 0 ), "renameAction" );
         actionMap.put( "renameAction", renameAction );
@@ -207,6 +220,10 @@ public class JFileFinderWin extends javax.swing.JFrame {
         this.startingFolder.setText( startingFolder );
     }
 
+    public Level getLogLevel() {
+        return logLevelsLhm.get( logLevel.getSelectedItem() );
+    }
+
     public void callSearchBtnActionPerformed(java.awt.event.ActionEvent evt)
         {   // FIXXX  I can get rid of this method !
         searchBtnAction( evt );
@@ -217,6 +234,11 @@ public class JFileFinderWin extends javax.swing.JFrame {
         DeleteActionPerformed( evt );
         }
             
+    public void callEnterActionPerformed(java.awt.event.ActionEvent evt)
+        {
+        EnterActionPerformed( evt );
+        }
+                        
     public void callRenameActionPerformed(java.awt.event.ActionEvent evt)
         {
         RenameActionPerformed( evt );
@@ -398,7 +420,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
                     }
                 catch (IOException ex) 
                     {
-                    Logger.getLogger(JFileFinderWin.class.getName()).log(Level.SEVERE, null, ex);
+                    logger.log(Level.SEVERE, null, ex);
                     }
                 }
             //filesTbl.setCellSelectionEnabled( false );
@@ -589,7 +611,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
 //                        searchBtn.setOpaque(true);
             } 
             catch (Exception ex) {
-                Logger.getLogger(JFileFinder.class.getName()).log(Level.SEVERE, null, ex);
+                logger.log(Level.SEVERE, null, ex);
             } 
         }
     }
@@ -675,7 +697,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
             } 
         catch (Exception ex) 
             {
-            Logger.getLogger(JFileFinderWin.class.getName()).log(Level.SEVERE, null, ex);
+            logger.log(Level.SEVERE, null, ex);
             JOptionPane.showMessageDialog( this, "Open not supported in this desktop", "Error", JOptionPane.ERROR_MESSAGE );
             }
         
@@ -715,8 +737,8 @@ public class JFileFinderWin extends javax.swing.JFrame {
             } 
         catch (Exception ex) 
             {
-            Logger.getLogger(JFileFinderWin.class.getName()).log(Level.SEVERE, null, ex);
-            JOptionPane.showMessageDialog( this, "Edit not supported in this desktop.\nWill try Open.", "Error", JOptionPane.ERROR_MESSAGE );
+            logger.log(Level.SEVERE, null, ex);
+//            JOptionPane.showMessageDialog( this, "Edit not supported in this desktop.\nWill try Open.", "Error", JOptionPane.ERROR_MESSAGE );
             desktopOpen( file );
             }
         }
@@ -833,6 +855,10 @@ public class JFileFinderWin extends javax.swing.JFrame {
         jTabbedPane1 = new javax.swing.JTabbedPane();
         jPanel5 = new javax.swing.JPanel();
         showJustFilenameFlag = new javax.swing.JCheckBox();
+        logLevel = new javax.swing.JComboBox();
+        jLabel10 = new javax.swing.JLabel();
+        jButton3 = new javax.swing.JButton();
+        jButton4 = new javax.swing.JButton();
         jPanel4 = new javax.swing.JPanel();
         tabsLogicAndBtn = new javax.swing.JRadioButton();
         tabsLogicOrBtn = new javax.swing.JRadioButton();
@@ -1007,7 +1033,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
             jPopupMenu2.add(savePathsToFile1);
 
             setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-            setTitle("JFileProcessor v1.4.4 - Stan Towianski  (c) 2015");
+            setTitle("JFileProcessor v1.4.5 - Stan Towianski  (c) 2015-2017");
 
             jSplitPane1.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
 
@@ -1086,12 +1112,58 @@ public class JFileFinderWin extends javax.swing.JFrame {
                 }
             });
             gridBagConstraints = new java.awt.GridBagConstraints();
-            gridBagConstraints.gridx = 0;
+            gridBagConstraints.gridx = 2;
+            gridBagConstraints.gridy = 0;
+            gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+            gridBagConstraints.insets = new java.awt.Insets(0, 6, 0, 0);
+            jPanel5.add(showJustFilenameFlag, gridBagConstraints);
+
+            logLevel.setModel(new javax.swing.DefaultComboBoxModel(logLevelsArrStr));
+            logLevelsLhm.put( Level.OFF.toString(), Level.OFF );
+            logLevelsLhm.put( Level.INFO.toString(), Level.INFO );
+            logLevelsLhm.put( Level.WARNING.toString(), Level.WARNING );
+            logLevelsLhm.put( Level.FINE.toString(), Level.FINE );
+            logLevelsLhm.put( Level.FINER.toString(), Level.FINER );
+            logLevelsLhm.put( Level.FINEST.toString(), Level.FINEST );
+            logLevelsLhm.put( Level.SEVERE.toString(), Level.SEVERE );
+            logLevelsLhm.put( Level.ALL.toString(), Level.ALL );
+            logLevel.setSelectedItem( Level.OFF.toString() );
+            gridBagConstraints = new java.awt.GridBagConstraints();
+            gridBagConstraints.gridx = 4;
             gridBagConstraints.gridy = 0;
             gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
             gridBagConstraints.weightx = 0.2;
             gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 0);
-            jPanel5.add(showJustFilenameFlag, gridBagConstraints);
+            jPanel5.add(logLevel, gridBagConstraints);
+
+            jLabel10.setText("Log Level: ");
+            gridBagConstraints = new java.awt.GridBagConstraints();
+            gridBagConstraints.gridx = 3;
+            gridBagConstraints.gridy = 0;
+            gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
+            jPanel5.add(jLabel10, gridBagConstraints);
+
+            jButton3.setText("New Window");
+            jButton3.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    jButton3ActionPerformed(evt);
+                }
+            });
+            gridBagConstraints = new java.awt.GridBagConstraints();
+            gridBagConstraints.gridx = 0;
+            gridBagConstraints.gridy = 0;
+            gridBagConstraints.insets = new java.awt.Insets(0, 6, 0, 0);
+            jPanel5.add(jButton3, gridBagConstraints);
+
+            jButton4.setText("Trash");
+            jButton4.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    jButton4ActionPerformed(evt);
+                }
+            });
+            gridBagConstraints = new java.awt.GridBagConstraints();
+            gridBagConstraints.insets = new java.awt.Insets(0, 8, 0, 0);
+            jPanel5.add(jButton4, gridBagConstraints);
 
             jTabbedPane1.addTab("View", jPanel5);
 
@@ -1496,7 +1568,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
 
             jSplitPane1.setRightComponent(jPanel7);
 
-            getContentPane().add(jSplitPane1, java.awt.BorderLayout.CENTER);
+            getContentPane().add(jSplitPane1, java.awt.BorderLayout.PAGE_START);
 
             pack();
         }// </editor-fold>//GEN-END:initComponents
@@ -1701,6 +1773,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
             showJustFilenameFlag.setSelected( true );
             showFilesFoldersCb.setSelectedItem( SHOWFILESFOLDERSCB_BOTH );
             jSplitPane1.setDividerLocation( jSplitPane1.getMinimumDividerLocation() );
+            jPanel6.setBackground( Color.LIGHT_GRAY );
             }
         else
             {
@@ -1709,6 +1782,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
             showJustFilenameFlag.setSelected( false );
             showFilesFoldersCb.setSelectedItem( SHOWFILESFOLDERSCB_FILES_ONLY );
             jSplitPane1.setDividerLocation( jSplitPane1.getLastDividerLocation() );
+            jPanel6.setBackground( Color.ORANGE );
             }
     }//GEN-LAST:event_fileMgrModeActionPerformed
 
@@ -1765,7 +1839,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
             } 
         catch (Exception ex) 
             {
-            Logger.getLogger(JFileFinder.class.getName()).log(Level.SEVERE, null, ex);
+            logger.log(Level.SEVERE, null, ex);
             }                     
     }//GEN-LAST:event_PasteActionPerformed
 
@@ -1820,7 +1894,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
             } 
         catch (Exception ex) 
             {
-            Logger.getLogger(JFileFinder.class.getName()).log(Level.SEVERE, null, ex);
+            logger.log(Level.SEVERE, null, ex);
             } 
     }//GEN-LAST:event_DeleteActionPerformed
 
@@ -1828,9 +1902,9 @@ public class JFileFinderWin extends javax.swing.JFrame {
         FilesTblModel filesTblModel = (FilesTblModel) filesTbl.getModel();
         filesTblCellListener.skipFirstEditOn( startingFolder.getText().trim() + "New Folder" );
         filesTblModel.insertRowAt( 0, startingFolder.getText().trim() + "New Folder" );
-        //setColumnSizes();
+        setColumnSizes();
 //        filesTbl.setCellSelectionEnabled( true );
-        filesTblModel.setCellEditable( 0, FilesTblModel.FILESTBLMODEL_PATH, true );
+            filesTblModel.setCellEditable( 0, FilesTblModel.FILESTBLMODEL_PATH, true );
         //filesTbl.changeSelection( 0, FilesTblModel.FILESTBLMODEL_PATH, false, false );
         //filesTbl.requestFocus();
         
@@ -1841,6 +1915,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
 //        filesTbl.getEditorCo‌​mponent().requestFocus();
 //        filesTbl.getEditorCo‌​mponent().requestFocus();
         //filesTbl.setCellSelectionEnabled( false );        
+
     }//GEN-LAST:event_NewFolderActionPerformed
 
     private void RenameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RenameActionPerformed
@@ -1851,13 +1926,33 @@ public class JFileFinderWin extends javax.swing.JFrame {
             return;
             }
         int rowIndex = filesTbl.convertRowIndexToModel( filesTbl.getSelectedRow() );
+        System.out.println( "rename filesTbl.getSelectedRow() =" + filesTbl.getSelectedRow() + "   rowIndex = " + rowIndex );
         FilesTblModel filesTblModel = (FilesTblModel) filesTbl.getModel();
         String selectedPath = (String) filesTblModel.getValueAt( rowIndex, FilesTblModel.FILESTBLMODEL_PATH );
+        System.out.println( "rename selectedPath =" + selectedPath + "   rowIndex = " + rowIndex );
 
 //        filesTbl.setCellSelectionEnabled( true );
         filesTblModel.setCellEditable( rowIndex, FilesTblModel.FILESTBLMODEL_PATH, true );
-        filesTbl.changeSelection( rowIndex, FilesTblModel.FILESTBLMODEL_PATH, false, false );        
+        filesTbl.changeSelection( filesTbl.getSelectedRow(), FilesTblModel.FILESTBLMODEL_PATH, false, false );        
+        
     }//GEN-LAST:event_RenameActionPerformed
+
+    private void EnterActionPerformed(java.awt.event.ActionEvent evt) {                                       
+        int rowIndex = filesTbl.convertRowIndexToModel( filesTbl.getSelectedRow() );
+        //System.out.println( "converted rowIndex =" + rowIndex );
+        String selectedPath = (String) filesTbl.getModel().getValueAt( rowIndex, FilesTblModel.FILESTBLMODEL_PATH );
+        Boolean isDir = (Boolean) filesTbl.getModel().getValueAt( rowIndex, FilesTblModel.FILESTBLMODEL_ISDIR );
+        //System.out.println( "selected row file =" + selectedPath );
+        if ( isDir )
+            {
+            this.setStartingFolder( selectedPath );
+            this.callSearchBtnActionPerformed( null );
+            }
+        else
+            {
+            this.desktopEdit( new File( selectedPath ) );
+            }        
+    }                                      
 
     private void showJustFilenameFlagActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showJustFilenameFlagActionPerformed
         // TODO add your handling code here:
@@ -1882,6 +1977,28 @@ public class JFileFinderWin extends javax.swing.JFrame {
         searchBtnAction( evt );
     }//GEN-LAST:event_countBtnActionPerformed
 
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        try {
+            int rc = JavaProcess.exec( com.towianski.jfileprocessor.JFileFinderWin.class );
+            System.err.println( "javaprocess.exec start new window rc = " + rc + "=" );
+        } catch (IOException ex) {
+            Logger.getLogger(JFileFinderWin.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(JFileFinderWin.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+        try {
+            int rc = JavaProcess.exec( com.towianski.jfileprocessor.JFileFinderWin.class, DesktopUtils.getTrashFolder().toString() );
+            System.err.println( "javaprocess.exec start new window rc = " + rc + "=" );
+        } catch (IOException ex) {
+            Logger.getLogger(JFileFinderWin.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(JFileFinderWin.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_jButton4ActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -1891,6 +2008,8 @@ public class JFileFinderWin extends javax.swing.JFrame {
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
          * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
          */
+        MyLogger logger = MyLogger.getLogger( JFileFinderWin.class.getName() );
+
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
@@ -1899,13 +2018,13 @@ public class JFileFinderWin extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(JFileFinderWin.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            logger.log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(JFileFinderWin.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            logger.log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(JFileFinderWin.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            logger.log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(JFileFinderWin.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            logger.log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
         //</editor-fold>
@@ -1916,10 +2035,17 @@ public class JFileFinderWin extends javax.swing.JFrame {
         //</editor-fold>
         //</editor-fold>
 
+        final JFileFinderWin jffw = new JFileFinderWin();
+        if ( args.length > 0 )
+            {
+            jffw.startingFolder.setText( args[0] );
+            jffw.searchBtnActionPerformed( null );
+            }
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new JFileFinderWin().setVisible(true);
+//                new JFileFinderWin().setVisible(true);
+                jffw.setVisible(true);
             }
         });
     }
@@ -1948,7 +2074,10 @@ public class JFileFinderWin extends javax.swing.JFrame {
     private javax.swing.JTable filesTbl;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
+    private javax.swing.JButton jButton4;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -1971,6 +2100,10 @@ public class JFileFinderWin extends javax.swing.JFrame {
     private javax.swing.JPopupMenu.Separator jSeparator1;
     private javax.swing.JSplitPane jSplitPane1;
     private javax.swing.JTabbedPane jTabbedPane1;
+    //Level[] logLevelsArr = new Level [] { Level.ALL, Level.CONFIG, Level.FINE, Level.FINER, Level.FINEST, Level.INFO, Level.OFF, Level.SEVERE, Level.WARNING };
+    String[] logLevelsArrStr = new String [] { Level.OFF.toString(), Level.SEVERE.toString(), Level.WARNING.toString(), Level.INFO.toString(), Level.CONFIG.toString(), Level.FINE.toString(), Level.FINER.toString(), Level.FINEST.toString(), Level.ALL.toString() };
+    LinkedHashMap<String,Level> logLevelsLhm = new LinkedHashMap<String,Level>();
+    private javax.swing.JComboBox logLevel;
     private javax.swing.JTextField maxDepth;
     private javax.swing.JLabel message;
     private javax.swing.JTextField minDepth;

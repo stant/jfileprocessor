@@ -161,6 +161,7 @@ public class FilesTblModel extends AbstractTableModel
             
             data.add( 0, newRow );
             //System.out.println( "after add row table col count =" + this.getColumnCount() );
+            editableCells = new HashMap<String,Boolean>();
             } 
         catch( Exception ex )
             {
@@ -178,7 +179,7 @@ public class FilesTblModel extends AbstractTableModel
     public boolean isCellEditable( int row, int col )  // custom isCellEditable function
         {
         //if ( editableCells.containsKey( row + "-" + col ) )
-        //    System.out.println( "cell " + row + ", " + col + " is edittable" );
+            System.out.println( "cell " + row + ", " + col + " is edittable" );
         return editableCells.containsKey( row + "-" + col );
         }
     
@@ -187,6 +188,7 @@ public class FilesTblModel extends AbstractTableModel
         if ( value )
             {   
             editableCells.put( row + "-" + col, true );
+            System.out.println( "set edittable cell " + row + ", " + col );
             }
         else
             {

@@ -8,6 +8,7 @@ package com.towianski.jfileprocessor;
 import com.towianski.models.ResultsData;
 import com.towianski.models.FilesTblModel;
 import com.towianski.chainfilters.FilterChain;
+import com.towianski.utils.MyLogger;
 import java.io.File;
 import static java.nio.file.FileVisitResult.CONTINUE;
 
@@ -26,12 +27,13 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 
 
 public class JFileFinder //  implements Runnable 
 {
+    static MyLogger logger = MyLogger.getLogger( JFileFinder.class.getName() );
+
     static String startingPath = null;
     static String patternType = null;
     static String filePattern = null;
@@ -59,6 +61,7 @@ public class JFileFinder //  implements Runnable
         this.chainFilterList = chainFilterList;
         this.chainFilterFolderList = chainFilterFolderList;
         this.chainFilterPreVisitFolderList = chainFilterPreVisitFolderList;
+        logger.setLevel( Level.SEVERE );
     }
 
     public void cancelSearch()
@@ -98,7 +101,7 @@ public class JFileFinder //  implements Runnable
 
                     PathsInfoList.add( rowList );
                 } catch (Exception ex) {
-                    Logger.getLogger(JFileFinderWin.class.getName()).log(Level.SEVERE, null, ex);
+                    logger.log(Level.SEVERE, ex.toString());
                 }
     //        System.out.println("creationTime     = " + attr.creationTime());
     //        System.out.println("lastAccessTime   = " + attr.lastAccessTime());
@@ -220,7 +223,7 @@ public class JFileFinder //  implements Runnable
                     } 
                 catch (Exception ex) 
                     {
-                    Logger.getLogger(JFileFinderWin.class.getName()).log(Level.SEVERE, null, ex);
+                    logger.log(Level.SEVERE, null, ex);
                     return false;
                     }
                 }
@@ -251,7 +254,7 @@ public class JFileFinder //  implements Runnable
                     } 
                 catch (Exception ex) 
                     {
-                    Logger.getLogger(JFileFinderWin.class.getName()).log(Level.SEVERE, null, ex);
+                    logger.log(Level.SEVERE, null, ex);
                     return false;
                     }
                 }
@@ -317,7 +320,7 @@ public class JFileFinder //  implements Runnable
                 }
             catch (Exception ex) 
                 {
-                Logger.getLogger(JFileFinderWin.class.getName()).log(Level.SEVERE, null, ex);
+                logger.log(Level.SEVERE, null, ex);
                 }
 
             // Second check is do we go into this folder or skip it?
@@ -337,7 +340,7 @@ public class JFileFinder //  implements Runnable
                     }
                 catch (Exception ex) 
                     {
-                    Logger.getLogger(JFileFinderWin.class.getName()).log(Level.SEVERE, null, ex);
+                    logger.log(Level.SEVERE, null, ex);
                     }
                 }
             return FileVisitResult.SKIP_SUBTREE;
@@ -438,7 +441,7 @@ public class JFileFinder //  implements Runnable
                 System.out.println( "END: " + sdf.format( endDate ) );
                 }
         } catch (IOException ex) {
-            Logger.getLogger(JFileFinder.class.getName()).log(Level.SEVERE, null, ex);
+            logger.log(Level.SEVERE, null, ex);
         }
         finder.done();
     }

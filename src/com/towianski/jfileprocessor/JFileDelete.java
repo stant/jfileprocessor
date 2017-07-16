@@ -48,7 +48,7 @@ public class JFileDelete //  implements Runnable
         //System.err.println( "entered jfilecopy getResultsData()" );
         ResultsData resultsData = new ResultsData();
         try {
-            resultsData = new ResultsData( cancelFlag, deleter.getNumTested(), deleter.getNumFilesDeleted(), deleter.getNumFoldersDeleted() );
+            resultsData = new ResultsData( cancelFlag, deleter.getProcessStatus(), deleter.getMessage(), deleter.getNumTested(), deleter.getNumFilesDeleted(), deleter.getNumFoldersDeleted() );
             }
         catch( Exception ex )
             {

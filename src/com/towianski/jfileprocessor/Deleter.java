@@ -36,6 +36,8 @@ public class Deleter extends SimpleFileVisitor<Path>
     Boolean deleteToTrashFlag = true;
     Boolean deleteReadonlyFlag = false;
     Path trashFolder = DesktopUtils.getTrashFolder().toPath();
+    String processStatus = "";
+    String message = "";
     
     public Deleter( String startingPath, ArrayList<Path> copyPaths, Boolean deleteFilesOnlyFlag, Boolean deleteToTrashFlag, Boolean deleteReadonlyFlag )
     {
@@ -79,6 +81,8 @@ public class Deleter extends SimpleFileVisitor<Path>
             }
         catch ( java.nio.file.AccessDeniedException exAccessDenied ) 
             {
+            processStatus = "Error";
+            message = exAccessDenied.getClass().getSimpleName() + ": " + fpath;
             Logger.getLogger(Deleter.class.getName()).log(Level.SEVERE, null, exAccessDenied );
             System.out.println( "CAUGHT ERROR  " + "  " + exAccessDenied.getClass().getSimpleName() + ": " + fpath );
             // I tried to catch accessDenied from an error trying to delete a readOnly file
@@ -88,6 +92,8 @@ public class Deleter extends SimpleFileVisitor<Path>
             }
         catch ( Exception ex ) 
             {
+            processStatus = "Error";
+            message = ex.getClass().getSimpleName() + ": " + fpath;
             Logger.getLogger(Deleter.class.getName()).log(Level.SEVERE, null, ex );
             System.out.println( "CAUGHT ERROR  " + "  " + ex.getClass().getSimpleName() + ": " + fpath );
             return FileVisitResult.TERMINATE;
@@ -121,6 +127,8 @@ public class Deleter extends SimpleFileVisitor<Path>
 //            }
         catch (Exception ex2) 
             {
+            processStatus = "Error";
+            message = ex2.getClass().getSimpleName() + ": " + dir;
             Logger.getLogger(Deleter.class.getName()).log(Level.SEVERE, null, ex2 );
             System.out.println( "CAUGHT ERROR  " + "  " + ex2.getClass().getSimpleName() + ": " + dir );
             return FileVisitResult.TERMINATE;
@@ -154,6 +162,14 @@ public class Deleter extends SimpleFileVisitor<Path>
 
     public long getNumFoldersDeleted() {
         return numFoldersDeleted;
+    }
+
+    public String getProcessStatus() {
+        return processStatus;
+    }
+
+    public String getMessage() {
+        return message;
     }
         
 }
