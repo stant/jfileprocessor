@@ -20,15 +20,19 @@ import com.towianski.chainfilters.ChainFilterOfMinDepth;
 import com.towianski.chainfilters.ChainFilterOfPreVisitMaxDepth;
 import com.towianski.chainfilters.ChainFilterOfPreVisitMinDepth;
 import com.towianski.chainfilters.FilterChain;
+import com.towianski.jfileprocess.actions.BackwardFolderAction;
 import com.towianski.jfileprocess.actions.CopyAction;
 import com.towianski.jfileprocess.actions.CutAction;
 import com.towianski.jfileprocess.actions.DeleteAction;
 import com.towianski.jfileprocess.actions.EnterAction;
+import com.towianski.jfileprocess.actions.ForwardFolderAction;
 import com.towianski.jfileprocess.actions.PasteAction;
 import com.towianski.jfileprocess.actions.RenameAction;
 import com.towianski.jfileprocess.actions.UpFolderAction;
 import com.towianski.jfileprocess.actions.JavaProcess;
+import com.towianski.jfileprocess.actions.NewFolderAction;
 import com.towianski.listeners.MyFocusAdapter;
+import com.towianski.models.CircularArrayList;
 import com.towianski.renderers.FiletypeCBCellRenderer;
 import com.towianski.renderers.LinktypeCBCellRenderer;
 import com.towianski.renderers.PathRenderer;
@@ -52,6 +56,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -70,6 +75,7 @@ import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.KeyStroke;
 import javax.swing.RowSorter;
@@ -108,12 +114,16 @@ public class JFileFinderWin extends javax.swing.JFrame {
     public static final String PROCESS_STATUS_CANCEL_SEARCH = "Cancel Search";
     public static final String PROCESS_STATUS_CANCEL_FILL = "Cancel Fill";
     public static final String PROCESS_STATUS_SEARCH_READY = "Search";
+    public static final String PROCESS_STATUS_ERROR = "Error";
 
     public static final String SHOWFILESFOLDERSCB_BOTH = "Files & Folders";
     public static final String SHOWFILESFOLDERSCB_FILES_ONLY = "Files Only";
     public static final String SHOWFILESFOLDERSCB_FOLDERS_ONLY = "Folders Only";
     public static final String SHOWFILESFOLDERSCB_NEITHER = "Neither";
-            
+
+    CircularArrayList pathsHistoryList = new CircularArrayList(50 );
+    
+
 //    JDatePickerImpl date1 = null;
 //    JDatePickerImpl date2 = null;
     
@@ -167,11 +177,26 @@ public class JFileFinderWin extends javax.swing.JFrame {
        RenameAction renameAction = new RenameAction( this );
        DeleteAction deleteAction = new DeleteAction( this );
        UpFolderAction upFolderAction = new UpFolderAction( this );
+       BackwardFolderAction backwardFolderAction = new BackwardFolderAction( this );
+       ForwardFolderAction forwardFolderAction = new ForwardFolderAction( this );
+       NewFolderAction newFolderAction = new NewFolderAction( this );
        CopyAction copyAction = new CopyAction( this );
        CutAction cutAction = new CutAction( this );
        PasteAction pasteAction = new PasteAction( this );
        
-        InputMap inputMap = filesTbl.getInputMap();
+//       InputEvent.CTRL_MASK   works on linux and windows but not Mac.
+//       using Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() works on mac and linux.
+               
+        InputMap inputMap = null;
+        if ( System.getProperty( "os.name" ).toLowerCase().startsWith( "mac" ) )
+            {
+            inputMap = filesTbl.getInputMap( JPanel.WHEN_IN_FOCUSED_WINDOW );
+            }
+        else
+            {
+            inputMap = filesTbl.getInputMap();
+            }
+            
         ActionMap actionMap = filesTbl.getActionMap();
  
         inputMap.put( KeyStroke.getKeyStroke( KeyEvent.VK_ENTER, 0 ), "enterAction" );
@@ -186,14 +211,43 @@ public class JFileFinderWin extends javax.swing.JFrame {
         inputMap.put( KeyStroke.getKeyStroke( KeyEvent.VK_BACK_SPACE, 0 ), "upFolderAction" );
         actionMap.put( "upFolderAction", upFolderAction );
  
-        inputMap.put( KeyStroke.getKeyStroke( KeyEvent.VK_C, InputEvent.CTRL_MASK ), "copyAction" );
+        System.out.println( "System.getProperty( \"os.name\" ) =" + System.getProperty( "os.name" ) + "=" );
+        if ( System.getProperty( "os.name" ).toLowerCase().startsWith( "mac" ) )
+            {
+            System.out.println( "Mac specific keys !" );
+            inputMap.put( KeyStroke.getKeyStroke( KeyEvent.VK_N, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() ), "newFolderAction" );
+            inputMap.put( KeyStroke.getKeyStroke( KeyEvent.VK_C, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() ), "copyAction" );
+            inputMap.put( KeyStroke.getKeyStroke( KeyEvent.VK_X, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() ), "cutAction" );
+            inputMap.put( KeyStroke.getKeyStroke( KeyEvent.VK_V, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() ), "pasteAction" );
+            }
+        else
+            {
+            System.out.println( "non Mac specific keys" );
+            inputMap.put( KeyStroke.getKeyStroke( KeyEvent.VK_N, InputEvent.CTRL_MASK ), "newFolderAction" );
+            inputMap.put( KeyStroke.getKeyStroke( KeyEvent.VK_C, InputEvent.CTRL_MASK ), "copyAction" );
+            inputMap.put( KeyStroke.getKeyStroke( KeyEvent.VK_X, InputEvent.CTRL_MASK ), "cutAction" );
+            inputMap.put( KeyStroke.getKeyStroke( KeyEvent.VK_V, InputEvent.CTRL_MASK ), "pasteAction" );
+            }
+        
+        actionMap.put( "newFolderAction", newFolderAction );
+ 
         actionMap.put( "copyAction", copyAction );
  
-        inputMap.put( KeyStroke.getKeyStroke( KeyEvent.VK_X, InputEvent.CTRL_MASK ), "cutAction" );
         actionMap.put( "cutAction", cutAction );
  
-        inputMap.put( KeyStroke.getKeyStroke( KeyEvent.VK_V, InputEvent.CTRL_MASK ), "pasteAction" );
         actionMap.put( "pasteAction", pasteAction );
+
+
+        //------- Add actions to Starting Folder to go thru history  -------
+        InputMap pathInputMap = startingFolder.getInputMap();
+        ActionMap pathActionMap = startingFolder.getActionMap();
+ 
+        pathInputMap.put( KeyStroke.getKeyStroke( KeyEvent.VK_LEFT, InputEvent.ALT_MASK ), "backwardFolderAction" );
+        pathActionMap.put( "backwardFolderAction", backwardFolderAction );
+ 
+        pathInputMap.put( KeyStroke.getKeyStroke( KeyEvent.VK_RIGHT, InputEvent.ALT_MASK ), "forwardFolderAction" );
+        pathActionMap.put( "forwardFolderAction", forwardFolderAction );
+ 
     }
     
     public JRadioButton getUseGlobPattern() {
@@ -247,6 +301,21 @@ public class JFileFinderWin extends javax.swing.JFrame {
     public void callUpFolderActionPerformed(java.awt.event.ActionEvent evt)
         {
         upFolderActionPerformed( evt );
+        }
+                        
+    public void callBackwardFolderActionPerformed(java.awt.event.ActionEvent evt)
+        {
+        backwardFolderActionPerformed( evt );
+        }
+                        
+    public void callForwardFolderActionPerformed(java.awt.event.ActionEvent evt)
+        {
+        forwardFolderActionPerformed( evt );
+        }
+                        
+    public void callNewFolderActionPerformed(java.awt.event.ActionEvent evt)
+        {
+        NewFolderActionPerformed( evt );  // note capital N for what netbeans created
         }
                         
     public void callCopyActionPerformed(java.awt.event.ActionEvent evt)
@@ -336,6 +405,10 @@ public class JFileFinderWin extends javax.swing.JFrame {
                 processStatus.setBackground( saveColor );
                 setSearchBtn( this.PROCESS_STATUS_SEARCH_READY, saveColor );
                 break;
+            case PROCESS_STATUS_ERROR:
+                processStatus.setBackground( Color.RED );
+            System.out.println( "process status error !" );
+                break;
             default:
                 processStatus.setBackground( saveColor );
                 setSearchBtn( this.PROCESS_STATUS_SEARCH_READY, saveColor );
@@ -391,12 +464,15 @@ public class JFileFinderWin extends javax.swing.JFrame {
             System.out.println("Old   : " + tcl.getOldValue());
             System.out.println("New   : " + tcl.getNewValue());
             Path targetPath = Paths.get( tcl.getNewValue().toString().trim() );
+            FilesTblModel filesTblModel = (FilesTblModel) filesTbl.getModel();                
             if ( Files.exists( targetPath ) )
                 {
-                FilesTblModel filesTblModel = (FilesTblModel) filesTbl.getModel();                
                 filesTblModel.setValueAt( tcl.getOldValue(), tcl.getRow(), tcl.getColumn() );
                 JOptionPane.showMessageDialog( null, "That Folder name already exists!", "Error", JOptionPane.ERROR_MESSAGE );
                 System.err.println( "That Folder name already exists! ( " + targetPath + ")" );
+                setProcessStatus( PROCESS_STATUS_ERROR );
+                processStatus.setText( "Error" );
+                filesTblModel.deleteRowAt( 0 );
                 }
             else
                 {
@@ -418,8 +494,19 @@ public class JFileFinderWin extends javax.swing.JFrame {
                             }
                         }
                     }
-                catch (IOException ex) 
+                catch( AccessDeniedException ae )
                     {
+                    setProcessStatus( PROCESS_STATUS_ERROR );
+                    processStatus.setText( "Error" );
+                    message.setText( "Access Denied Exception" );
+                    filesTblModel.deleteRowAt( 0 );
+                    }
+                catch (Exception ex) 
+                    {
+                    System.err.println( "ex.getMessage() =" + ex.getMessage()+ "=" );
+                    processStatus.setText( "Error" );
+                    ex.printStackTrace();
+                    message.setText( ex.getMessage() );
                     logger.log(Level.SEVERE, null, ex);
                     }
                 }
@@ -478,6 +565,10 @@ public class JFileFinderWin extends javax.swing.JFrame {
                         }
                     }
                 
+                //------- save history of paths  -------
+                pathsHistoryList.add( args[0] );
+                System.err.println( "after pathsHistoryList()" );
+
                 //public ChainFilterA( ChainFilterA nextChainFilter )
                 //Long size1Long = Long.parseLong( size1.getText().trim() );
                 System.err.println( "tabsLogic button.getText() =" + (tabsLogicAndBtn.isSelected() ? tabsLogicAndBtn.getText() : tabsLogicOrBtn.getText()) + "=" );
@@ -914,7 +1005,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
             upFolder = new javax.swing.JButton();
             countBtn = new javax.swing.JButton();
 
-            Copy.setText("Copy");
+            Copy.setText("Copy   (Ctrl-C)");
             Copy.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
                     CopyActionPerformed(evt);
@@ -922,7 +1013,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
             });
             jPopupMenu1.add(Copy);
 
-            Cut.setText("Cut");
+            Cut.setText("Cut   (Ctrl-X)");
             Cut.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
                     CutActionPerformed(evt);
@@ -930,7 +1021,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
             });
             jPopupMenu1.add(Cut);
 
-            Paste.setText("Paste");
+            Paste.setText("Paste   (Ctrl-P)");
             Paste.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
                     PasteActionPerformed(evt);
@@ -938,7 +1029,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
             });
             jPopupMenu1.add(Paste);
 
-            Delete.setText("Delete");
+            Delete.setText("Delete   (Del or fn-Del)");
             Delete.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
                     DeleteActionPerformed(evt);
@@ -946,7 +1037,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
             });
             jPopupMenu1.add(Delete);
 
-            NewFolder.setText("New Folder");
+            NewFolder.setText("New Folder   (Ctrl-N)");
             NewFolder.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
                     NewFolderActionPerformed(evt);
@@ -954,7 +1045,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
             });
             jPopupMenu1.add(NewFolder);
 
-            Rename.setText("Rename");
+            Rename.setText("Rename   (F2)");
             Rename.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
                     RenameActionPerformed(evt);
@@ -1004,10 +1095,10 @@ public class JFileFinderWin extends javax.swing.JFrame {
             });
             jPopupMenu1.add(savePathsToFile);
 
-            NewFolder1.setText("New Folder");
+            NewFolder1.setText("New Folder   (Ctrl-N)");
             jPopupMenu2.add(NewFolder1);
 
-            Paste1.setText("Paste");
+            Paste1.setText("Paste   (Ctrl-P)");
             Paste1.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
                     Paste1ActionPerformed(evt);
@@ -1033,7 +1124,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
             jPopupMenu2.add(savePathsToFile1);
 
             setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-            setTitle("JFileProcessor v1.4.5 - Stan Towianski  (c) 2015-2017");
+            setTitle("JFileProcessor v1.4.6 - Stan Towianski  (c) 2015-2017");
 
             jSplitPane1.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
 
@@ -1052,6 +1143,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
             gridBagConstraints.gridy = 0;
             jPanel6.add(fileMgrMode, gridBagConstraints);
 
+            startingFolder.setToolTipText("History: Alt-Left, Alt-Right (Mac: option-Left, option-Right)");
             startingFolder.setMinimumSize(new java.awt.Dimension(200, 26));
             startingFolder.setPreferredSize(new java.awt.Dimension(200, 26));
             startingFolder.addActionListener(new java.awt.event.ActionListener() {
@@ -1064,15 +1156,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
                     startingFolderKeyTyped(evt);
                 }
             });
-            gridBagConstraints = new java.awt.GridBagConstraints();
-            gridBagConstraints.gridx = 2;
-            gridBagConstraints.gridy = 0;
-            gridBagConstraints.gridwidth = 5;
-            gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-            gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-            gridBagConstraints.weightx = 0.2;
-            gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 0);
-            jPanel6.add(startingFolder, gridBagConstraints);
+            jPanel6.add(startingFolder, new java.awt.GridBagConstraints());
 
             jLabel1.setText("Starting Folder: ");
             gridBagConstraints = new java.awt.GridBagConstraints();
@@ -1764,6 +1848,17 @@ public class JFileFinderWin extends javax.swing.JFrame {
             }
         searchBtnActionPerformed( null );
     }//GEN-LAST:event_upFolderActionPerformed
+
+    private void backwardFolderActionPerformed(java.awt.event.ActionEvent evt) {                                         
+        startingFolder.setText( pathsHistoryList.getBackward() );
+//        searchBtnActionPerformed( null );
+    }                                        
+
+    private void forwardFolderActionPerformed(java.awt.event.ActionEvent evt) {                                         
+            System.out.println( "forwardFolderActionPerformed" );
+        startingFolder.setText( pathsHistoryList.getForward() );
+//        searchBtnActionPerformed( null );
+    }                                        
 
     private void fileMgrModeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fileMgrModeActionPerformed
         if ( fileMgrMode.isSelected() )

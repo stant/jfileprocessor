@@ -170,6 +170,27 @@ public class FilesTblModel extends AbstractTableModel
         refresh();
         }
     
+    /*
+    public int getColumnCount() { return 10; }
+    public int getRowCount() { return 10;}
+    public Object getValueAt(int row, int col) { return new Integer(row*col); }
+    */    
+    public void deleteRowAt( int row ) 
+        {
+        //System.err.println( "delete row =" + row + "  col =" + col );
+        try {
+            //System.out.println( "before add row table col count =" + this.getColumnCount() );
+            data.remove( row );
+            //System.out.println( "after add row table col count =" + this.getColumnCount() );
+            editableCells = new HashMap<String,Boolean>();
+            } 
+        catch( Exception ex )
+            {
+            return;
+            }
+        refresh();
+        }
+    
     public void refresh()
         {
         fireTableChanged(null);
