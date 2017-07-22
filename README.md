@@ -18,6 +18,8 @@ You can add or subtract 1 list window to/from another.
 Save the list window.
 Read in a list to a window (adds items to existing list).
 
+has pretty good search ability.
+
 Escape: closes windows
 
 Shift-Escape: close main window
