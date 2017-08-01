@@ -58,6 +58,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -132,6 +133,8 @@ public class JFileFinderWin extends javax.swing.JFrame {
     HashMap<String,ListOfFilesPanel> listOfFilesPanelHm = new HashMap<String,ListOfFilesPanel>();
     DefaultComboBoxModel listOfFilesPanelsModel = new DefaultComboBoxModel();
 
+    PrintStream console = System.out;
+    
 //    JDatePickerImpl date1 = null;
 //    JDatePickerImpl date2 = null;
     
@@ -995,6 +998,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
         NewFolder = new javax.swing.JMenuItem();
         Rename = new javax.swing.JMenuItem();
         jSeparator1 = new javax.swing.JPopupMenu.Separator();
+        startCmdWin = new javax.swing.JMenuItem();
         Edit = new javax.swing.JMenuItem();
         openFile = new javax.swing.JMenuItem();
         copyFilename = new javax.swing.JMenuItem();
@@ -1003,8 +1007,9 @@ public class JFileFinderWin extends javax.swing.JFrame {
         saveToListWindow = new javax.swing.JMenuItem();
         buttonGroup2 = new javax.swing.ButtonGroup();
         jPopupMenu2 = new javax.swing.JPopupMenu();
-        NewFolder1 = new javax.swing.JMenuItem();
         Paste1 = new javax.swing.JMenuItem();
+        NewFolder1 = new javax.swing.JMenuItem();
+        startCmdWin1 = new javax.swing.JMenuItem();
         saveAllAttrsToFile1 = new javax.swing.JMenuItem();
         savePathsToFile1 = new javax.swing.JMenuItem();
         jSplitPane2 = new javax.swing.JSplitPane();
@@ -1061,6 +1066,13 @@ public class JFileFinderWin extends javax.swing.JFrame {
         sizeLogicOp = new javax.swing.JSpinner( sizeAndOrSpinModel );
         size1 = new javax.swing.JFormattedTextField();
         jPanel8 = new javax.swing.JPanel();
+        jPanel9 = new javax.swing.JPanel();
+        jLabel11 = new javax.swing.JLabel();
+        startConsoleCmd = new javax.swing.JTextField();
+        jLabel12 = new javax.swing.JLabel();
+        jLabel13 = new javax.swing.JLabel();
+        stdOutFile = new javax.swing.JFormattedTextField();
+        stdErrFile = new javax.swing.JFormattedTextField();
         jPanel7 = new javax.swing.JPanel();
         searchBtn = new javax.swing.JButton();
         jLabel3 = new javax.swing.JLabel();
@@ -1131,6 +1143,14 @@ public class JFileFinderWin extends javax.swing.JFrame {
             jPopupMenu1.add(Rename);
             jPopupMenu1.add(jSeparator1);
 
+            startCmdWin.setText("Open Terminal here");
+            startCmdWin.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    startCmdWinActionPerformed(evt);
+                }
+            });
+            jPopupMenu1.add(startCmdWin);
+
             Edit.setText("Edit File");
             Edit.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -1180,9 +1200,6 @@ public class JFileFinderWin extends javax.swing.JFrame {
             });
             jPopupMenu1.add(saveToListWindow);
 
-            NewFolder1.setText("New Folder   (Ctrl-N)");
-            jPopupMenu2.add(NewFolder1);
-
             Paste1.setText("Paste   (Ctrl-P)");
             Paste1.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -1190,6 +1207,17 @@ public class JFileFinderWin extends javax.swing.JFrame {
                 }
             });
             jPopupMenu2.add(Paste1);
+
+            NewFolder1.setText("New Folder   (Ctrl-N)");
+            jPopupMenu2.add(NewFolder1);
+
+            startCmdWin1.setText("Open Terminal here");
+            startCmdWin1.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    startCmdWin1ActionPerformed(evt);
+                }
+            });
+            jPopupMenu2.add(startCmdWin1);
 
             saveAllAttrsToFile1.setText("Save All Attrs To File");
             saveAllAttrsToFile1.setEnabled(false);
@@ -1209,8 +1237,11 @@ public class JFileFinderWin extends javax.swing.JFrame {
             jPopupMenu2.add(savePathsToFile1);
 
             setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-            setTitle("JFileProcessor v1.4.7 - Stan Towianski  (c) 2015-2017");
+            setTitle("JFileProcessor v1.4.8 - Stan Towianski  (c) 2015-2017");
             addWindowListener(new java.awt.event.WindowAdapter() {
+                public void windowOpened(java.awt.event.WindowEvent evt) {
+                    formWindowOpened(evt);
+                }
                 public void windowClosing(java.awt.event.WindowEvent evt) {
                     formWindowClosing(evt);
                 }
@@ -1682,6 +1713,77 @@ public class JFileFinderWin extends javax.swing.JFrame {
 
             jTabbedPane1.addTab("Sizes", jPanel3);
             jTabbedPane1.addTab("Process", jPanel8);
+
+            jPanel9.setLayout(new java.awt.GridBagLayout());
+
+            jLabel11.setText("Start Console command: ");
+            gridBagConstraints = new java.awt.GridBagConstraints();
+            gridBagConstraints.gridx = 0;
+            gridBagConstraints.gridy = 0;
+            gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+            gridBagConstraints.weightx = 0.3;
+            gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
+            jPanel9.add(jLabel11, gridBagConstraints);
+
+            startConsoleCmd.setMinimumSize(new java.awt.Dimension(300, 24));
+            startConsoleCmd.setPreferredSize(new java.awt.Dimension(300, 24));
+            startConsoleCmd.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    startConsoleCmdActionPerformed(evt);
+                }
+            });
+            gridBagConstraints = new java.awt.GridBagConstraints();
+            gridBagConstraints.gridx = 1;
+            gridBagConstraints.gridy = 0;
+            gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+            gridBagConstraints.weightx = 1.0;
+            jPanel9.add(startConsoleCmd, gridBagConstraints);
+
+            jLabel12.setText("StdOut Log File: ");
+            gridBagConstraints = new java.awt.GridBagConstraints();
+            gridBagConstraints.gridx = 0;
+            gridBagConstraints.gridy = 1;
+            gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+            gridBagConstraints.weightx = 0.3;
+            gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
+            jPanel9.add(jLabel12, gridBagConstraints);
+
+            jLabel13.setText("StdErr Log File: ");
+            gridBagConstraints = new java.awt.GridBagConstraints();
+            gridBagConstraints.gridx = 0;
+            gridBagConstraints.gridy = 2;
+            gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+            gridBagConstraints.weightx = 1.0;
+            gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
+            jPanel9.add(jLabel13, gridBagConstraints);
+
+            stdOutFile.setMinimumSize(new java.awt.Dimension(300, 24));
+            stdOutFile.setPreferredSize(new java.awt.Dimension(300, 24));
+            stdOutFile.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+                public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                    stdOutFilePropertyChange(evt);
+                }
+            });
+            gridBagConstraints = new java.awt.GridBagConstraints();
+            gridBagConstraints.gridx = 1;
+            gridBagConstraints.gridy = 1;
+            gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+            jPanel9.add(stdOutFile, gridBagConstraints);
+
+            stdErrFile.setMinimumSize(new java.awt.Dimension(300, 24));
+            stdErrFile.setPreferredSize(new java.awt.Dimension(300, 24));
+            stdErrFile.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+                public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                    stdErrFilePropertyChange(evt);
+                }
+            });
+            gridBagConstraints = new java.awt.GridBagConstraints();
+            gridBagConstraints.gridx = 1;
+            gridBagConstraints.gridy = 2;
+            gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+            jPanel9.add(stdErrFile, gridBagConstraints);
+
+            jTabbedPane1.addTab("Settings", jPanel9);
 
             gridBagConstraints = new java.awt.GridBagConstraints();
             gridBagConstraints.gridx = 0;
@@ -2225,7 +2327,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         try {
-            int rc = JavaProcess.exec( com.towianski.jfileprocessor.JFileFinderWin.class );
+            int rc = JavaProcess.execJava( com.towianski.jfileprocessor.JFileFinderWin.class );
             System.err.println( "javaprocess.exec start new window rc = " + rc + "=" );
         } catch (IOException ex) {
             Logger.getLogger(JFileFinderWin.class.getName()).log(Level.SEVERE, null, ex);
@@ -2236,7 +2338,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
         try {
-            int rc = JavaProcess.exec( com.towianski.jfileprocessor.JFileFinderWin.class, DesktopUtils.getTrashFolder().toString() );
+            int rc = JavaProcess.execJava( com.towianski.jfileprocessor.JFileFinderWin.class, DesktopUtils.getTrashFolder().toString() );
             System.err.println( "javaprocess.exec start new window rc = " + rc + "=" );
         } catch (IOException ex) {
             Logger.getLogger(JFileFinderWin.class.getName()).log(Level.SEVERE, null, ex);
@@ -2252,7 +2354,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
         if ( strPath.equals( "New Window" ) )
             {
             try {
-                int rc = JavaProcess.exec( com.towianski.jfileprocessor.JFileFinderWin.class );
+                int rc = JavaProcess.execJava( com.towianski.jfileprocessor.JFileFinderWin.class );
                 System.err.println( "javaprocess.exec start new window rc = " + rc + "=" );
             } catch (IOException ex) {
                 Logger.getLogger(JFileFinderWin.class.getName()).log(Level.SEVERE, null, ex);
@@ -2264,7 +2366,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
         else if ( strPath.equals( "Trash" ) )
             {
             try {
-                int rc = JavaProcess.exec( com.towianski.jfileprocessor.JFileFinderWin.class, DesktopUtils.getTrashFolder().toString() );
+                int rc = JavaProcess.execJava( com.towianski.jfileprocessor.JFileFinderWin.class, DesktopUtils.getTrashFolder().toString() );
                 System.err.println( "javaprocess.exec start new window rc = " + rc + "=" );
             } catch (IOException ex) {
                 Logger.getLogger(JFileFinderWin.class.getName()).log(Level.SEVERE, null, ex);
@@ -2393,6 +2495,97 @@ public class JFileFinderWin extends javax.swing.JFrame {
             }
     }//GEN-LAST:event_formWindowClosing
 
+    private void startCmdWinActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startCmdWinActionPerformed
+        try {
+            System.err.println( "javaprocess.exec start new window getStartingFolder() =" + getStartingFolder() + "=   startConsoleCmd.getText() =" + startConsoleCmd.getText() + "=" );
+            int rc = 0;
+            rc = JavaProcess.exec( getStartingFolder(), startConsoleCmd.getText() );
+            System.err.println( "javaprocess.exec start new window rc = " + rc + "=" );
+        } catch (IOException ex) {
+            Logger.getLogger(JFileFinderWin.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(JFileFinderWin.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }//GEN-LAST:event_startCmdWinActionPerformed
+
+    private void startConsoleCmdActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startConsoleCmdActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_startConsoleCmdActionPerformed
+
+    private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
+        if ( startConsoleCmd.getText() == null || startConsoleCmd.getText().equals( "" ) )
+            {
+            if ( System.getProperty( "os.name" ).toLowerCase().startsWith( "mac" ) )
+                {
+                startConsoleCmd.setText( "/usr/bin/open -n -a /Applications/Utilities/Terminal.app" );
+                }
+            else if ( System.getProperty( "os.name" ).toLowerCase().startsWith( "win" ) )
+                {
+                startConsoleCmd.setText( "cmd.exe /C start" );
+                }
+            else if ( System.getProperty( "os.name" ).toLowerCase().startsWith( "linux" ) )
+                {
+                if ( Files.exists( Paths.get( "/bin/konsole" ) ) )
+                    {
+                    startConsoleCmd.setText( "/bin/konsole" );
+                    }
+                else if ( Files.exists( Paths.get( "/usr/bin/gnome-terminal" ) ) )
+                    {
+                    startConsoleCmd.setText( "/usr/bin/gnome-terminal" );
+                    }
+                else if ( Files.exists( Paths.get( "/usr/bin/xterm" ) ) )
+                    {
+                    startConsoleCmd.setText( "/usr/bin/xterm" );
+                    }
+                }
+            }
+    }//GEN-LAST:event_formWindowOpened
+
+    private void startCmdWin1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startCmdWin1ActionPerformed
+        startCmdWinActionPerformed( null );
+    }//GEN-LAST:event_startCmdWin1ActionPerformed
+
+    private void stdOutFilePropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_stdOutFilePropertyChange
+        try {
+            System.out.println( "stdOutFilePropertyChange() set to file =" + stdOutFile.getText() + "=" );
+            if ( stdOutFile.getText() != null && ! stdOutFile.getText().equals( "" ) )
+                {
+                System.setOut(new PrintStream(new File( stdOutFile.getText() ) ) );
+                }
+            else
+                {
+                    //  should go to stderr but oh well for now
+                System.setErr( console );
+                }
+            } 
+        catch (Exception e) 
+            {
+            e.printStackTrace();
+            }
+
+    }//GEN-LAST:event_stdOutFilePropertyChange
+
+    private void stdErrFilePropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_stdErrFilePropertyChange
+        try {
+            System.out.println( "stdErrFilePropertyChange() set to file =" + stdErrFile.getText() + "=" );
+            if ( stdErrFile.getText() != null && ! stdErrFile.getText().equals( "" ) )
+                {
+                System.setOut(new PrintStream(new File( stdErrFile.getText() ) ) );
+                }
+            else
+                {
+                    //  should go to stderr but oh well for now
+                System.setErr( console );
+                }
+            } 
+        catch (Exception e) 
+            {
+            e.printStackTrace();
+            }
+
+    }//GEN-LAST:event_stdErrFilePropertyChange
+
     /**
      * @param args the command line arguments
      */
@@ -2474,6 +2667,9 @@ public class JFileFinderWin extends javax.swing.JFrame {
     private javax.swing.JButton jButton4;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -2491,6 +2687,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
     private javax.swing.JPanel jPanel8;
+    private javax.swing.JPanel jPanel9;
     private javax.swing.JPopupMenu jPopupMenu1;
     private javax.swing.JPopupMenu jPopupMenu2;
     private javax.swing.JScrollPane jScrollPane1;
@@ -2524,7 +2721,12 @@ public class JFileFinderWin extends javax.swing.JFrame {
     private javax.swing.JTextField size2;
     private javax.swing.JComboBox size2Op;
     private javax.swing.JSpinner sizeLogicOp;
+    private javax.swing.JMenuItem startCmdWin;
+    private javax.swing.JMenuItem startCmdWin1;
+    private javax.swing.JTextField startConsoleCmd;
     private javax.swing.JTextField startingFolder;
+    private javax.swing.JFormattedTextField stdErrFile;
+    private javax.swing.JFormattedTextField stdOutFile;
     private javax.swing.JRadioButton tabsLogicAndBtn;
     private javax.swing.JRadioButton tabsLogicOrBtn;
     private javax.swing.JButton upFolder;

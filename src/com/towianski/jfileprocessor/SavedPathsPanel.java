@@ -144,7 +144,7 @@ public class SavedPathsPanel extends javax.swing.JPanel {
         if ( strPath.equals( "New Window" ) )
             {
             try {
-                int rc = JavaProcess.exec( com.towianski.jfileprocessor.JFileFinderWin.class );
+                int rc = JavaProcess.execJava( com.towianski.jfileprocessor.JFileFinderWin.class );
                 System.err.println( "javaprocess.exec start new window rc = " + rc + "=" );
             } catch (IOException ex) {
                 Logger.getLogger(JFileFinderWin.class.getName()).log(Level.SEVERE, null, ex);
@@ -156,7 +156,7 @@ public class SavedPathsPanel extends javax.swing.JPanel {
         else if ( strPath.equals( "Trash" ) )
             {
             try {
-                int rc = JavaProcess.exec( com.towianski.jfileprocessor.JFileFinderWin.class, DesktopUtils.getTrashFolder().toString() );
+                int rc = JavaProcess.execJava( com.towianski.jfileprocessor.JFileFinderWin.class, DesktopUtils.getTrashFolder().toString() );
                 System.err.println( "javaprocess.exec start new window rc = " + rc + "=" );
             } catch (IOException ex) {
                 Logger.getLogger(JFileFinderWin.class.getName()).log(Level.SEVERE, null, ex);
