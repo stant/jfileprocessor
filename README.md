@@ -2,12 +2,23 @@
 
 This is a File Manager with search features: 
 
-Does: Copy, (cut coming), Paste, Delete, New Folder,...
+Does: Copy, Cut, Paste, Delete, New Folder,...
 
 Search:
 file finder by Name, Dates, or Sizes. MinDepth, MaxDepth.
 
 You can Open, Edit, Copy filename, save list to a file.
+
+Alt-Left, Alt-Right in Starting Folder: cycles thru previous search paths
+
+has Bookmarks
+
+Lets you save file lists to a "List Window" or a File.
+You can add or subtract 1 list window to/from another.
+Save the list window.
+Read in a list to a window (adds items to existing list).
+
+has pretty good search ability.
 
 Escape: closes windows
 
