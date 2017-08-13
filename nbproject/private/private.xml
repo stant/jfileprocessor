@@ -3,11 +3,16 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
+            <file>file:/net2/github/JFileProcessor/src/com/towianski/jfileprocessor/SavedPathsPanel.java</file>
             <file>file:/net2/github/JFileProcessor/src/com/towianski/jfileprocess/actions/JavaProcess.java</file>
+            <file>file:/net2/github/JFileProcessor/src/com/towianski/jfileprocessor/CodeProcessorPanel.java</file>
             <file>file:/net2/github/JFileProcessor/src/com/towianski/jfileprocessor/JFileFinder.java</file>
             <file>file:/net2/github/JFileProcessor/src/com/towianski/utils/DesktopUtils.java</file>
-            <file>file:/net2/github/JFileProcessor/src/com/towianski/jfileprocessor/DeleteFrame.java</file>
+            <file>file:/net2/github/JFileProcessor/src/com/towianski/jfileprocessor/ListOfFilesPanel.java</file>
+            <file>file:/net2/github/JFileProcessor/src/org/jdatepicker/impl/JDatePickerImpl.java</file>
             <file>file:/net2/github/JFileProcessor/src/com/towianski/jfileprocessor/JFileFinderWin.java</file>
+            <file>file:/net2/github/JFileProcessor/src/com/towianski/jfileprocessor/Copier.java</file>
+            <file>file:/net2/github/JFileProcessor/README.md</file>
         </group>
     </open-files>
 </project-private>

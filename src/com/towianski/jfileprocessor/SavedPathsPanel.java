@@ -72,6 +72,7 @@ public class SavedPathsPanel extends javax.swing.JPanel {
         setLayout(new java.awt.GridBagLayout());
 
         jButton1.setText("Add");
+        jButton1.setMinimumSize(new java.awt.Dimension(0, 0));
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton1ActionPerformed(evt);
@@ -84,6 +85,7 @@ public class SavedPathsPanel extends javax.swing.JPanel {
         add(jButton1, gridBagConstraints);
 
         jButton2.setText("Delete");
+        jButton2.setMinimumSize(new java.awt.Dimension(0, 0));
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton2ActionPerformed(evt);
