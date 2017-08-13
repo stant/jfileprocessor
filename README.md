@@ -24,10 +24,14 @@ Escape: closes windows
 
 Shift-Escape: close main window
 
-![jfileprocessor](https://cloud.githubusercontent.com/assets/1928413/8658274/d4b649dc-2970-11e5-9363-4a737167aa40.JPG)
+![jfileprocess-1 4 9](https://user-images.githubusercontent.com/1928413/29250295-63377776-800e-11e7-93d8-53a006ddeb2d.png)
+
+![jfileprocess-1 4 9-search](https://user-images.githubusercontent.com/1928413/29250304-7ed32dea-800e-11e7-80dc-baefc0c47cb3.png)
+
 
 Here is an example groovy code file:
 
+```java
 package com.towianski.testutils;
 
 class Test {
@@ -82,6 +86,7 @@ class Test {
 
 //println test.sayHello() 
 //println test.doIt() 
+```
 
 icons from:
 
