@@ -46,7 +46,7 @@ public class CopyFrameSwingWorker extends SwingWorker<ResultsData, Object> {
             ResultsData resultsData = get();
             //Integer ii = get();
             //System.out.println( "SwingWork.done() at 2  ii = " + ii );
-            //System.err.println( "SwingWork.done() got ans =" + matchedPathsList + "=" );
+            //System.out.println( "SwingWork.done() got ans =" + matchedPathsList + "=" );
             NumberFormat numFormat = NumberFormat.getIntegerInstance();
             copyFrame.setMessage( "Copied " + numFormat.format( resultsData.getFilesMatched() ) + " files and " + numFormat.format( resultsData.getFoldersMatched() ) + " folders out of " + numFormat.format( resultsData.getFilesVisited() ) );
             if ( resultsData.getSearchWasCanceled() )
@@ -87,7 +87,7 @@ public class CopyFrameSwingWorker extends SwingWorker<ResultsData, Object> {
             } else {
                 why = e.getMessage();
             }
-            System.err.println( "Error in CopyFrameSwingWorker(): " + why);
+            System.out.println( "Error in CopyFrameSwingWorker(): " + why);
             e.printStackTrace();
             }
     }    

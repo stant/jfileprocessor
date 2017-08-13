@@ -193,7 +193,7 @@ public class CodeProcessorPanel extends javax.swing.JFrame {
         CallGroovy callGroovy = new CallGroovy( new String[] { currentDir.getAbsolutePath() } );
         System.out.println( "before call: callGroovy.testGroovyScriptEngineVsGroovyShell();" );
         Binding binding = new Binding();
-        System.err.println( "start codeProcessorPanel.jFileFinderWin.getStartingFolder() =" + this.jFileFinderWin.getStartingFolder() + "=" );
+        System.out.println( "start codeProcessorPanel.jFileFinderWin.getStartingFolder() =" + this.jFileFinderWin.getStartingFolder() + "=" );
 
         DefaultComboBoxModel defaultComboBoxModel = (DefaultComboBoxModel) jFileFinderWin.getListPanelModel( (String) listOfLists.getSelectedItem() );
         
@@ -218,11 +218,11 @@ public class CodeProcessorPanel extends javax.swing.JFrame {
     if ( chooser.showDialog( this, "Select" ) == JFileChooser.APPROVE_OPTION )
         {
         File selectedFile = chooser.getSelectedFile();
-        System.err.println( "File to save to =" + selectedFile + "=" );
+        System.out.println( "File to save to =" + selectedFile + "=" );
         currentDirectory = selectedFile.getParent();
         currentFile = selectedFile.getAbsolutePath();
-        System.err.println( "File to save to =" + selectedFile + "=" );
-        System.err.println( "File to save to =" + selectedFile + "=" );
+        System.out.println( "File to save to =" + selectedFile + "=" );
+        System.out.println( "File to save to =" + selectedFile + "=" );
         
         try
             {
@@ -236,7 +236,7 @@ public class CodeProcessorPanel extends javax.swing.JFrame {
 
             codePane.write(bw);
 //            int numItems = thisListModel.getSize();
-//            System.err.println( "thisListModel.getSize() num of items =" + numItems + "=" );
+//            System.out.println( "thisListModel.getSize() num of items =" + numItems + "=" );
 //            
 //            //loop for jtable rows
 //            for( int i = 0; i < numItems; i++ )
@@ -273,11 +273,11 @@ public class CodeProcessorPanel extends javax.swing.JFrame {
     if ( chooser.showDialog( this, "Select" ) == JFileChooser.APPROVE_OPTION )
         {
         File selectedFile = chooser.getSelectedFile();
-        System.err.println( "File to read =" + selectedFile + "=" );
+        System.out.println( "File to read =" + selectedFile + "=" );
         currentDirectory = selectedFile.getParent();
         currentFile = selectedFile.getAbsolutePath();
-        System.err.println( "File to read to =" + selectedFile + "=" );
-        System.err.println( "File to read to =" + selectedFile + "=" );
+        System.out.println( "File to read to =" + selectedFile + "=" );
+        System.out.println( "File to read to =" + selectedFile + "=" );
         
         try
             {
@@ -291,7 +291,7 @@ public class CodeProcessorPanel extends javax.swing.JFrame {
 
             codePane.read(br, evt);
 //            int numItems = thisListModel.getSize();
-//            System.err.println( "thisListModel.getSize() num of items =" + numItems + "=" );
+//            System.out.println( "thisListModel.getSize() num of items =" + numItems + "=" );
 //            
 //            String line = "";
 //            while ( ( line = br.readLine() ) != null )

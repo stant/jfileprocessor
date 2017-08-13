@@ -27,8 +27,8 @@ public class FilesTblModel extends AbstractTableModel
 //        colNames = colNamesArg;
 //        data = dataArg;
 //        
-//        System.err.println( "row count =" + data.length );
-//        System.err.println( "col count =" + data[0].length );
+//        System.out.println( "row count =" + data.length );
+//        System.out.println( "col count =" + data[0].length );
 //        }
 
     public FilesTblModel( ArrayList<String> colNamesArg, ArrayList<ArrayList> dataArg )
@@ -36,8 +36,8 @@ public class FilesTblModel extends AbstractTableModel
         colNames = colNamesArg;
         data = dataArg;
         
-        System.err.println( "row count =" + data.size() );
-        System.err.println( "col count =" + data.get(0).size() );
+        System.out.println( "row count =" + data.size() );
+        System.out.println( "col count =" + data.get(0).size() );
         }
 
     @Override
@@ -54,11 +54,11 @@ public class FilesTblModel extends AbstractTableModel
     @Override
     public Object getValueAt(int row, int col) 
         {
-        //System.err.println( "getValueAt row =" + row + "  col =" + col );
+        //System.out.println( "getValueAt row =" + row + "  col =" + col );
         try {
             if ( data.get(row).get(col) == "" ) 
                 {
-                //System.err.println( "NOT EXISTS getValueAt row =" + row + "  col =" + col );
+                //System.out.println( "NOT EXISTS getValueAt row =" + row + "  col =" + col );
                 }
             } 
         catch( Exception ex )
@@ -71,7 +71,7 @@ public class FilesTblModel extends AbstractTableModel
     @Override
     public void setValueAt(Object aValue, int row, int col) 
         {
-        //System.err.println( "setValueAt  value =" + aValue + "=  row =" + row + "  col =" + col );
+        //System.out.println( "setValueAt  value =" + aValue + "=  row =" + row + "  col =" + col );
         //if ( 1 == 1 ) return;
         try {
             if ( row < data.size() && col < data.get( row ).size() )
@@ -126,7 +126,7 @@ public class FilesTblModel extends AbstractTableModel
     
     public void insertColAt( int col ) 
         {
-        //System.err.println( "getValueAt row =" + row + "  col =" + col );
+        //System.out.println( "getValueAt row =" + row + "  col =" + col );
         try {
             colNames.add( col, " NEW " );
 
@@ -149,7 +149,7 @@ public class FilesTblModel extends AbstractTableModel
     */    
     public void insertRowAt( int row, String Path ) 
         {
-        //System.err.println( "getValueAt row =" + row + "  col =" + col );
+        //System.out.println( "getValueAt row =" + row + "  col =" + col );
         try {
             //System.out.println( "before add row table col count =" + this.getColumnCount() );
             ArrayList newRow = new ArrayList();
@@ -177,7 +177,7 @@ public class FilesTblModel extends AbstractTableModel
     */    
     public void deleteRowAt( int row ) 
         {
-        //System.err.println( "delete row =" + row + "  col =" + col );
+        //System.out.println( "delete row =" + row + "  col =" + col );
         try {
             //System.out.println( "before add row table col count =" + this.getColumnCount() );
             data.remove( row );

@@ -46,7 +46,7 @@ public class Deleter extends SimpleFileVisitor<Path>
         this.deleteFilesOnlyFlag = deleteFilesOnlyFlag;
         this.deleteToTrashFlag = deleteToTrashFlag;
         this.deleteReadonlyFlag = deleteReadonlyFlag;
-        System.err.println( "Deleter this.fromPath =" + this.fromPath + "=" );
+        System.out.println( "Deleter this.fromPath =" + this.fromPath + "=" );
         cancelFlag = false;
     }
 

@@ -37,7 +37,7 @@ public final class JavaProcess {
   
         for ( String tmp : allArgs )
             {
-            System.err.println( "(" + tmp + ") " );
+            System.out.println( "(" + tmp + ") " );
             }
         ProcessBuilder builder = new ProcessBuilder( allArgs );
 
@@ -68,7 +68,7 @@ public final class JavaProcess {
 
             for ( String tmp : allArgs )
                 {
-                System.err.println( "(" + tmp + ") " );
+                System.out.println( "(" + tmp + ") " );
                 }
             builder = new ProcessBuilder( allArgs );
             }
@@ -76,7 +76,7 @@ public final class JavaProcess {
             {
             for ( String str : myargs )
                 {
-                System.err.println( "run cmd: (" + str + ") " );
+                System.out.println( "run cmd: (" + str + ") " );
     //            cmd.add( str );
                 }
             builder = new ProcessBuilder( myargs );
@@ -88,7 +88,7 @@ public final class JavaProcess {
 //        IOThreadHandler outputHandler = new IOThreadHandler( process.getInputStream() );
 //        outputHandler.start();
 //        process.waitFor();
-//        System.err.println(outputHandler.getOutput());
+//        System.out.println(outputHandler.getOutput());
         return process.exitValue();
 	}
 

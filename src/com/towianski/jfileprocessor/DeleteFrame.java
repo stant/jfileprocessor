@@ -76,7 +76,7 @@ public class DeleteFrame extends javax.swing.JFrame {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                //System.err.println( "previewImportWin formWindow dispose()" );
+                //System.out.println( "previewImportWin formWindow dispose()" );
                 win.dispatchEvent( new WindowEvent( win, WindowEvent.WINDOW_CLOSING )); 
                 win.dispose();
             }
@@ -283,7 +283,7 @@ public class DeleteFrame extends javax.swing.JFrame {
 
         if ( doCmdBtn.getText().equalsIgnoreCase( PROCESS_STATUS_DELETE_CANCEL ) )
             {
-            System.err.println( "hit stop button, got rootPaneCheckingEnabled =" + rootPaneCheckingEnabled + "=" );
+            System.out.println( "hit stop button, got rootPaneCheckingEnabled =" + rootPaneCheckingEnabled + "=" );
             setProcessStatus( PROCESS_STATUS_DELETE_CANCELED );
             this.stopSearch();
             //JOptionPane.showConfirmDialog( null, "at call stop search" );

@@ -39,7 +39,7 @@ public class FillTableModelSwingWorker extends SwingWorker<ResultsData, Object> 
         try {
             System.out.println( "entered FillTableModelSwingWorker.done()" );
             ResultsData resultsData = get();
-            //System.err.println( "SwingWork.done() got ans =" + matchedPathsList + "=" );
+            //System.out.println( "SwingWork.done() got ans =" + matchedPathsList + "=" );
             //jFileFinderWin.resetSearchBtn();
             NumberFormat numFormat = NumberFormat.getIntegerInstance();
             if ( resultsData.getFillWasCanceled() )
@@ -64,7 +64,7 @@ public class FillTableModelSwingWorker extends SwingWorker<ResultsData, Object> 
             } else {
                 why = e.getMessage();
             }
-            System.err.println("Error retrieving file: " + why);
+            System.out.println("Error retrieving file: " + why);
         }
     }    
 }

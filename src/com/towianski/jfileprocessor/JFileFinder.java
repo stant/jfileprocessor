@@ -244,7 +244,7 @@ public class JFileFinder //  implements Runnable
             if ( chainFilterFolderList != null )
                 {
                 try {
-                    //System.err.println( "folder match ? =" + fpath.toString() );
+                    //System.out.println( "folder match ? =" + fpath.toString() );
                     if ( chainFilterFolderList.testFilters( fpath, attrs ) )
                         {
                         numFolderMatches++;
@@ -291,12 +291,12 @@ public class JFileFinder //  implements Runnable
                     System.out.println( "Search cancelled by user." );
                     return FileVisitResult.TERMINATE;
                     }
-                //System.err.println( "test file ? =" + fpath.toString() );
+                //System.out.println( "test file ? =" + fpath.toString() );
                 processFile( fpath, attrs );
                 }
             catch( Exception ex )
                 {
-                System.err.println( "Error parsing file =" + fpath + "=" );
+                System.out.println( "Error parsing file =" + fpath + "=" );
                 return FileVisitResult.TERMINATE;
                 }
             return FileVisitResult.CONTINUE;
@@ -306,8 +306,8 @@ public class JFileFinder //  implements Runnable
         @Override
         public FileVisitResult preVisitDirectory( Path fpath, BasicFileAttributes attrs )
             {
-//            System.err.println( "preVisitDirectory() chainFilterFolderlist.size() =" + chainFilterFolderList.size() + "=" );
-//            System.err.println( "preVisitDirectory() chainFilterPreVisitFolderList.size() =" + chainFilterPreVisitFolderList.size() + "=" );
+//            System.out.println( "preVisitDirectory() chainFilterFolderlist.size() =" + chainFilterFolderList.size() + "=" );
+//            System.out.println( "preVisitDirectory() chainFilterPreVisitFolderList.size() =" + chainFilterPreVisitFolderList.size() + "=" );
 
             //  First check is do we show this folder?
             try {
@@ -327,14 +327,14 @@ public class JFileFinder //  implements Runnable
             if ( chainFilterPreVisitFolderList != null )
                 {
                 try {
-                    //System.err.println( "previsit folder ? =" + fpath.toString() );
+                    //System.out.println( "previsit folder ? =" + fpath.toString() );
                     if ( chainFilterPreVisitFolderList.testFilters( fpath, attrs ) )
                         {
                         return CONTINUE;
                         }
                     else
                         {
-                        //System.err.println( "SKIP folder =" + fpath.toString() );
+                        //System.out.println( "SKIP folder =" + fpath.toString() );
                         return FileVisitResult.SKIP_SUBTREE;
                         }
                     }
@@ -371,10 +371,10 @@ public class JFileFinder //  implements Runnable
         @Override
         public FileVisitResult visitFileFailed( Path file, IOException exc ) 
             {
-            //System.err.println( exc + "  for file =" + file.toString() );
+            //System.out.println( exc + "  for file =" + file.toString() );
             if ( new File( file.toString() ).isDirectory() )
                 {
-                System.err.println( "skipping inaccessible folder: " + file.toString() );
+                System.out.println( "skipping inaccessible folder: " + file.toString() );
                 return FileVisitResult.SKIP_SUBTREE;
                 }
             return CONTINUE;
@@ -406,7 +406,7 @@ public class JFileFinder //  implements Runnable
     }
 
     static void usage() {
-        System.err.println("java Find <path>" + " -name \"<glob_pattern>\"");
+        System.out.println("java Find <path>" + " -name \"<glob_pattern>\"");
         System.exit(-1);
     }
 
@@ -418,12 +418,12 @@ public class JFileFinder //  implements Runnable
         //basePathCount = startingDir.getNameCount();
         basePathLen = startingDir.toString().length();
         
-        System.err.println( "startingPath =" + startingPath + "=" );
-        System.err.println( "startingDir =" + startingDir + "=" );
-        System.err.println( "patternType =" + patternType + "=" );
-        System.err.println( "filePattern =" + filePattern + "=" );
-        System.err.println( "matching filePattern =" + (startingPath + filePattern).replace( "\\", "\\\\" ) + "=" );
-        System.err.println( "basePathLen =" + basePathLen + "=" );
+        System.out.println( "startingPath =" + startingPath + "=" );
+        System.out.println( "startingDir =" + startingDir + "=" );
+        System.out.println( "patternType =" + patternType + "=" );
+        System.out.println( "filePattern =" + filePattern + "=" );
+        System.out.println( "matching filePattern =" + (startingPath + filePattern).replace( "\\", "\\\\" ) + "=" );
+        System.out.println( "basePathLen =" + basePathLen + "=" );
         
         finder = new Finder( (startingPath + filePattern).replace( "\\", "\\\\" ) );
         try {
@@ -459,7 +459,7 @@ public class JFileFinder //  implements Runnable
 //        filePattern = "*.xml";
 //        startingPath = args[0];
 //        filePattern = args[1];
-        System.err.println("java Find args[0] =" + args[0] +  "=  args[1] =" + args[1] + "=  args[2] =" + args[2] + "=");
+        System.out.println("java Find args[0] =" + args[0] +  "=  args[1] =" + args[1] + "=  args[2] =" + args[2] + "=");
 
         JFileFinder jfilefinder = new JFileFinder( args[0], args[1], args[2], null, null, null );
 

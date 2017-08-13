@@ -42,7 +42,7 @@ public class CircularArrayList {
             highest = addAt;
             }
         idx = addAt;
-        System.err.println( "CircularArrayList ADD idx =" + idx+ "   addAt =" + addAt + "   highest =" + highest + "   max =" + max + "   newpath =" + newPath + "=" );
+        System.out.println( "CircularArrayList ADD idx =" + idx+ "   addAt =" + addAt + "   highest =" + highest + "   max =" + max + "   newpath =" + newPath + "=" );
         cal.set( addAt, newPath );
         }
     
@@ -56,7 +56,7 @@ public class CircularArrayList {
             {
             return "";
             }
-        System.err.println( "CircularArrayList BACK idx =" + idx+ "   addAt =" + addAt + "   highest =" + highest + "   max =" + max );
+        System.out.println( "CircularArrayList BACK idx =" + idx+ "   addAt =" + addAt + "   highest =" + highest + "   max =" + max );
         return cal.get( idx );
         }
     
@@ -70,7 +70,7 @@ public class CircularArrayList {
             {
             return "";
             }
-        System.err.println( "CircularArrayList FOR idx =" + idx+ "   addAt =" + addAt + "   highest =" + highest + "   max =" + max );
+        System.out.println( "CircularArrayList FOR idx =" + idx+ "   addAt =" + addAt + "   highest =" + highest + "   max =" + max );
         return cal.get( idx );
         }
     

@@ -45,7 +45,7 @@ public class JFileDelete //  implements Runnable
         }
 
     public ResultsData getResultsData() {
-        //System.err.println( "entered jfilecopy getResultsData()" );
+        //System.out.println( "entered jfilecopy getResultsData()" );
         ResultsData resultsData = new ResultsData();
         try {
             resultsData = new ResultsData( cancelFlag, deleter.getProcessStatus(), deleter.getMessage(), deleter.getNumTested(), deleter.getNumFilesDeleted(), deleter.getNumFoldersDeleted() );
@@ -59,7 +59,7 @@ public class JFileDelete //  implements Runnable
     }
     
     static void usage() {
-        System.err.println("jFileDelete <path>" + " -name \"<glob_pattern>\"");
+        System.out.println("jFileDelete <path>" + " -name \"<glob_pattern>\"");
         System.exit(-1);
     }
 
@@ -71,7 +71,7 @@ public class JFileDelete //  implements Runnable
                 cancelFlag = false;
                 for ( Path fpath : copyPaths )
                     {
-                    //System.err.println( "delete path =" + fpath + "=" );
+                    //System.out.println( "delete path =" + fpath + "=" );
                     //EnumSet<FileVisitOption> opts = EnumSet.of( FOLLOW_LINKS );
                     if ( fpath.toFile().exists() )
                         {
@@ -111,7 +111,7 @@ public class JFileDelete //  implements Runnable
 //        filePattern = "*.xml";
 //        startingPath = args[0];
 //        filePattern = args[1];
-        System.err.println("java Delete args[0] =" + args[0] +  "=  args[1] =" + args[1] + "=  args[2] =" + args[2] + "=");
+        System.out.println("java Delete args[0] =" + args[0] +  "=  args[1] =" + args[1] + "=  args[2] =" + args[2] + "=");
 
 //        JFileDelete jfiledeleter = new JFileDelete( args[0], args[1], args[2], null, null );
 

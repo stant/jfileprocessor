@@ -60,7 +60,7 @@ public class JFileCopy //  implements Runnable
         }
     
     public ResultsData getResultsData() {
-        //System.err.println( "entered jfilecopy getResultsData()" );
+        //System.out.println( "entered jfilecopy getResultsData()" );
         ResultsData resultsData = new ResultsData();
         try {
             resultsData = new ResultsData( cancelFlag, copier.getProcessStatus(), copier.getMessage(), copier.getNumTested(), copier.getNumFileMatches(), copier.getNumFolderMatches() );
@@ -74,13 +74,13 @@ public class JFileCopy //  implements Runnable
     }
     
     static void usage() {
-        System.err.println("jFileCopy <path>" + " -name \"<glob_pattern>\"");
+        System.out.println("jFileCopy <path>" + " -name \"<glob_pattern>\"");
         System.exit(-1);
     }
 
     public void run() 
         {
-        System.err.println( "toPath =" + toPath + "=" );
+        System.out.println( "toPath =" + toPath + "=" );
         
         copier = new Copier( jFileFinderWin, isDoingCutFlag, copyOptions );
         try {
@@ -90,7 +90,7 @@ public class JFileCopy //  implements Runnable
                 cancelFillFlag = false;
                 for ( Path fpath : copyPaths )
                     {
-                    System.err.println( "\n-------  new filewalk: copy path =" + fpath + "=" );
+                    System.out.println( "\n-------  new filewalk: copy path =" + fpath + "=" );
                     EnumSet<FileVisitOption> opts = EnumSet.of( FOLLOW_LINKS );
                     copier.setPaths( fpath, startingPath, toPath );
                     Files.walkFileTree( fpath, opts, Integer.MAX_VALUE, copier );
@@ -123,7 +123,7 @@ public class JFileCopy //  implements Runnable
 //        filePattern = "*.xml";
 //        startingPath = args[0];
 //        filePattern = args[1];
-        System.err.println("java Find args[0] =" + args[0] +  "=  args[1] =" + args[1] + "=  args[2] =" + args[2] + "=");
+        System.out.println("java Find args[0] =" + args[0] +  "=  args[1] =" + args[1] + "=  args[2] =" + args[2] + "=");
 
 //        JFileCopy jfilefinder = new JFileCopy( args[0], args[1], args[2], null, null );
 

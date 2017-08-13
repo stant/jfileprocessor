@@ -19,7 +19,7 @@ public class DesktopUtils
     
    public static File getTrashFolder()
    {
-      System.err.println( "os.name =" + System.getProperty( "os.name" ) + "=" );
+      System.out.println( "os.name =" + System.getProperty( "os.name" ) + "=" );
       File trashFolder = null;
       File trashFolder1 = null;
       File trashFolder2 = null;
@@ -30,7 +30,7 @@ public class DesktopUtils
       if ( System.getProperty( "os.name" ).toLowerCase().startsWith( "mac" ) )
         {
         trashFolder1 = new File( System.getProperty( "user.home" ) + "/Library/Application Support", "JFileProcessor" );
-        System.err.println( "try trashFolder folder =" + trashFolder1 + "=" );
+        System.out.println( "try trashFolder folder =" + trashFolder1 + "=" );
         if ( trashFolder1.exists() )
             {
             trashFolder = trashFolder1;
@@ -38,7 +38,7 @@ public class DesktopUtils
         else
             {
             trashFolder2 = new File( System.getProperty( "user.home" ) + "/Library/Preferences", "JFileProcessor" );
-            System.err.println( "try trashFolder folder =" + trashFolder2 + "=" );
+            System.out.println( "try trashFolder folder =" + trashFolder2 + "=" );
             if ( trashFolder2.exists() )
                 {
                 trashFolder = trashFolder2;
@@ -46,7 +46,7 @@ public class DesktopUtils
             else
                 {
                 trashFolder3 = new File( "/Library/Preferences", "JFileProcessor" );
-                System.err.println( "try trashFolder folder =" + trashFolder3 + "=" );
+                System.out.println( "try trashFolder folder =" + trashFolder3 + "=" );
                 if ( trashFolder3.exists() )
                     {
                     trashFolder = trashFolder3;
@@ -54,7 +54,7 @@ public class DesktopUtils
                 else
                     {
                     trashFolder4 = new File( System.getProperty( "user.home" ) + "/Library", "JFileProcessor" );
-                    System.err.println( "try trashFolder folder =" + trashFolder4 + "=" );
+                    System.out.println( "try trashFolder folder =" + trashFolder4 + "=" );
                     if ( trashFolder4.exists() )
                         trashFolder = trashFolder4;
                     } // 3
@@ -65,7 +65,7 @@ public class DesktopUtils
         
         if ( trashFolder == null )
             {
-            System.err.println( "Could not find so assuming trashFolder folder =" + trashFolder1 + "=" );
+            System.out.println( "Could not find so assuming trashFolder folder =" + trashFolder1 + "=" );
             trashFolder = trashFolder1;
             missingHomeErrMsg = "\n\nI looked in these 4 places in this order: \n\n"
                         + trashFolder1 + "\n"
@@ -77,13 +77,13 @@ public class DesktopUtils
       else  // windows + Linux : test for moneydance folder
         {
         trashFolder1 = new File( System.getProperty( "user.home" ), ".JFileProcessor" );
-        System.err.println( "try trashFolder folder =" + trashFolder1 + "=" );
+        System.out.println( "try trashFolder folder =" + trashFolder1 + "=" );
         if ( trashFolder1.exists() )
             trashFolder = trashFolder1;
 
         if ( trashFolder == null )
             {
-            System.err.println( "Could not find so assuming trashFolder folder =" + trashFolder1 + "=" );
+            System.out.println( "Could not find so assuming trashFolder folder =" + trashFolder1 + "=" );
             trashFolder = trashFolder1;
             missingHomeErrMsg = "";   //\n\nI looked in this place: \n\n"
                                       //+ trashFolder + "\n";
@@ -123,7 +123,7 @@ public class DesktopUtils
     
    public static File getBookmarks()
    {
-      System.err.println( "os.name =" + System.getProperty( "os.name" ) + "=" );
+      System.out.println( "os.name =" + System.getProperty( "os.name" ) + "=" );
       File bookmarks = null;
       File bookmarks1 = null;
       File bookmarks2 = null;
@@ -134,7 +134,7 @@ public class DesktopUtils
       if ( System.getProperty( "os.name" ).toLowerCase().startsWith( "mac" ) )
         {
         bookmarks1 = new File( System.getProperty( "user.home" ) + "/Library/Application Support", "JFileProcessor" );
-        System.err.println( "try bookmarks folder =" + bookmarks1 + "=" );
+        System.out.println( "try bookmarks folder =" + bookmarks1 + "=" );
         if ( bookmarks1.exists() )
             {
             bookmarks = bookmarks1;
@@ -142,7 +142,7 @@ public class DesktopUtils
         else
             {
             bookmarks2 = new File( System.getProperty( "user.home" ) + "/Library/Preferences", "JFileProcessor" );
-            System.err.println( "try bookmarks folder =" + bookmarks2 + "=" );
+            System.out.println( "try bookmarks folder =" + bookmarks2 + "=" );
             if ( bookmarks2.exists() )
                 {
                 bookmarks = bookmarks2;
@@ -150,7 +150,7 @@ public class DesktopUtils
             else
                 {
                 bookmarks3 = new File( "/Library/Preferences", "JFileProcessor" );
-                System.err.println( "try bookmarks folder =" + bookmarks3 + "=" );
+                System.out.println( "try bookmarks folder =" + bookmarks3 + "=" );
                 if ( bookmarks3.exists() )
                     {
                     bookmarks = bookmarks3;
@@ -158,7 +158,7 @@ public class DesktopUtils
                 else
                     {
                     bookmarks4 = new File( System.getProperty( "user.home" ) + "/Library", "JFileProcessor" );
-                    System.err.println( "try bookmarks folder =" + bookmarks4 + "=" );
+                    System.out.println( "try bookmarks folder =" + bookmarks4 + "=" );
                     if ( bookmarks4.exists() )
                         bookmarks = bookmarks4;
                     } // 3
@@ -169,7 +169,7 @@ public class DesktopUtils
         
         if ( bookmarks == null )
             {
-            System.err.println( "Could not find so assuming bookmarks folder =" + bookmarks1 + "=" );
+            System.out.println( "Could not find so assuming bookmarks folder =" + bookmarks1 + "=" );
             bookmarks = bookmarks1;
             missingHomeErrMsg = "\n\nI looked in these 4 places in this order: \n\n"
                         + bookmarks1 + "\n"
@@ -181,13 +181,13 @@ public class DesktopUtils
       else  // windows + Linux : test for moneydance folder
         {
         bookmarks1 = new File( System.getProperty( "user.home" ), ".JFileProcessor" );
-        System.err.println( "try bookmarks folder =" + bookmarks1 + "=" );
+        System.out.println( "try bookmarks folder =" + bookmarks1 + "=" );
         if ( bookmarks1.exists() )
             bookmarks = bookmarks1;
 
         if ( bookmarks == null )
             {
-            System.err.println( "Could not find so assuming bookmarks folder =" + bookmarks1 + "=" );
+            System.out.println( "Could not find so assuming bookmarks folder =" + bookmarks1 + "=" );
             bookmarks = bookmarks1;
             missingHomeErrMsg = "";   //\n\nI looked in this place: \n\n"
                                       //+ bookmarks + "\n";

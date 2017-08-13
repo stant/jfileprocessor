@@ -159,7 +159,6 @@
     </Component>
     <Component class="javax.swing.JCheckBox" name="copyAttribs">
       <Properties>
-        <Property name="selected" type="boolean" value="true"/>
         <Property name="text" type="java.lang.String" value="Copy Attributes"/>
       </Properties>
       <Events>

@@ -44,7 +44,7 @@ public class DeleteFrameSwingWorker extends SwingWorker<ResultsData, Object> {
             ResultsData resultsData = get();
             //Integer ii = get();
             //System.out.println( "SwingWork.done() at 2  ii = " + ii );
-            //System.err.println( "SwingWork.done() got ans =" + matchedPathsList + "=" );
+            //System.out.println( "SwingWork.done() got ans =" + matchedPathsList + "=" );
             NumberFormat numFormat = NumberFormat.getIntegerInstance();
             if ( ! resultsData.getMessage().equals( "" ) )
                 {
@@ -84,7 +84,7 @@ public class DeleteFrameSwingWorker extends SwingWorker<ResultsData, Object> {
             } else {
                 why = e.getMessage();
             }
-            System.err.println( "Error in DeleteFrameSwingWorker(): " + why);
+            System.out.println( "Error in DeleteFrameSwingWorker(): " + why);
             }
     }    
 }

@@ -44,7 +44,7 @@ public class JFileFinderSwingWorker extends SwingWorker<ResultsData, Object> {
         try {
             System.out.println( "entered SwingWork.done()" );
             ResultsData resultsData = get();
-            //System.err.println( "SwingWork.done() got ans =" + matchedPathsList + "=" );
+            //System.out.println( "SwingWork.done() got ans =" + matchedPathsList + "=" );
             //jFileFinderWin.resetSearchBtn();
             NumberFormat numFormat = NumberFormat.getIntegerInstance();
             jFileFinderWin.setMessage( "Matched " + numFormat.format( resultsData.getFilesMatched() ) + " files and " + numFormat.format( resultsData.getFoldersMatched() ) 
@@ -81,7 +81,7 @@ public class JFileFinderSwingWorker extends SwingWorker<ResultsData, Object> {
             } else {
                 why = e.getMessage();
             }
-            System.err.println("Error retrieving file: " + why);
+            System.out.println("Error retrieving file: " + why);
         }
     }    
 }

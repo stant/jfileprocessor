@@ -4,7 +4,7 @@ class Test {
 }
 
  static void main(String[] args) {
-        System.err.println( "entered Test.main()");
+        System.out.println( "entered Test.main()");
 //        def test = new Test();
 
         // we are going to write output to this file !
@@ -13,17 +13,17 @@ class Test {
 
         com.towianski.jfileprocessor.CodeProcessorPanel codeProcessorPanel = binding.getVariable( "codeProcessorPanel" );
         def defaultComboBoxModel = binding.getVariable( "defaultComboBoxModel" );
-        System.err.println( "got codeProcessorPanel.jFileFinderWin.getStartingFolder() =" + codeProcessorPanel.jFileFinderWin.getStartingFolder() + "=" );
+        System.out.println( "got codeProcessorPanel.jFileFinderWin.getStartingFolder() =" + codeProcessorPanel.jFileFinderWin.getStartingFolder() + "=" );
 
-        System.err.println( "selected item =" + codeProcessorPanel.listOfLists.getSelectedItem() + "=" );
+        System.out.println( "selected item =" + codeProcessorPanel.listOfLists.getSelectedItem() + "=" );
         int numItems = defaultComboBoxModel.getSize();
-        System.err.println( "defaultComboBoxModel.getSize() num of items =" + numItems + "=" );
+        System.out.println( "defaultComboBoxModel.getSize() num of items =" + numItems + "=" );
         String str = "";
         def atFile = null;
         for( int i = 0; i < numItems; i++ )
             {
             str = defaultComboBoxModel.getElementAt( i ).toString();
-            System.err.println( "check for other list index =" + i + "   str =" + str + "=" );
+            System.out.println( "check for other list index =" + i + "   str =" + str + "=" );
 
             if ( 0 == 1 )  // example for list as files
                 {

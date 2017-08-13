@@ -283,7 +283,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
 
     public void readInBookmarks() {
         File selectedFile = new File( DesktopUtils.getBookmarks().toString() );
-        System.err.println( "Bookmarks File =" + selectedFile + "=" );
+        System.out.println( "Bookmarks File =" + selectedFile + "=" );
             
         try
             {
@@ -298,7 +298,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
 //            DefaultComboBoxModel thisListModel = (DefaultComboBoxModel) savedPathsList.getModel();
             DefaultListModel listModel = (DefaultListModel) savedPathReplacablePanel.getSavedPathsList().getModel();
             int numItems = listModel.getSize();
-            System.err.println( "thisListModel.getSize() num of items =" + numItems + "=" );
+            System.out.println( "thisListModel.getSize() num of items =" + numItems + "=" );
             
             String line = "";
             while ( ( line = br.readLine() ) != null )
@@ -543,7 +543,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
                 {
                 filesTblModel.setValueAt( tcl.getOldValue(), tcl.getRow(), tcl.getColumn() );
                 JOptionPane.showMessageDialog( null, "That Folder name already exists!", "Error", JOptionPane.ERROR_MESSAGE );
-                System.err.println( "That Folder name already exists! ( " + targetPath + ")" );
+                System.out.println( "That Folder name already exists! ( " + targetPath + ")" );
                 setProcessStatus( PROCESS_STATUS_ERROR );
                 processStatus.setText( "Error" );
                 filesTblModel.deleteRowAt( 0 );
@@ -553,7 +553,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
                 try {
                     if ( tcl.getOldValue() == null )
                         {
-                        System.err.println( "try to create dir target =" + targetPath + "=" );
+                        System.out.println( "try to create dir target =" + targetPath + "=" );
                         Files.createDirectory( targetPath );
 
 //                        RenameActionPerformed( null );
@@ -563,7 +563,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
                         Path sourcePath = Paths.get( tcl.getOldValue().toString().trim() );
                         if ( Files.exists( sourcePath ) )
                             {
-                            System.err.println( "try to move dir source =" + sourcePath + "=   target =" + targetPath + "=" );
+                            System.out.println( "try to move dir source =" + sourcePath + "=   target =" + targetPath + "=" );
                             Files.move( sourcePath, targetPath );
                             }
                         }
@@ -577,7 +577,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
                     }
                 catch (Exception ex) 
                     {
-                    System.err.println( "ex.getMessage() =" + ex.getMessage()+ "=" );
+                    System.out.println( "ex.getMessage() =" + ex.getMessage()+ "=" );
                     processStatus.setText( "Error" );
                     ex.printStackTrace();
                     message.setText( ex.getMessage() );
@@ -593,14 +593,14 @@ public class JFileFinderWin extends javax.swing.JFrame {
     {
         if ( searchBtn.getText().equalsIgnoreCase( PROCESS_STATUS_CANCEL_SEARCH ) )
             {
-            System.err.println( "hit stop button, got rootPaneCheckingEnabled =" + rootPaneCheckingEnabled + "=" );
+            System.out.println( "hit stop button, got rootPaneCheckingEnabled =" + rootPaneCheckingEnabled + "=" );
             setProcessStatus( PROCESS_STATUS_SEARCH_CANCELED );
             this.stopSearch();
             //JOptionPane.showConfirmDialog( null, "at call stop search" );
             }
         else if ( searchBtn.getText().equalsIgnoreCase( PROCESS_STATUS_CANCEL_FILL ) )
             {
-            System.err.println( "hit stop fill button, got rootPaneCheckingEnabled =" + rootPaneCheckingEnabled + "=" );
+            System.out.println( "hit stop fill button, got rootPaneCheckingEnabled =" + rootPaneCheckingEnabled + "=" );
             setProcessStatus( PROCESS_STATUS_FILL_CANCELED );
             this.stopFill();
             //JOptionPane.showConfirmDialog( null, "at call stop fill" );
@@ -641,11 +641,11 @@ public class JFileFinderWin extends javax.swing.JFrame {
                 
                 //------- save history of paths  -------
                 pathsHistoryList.add( args[0] );
-                System.err.println( "after pathsHistoryList()" );
+                System.out.println( "after pathsHistoryList()" );
 
                 //public ChainFilterA( ChainFilterA nextChainFilter )
                 //Long size1Long = Long.parseLong( size1.getText().trim() );
-                System.err.println( "tabsLogic button.getText() =" + (tabsLogicAndBtn.isSelected() ? tabsLogicAndBtn.getText() : tabsLogicOrBtn.getText()) + "=" );
+                System.out.println( "tabsLogic button.getText() =" + (tabsLogicAndBtn.isSelected() ? tabsLogicAndBtn.getText() : tabsLogicOrBtn.getText()) + "=" );
                 FilterChain chainFilterList = new FilterChain( tabsLogicAndBtn.isSelected() ? tabsLogicAndBtn.getText() : tabsLogicOrBtn.getText() );
                 FilterChain chainFilterFolderList = new FilterChain( tabsLogicAndBtn.isSelected() ? tabsLogicAndBtn.getText() : tabsLogicOrBtn.getText() );
                 FilterChain chainFilterPreVisitFolderList = new FilterChain( tabsLogicAndBtn.isSelected() ? tabsLogicAndBtn.getText() : tabsLogicOrBtn.getText() );
@@ -653,7 +653,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
                 try {
                     if ( ! filePattern.getText().trim().equals( "" ) )
                         {
-                        System.err.println( "add filter of names!" );
+                        System.out.println( "add filter of names!" );
                         ChainFilterOfNames chainFilterOfNames = new ChainFilterOfNames( args[1], (args[0] + args[2]).replace( "\\", "\\\\" ) );
                         chainFilterList.addFilter( chainFilterOfNames );
                         }
@@ -668,7 +668,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
                 try {
                     if ( ! size1.getText().trim().equals( "" ) )
                         {
-                        System.err.println( "add filter of sizes!" );
+                        System.out.println( "add filter of sizes!" );
                         ChainFilterOfSizes chainFilterOfSizes = new ChainFilterOfSizes( (String)size1Op.getSelectedItem(), size1.getText().trim(), ((String) sizeLogicOp.getValue()).trim(), (String)size2Op.getSelectedItem(), size2.getText().trim() );
                         chainFilterList.addFilter( chainFilterOfSizes );
                         }
@@ -683,8 +683,8 @@ public class JFileFinderWin extends javax.swing.JFrame {
                 try {
                     if ( (Date) date1.getModel().getValue() != null )
                         {
-                        System.err.println( "add filter of dates!" );
-                        System.err.println( "selected date =" + (Date) date1.getModel().getValue() + "=" );
+                        System.out.println( "add filter of dates!" );
+                        System.out.println( "selected date =" + (Date) date1.getModel().getValue() + "=" );
                         ChainFilterOfDates chainFilterOfDates = new ChainFilterOfDates( (String)date1Op.getSelectedItem(), (Date) date1.getModel().getValue(), ((String) dateLogicOp.getValue()).trim(), (String)date2Op.getSelectedItem(), (Date) date2.getModel().getValue() );
                         chainFilterList.addFilter( chainFilterOfDates );
                         }
@@ -699,8 +699,8 @@ public class JFileFinderWin extends javax.swing.JFrame {
                 try {
                     if ( ! maxDepth.getText().trim().equals( "" ) )
                         {
-                        System.err.println( "add filter of maxdepth!" );
-                        System.err.println( "selected maxdepth =" + maxDepth.getText().trim() + "=" );
+                        System.out.println( "add filter of maxdepth!" );
+                        System.out.println( "selected maxdepth =" + maxDepth.getText().trim() + "=" );
                         ChainFilterOfMaxDepth chainFilterOfMaxDepth = new ChainFilterOfMaxDepth( args[0], maxDepth.getText().trim() );
                         chainFilterFolderList.addFilter( chainFilterOfMaxDepth );
                         chainFilterList.addFilter( chainFilterOfMaxDepth );
@@ -718,8 +718,8 @@ public class JFileFinderWin extends javax.swing.JFrame {
                 try {
                     if ( ! minDepth.getText().trim().equals( "" ) )
                         {
-                        System.err.println( "add filter of minDepth!" );
-                        System.err.println( "selected minDepth =" + minDepth.getText().trim() + "=" );
+                        System.out.println( "add filter of minDepth!" );
+                        System.out.println( "selected minDepth =" + minDepth.getText().trim() + "=" );
                         ChainFilterOfMinDepth chainFilterOfMinDepth = new ChainFilterOfMinDepth( args[0], minDepth.getText().trim() );
                         chainFilterFolderList.addFilter( chainFilterOfMinDepth );
                         chainFilterList.addFilter( chainFilterOfMinDepth );
@@ -735,18 +735,18 @@ public class JFileFinderWin extends javax.swing.JFrame {
                     }
                 
                 try {
-                    System.err.println( "showFilesFoldersCb.getSelectedItem() =" + showFilesFoldersCb.getSelectedItem() + "=" );
+                    System.out.println( "showFilesFoldersCb.getSelectedItem() =" + showFilesFoldersCb.getSelectedItem() + "=" );
                     if ( showFilesFoldersCb.getSelectedItem().equals( SHOWFILESFOLDERSCB_FILES_ONLY ) 
                          || showFilesFoldersCb.getSelectedItem().equals( SHOWFILESFOLDERSCB_NEITHER ) )
                         {
-                        System.err.println( "add filter Boolean False for folders" );
+                        System.out.println( "add filter Boolean False for folders" );
                         ChainFilterOfBoolean chainFilterOfBoolean = new ChainFilterOfBoolean( false );
                         chainFilterFolderList.addFilter( chainFilterOfBoolean );
                         }
                     if ( showFilesFoldersCb.getSelectedItem().equals( SHOWFILESFOLDERSCB_FOLDERS_ONLY ) 
                          || showFilesFoldersCb.getSelectedItem().equals( SHOWFILESFOLDERSCB_NEITHER ) )
                         {
-                        System.err.println( "add filter Boolean False for files" );
+                        System.out.println( "add filter Boolean False for files" );
                         ChainFilterOfBoolean chainFilterOfBoolean = new ChainFilterOfBoolean( false );
                         chainFilterList.addFilter( chainFilterOfBoolean );
                         }
@@ -914,7 +914,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                //System.err.println( "previewImportWin formWindow dispose()" );
+                //System.out.println( "previewImportWin formWindow dispose()" );
                 win.dispatchEvent( new WindowEvent( win, WindowEvent.WINDOW_CLOSING )); 
                 win.dispose();
             }
@@ -930,8 +930,8 @@ public class JFileFinderWin extends javax.swing.JFrame {
 //
 //            @Override
 //            public void actionPerformed(ActionEvent e) {
-//                System.err.println( "addHotKeysListener hotkeys()" );
-//                System.err.println( "addHotKeysListener hotkeys()" + e.get );
+//                System.out.println( "addHotKeysListener hotkeys()" );
+//                System.out.println( "addHotKeysListener hotkeys()" + e.get );
 //                win.dispatchEvent( new WindowEvent( table, WindowEvent.WINDOW_CLOSING )); 
 //                win.dispose();
 //            }
@@ -1248,7 +1248,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
             jPopupMenu2.add(savePathsToFile1);
 
             setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-            setTitle("JFileProcessor v1.4.9 - Stan Towianski  (c) 2015-2017");
+            setTitle("JFileProcessor v1.4.10 - Stan Towianski  (c) 2015-2017");
             setPreferredSize(new java.awt.Dimension(900, 544));
             addWindowListener(new java.awt.event.WindowAdapter() {
                 public void windowOpened(java.awt.event.WindowEvent evt) {
@@ -1995,7 +1995,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
     if ( chooser.showDialog( this, "Select" ) == JFileChooser.APPROVE_OPTION )
         {
         File selectedFile = chooser.getSelectedFile();
-        System.err.println( "File to save to =" + selectedFile + "=" );
+        System.out.println( "File to save to =" + selectedFile + "=" );
         //Settings.set( "last.directory", dialog.getCurrentDirectory().getAbsolutePath() );
         //String[] tt = { selectedFile.getPath() };
         //startingFolder.setText( selectedFile.getPath() );
@@ -2358,7 +2358,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         try {
             int rc = JavaProcess.execJava( com.towianski.jfileprocessor.JFileFinderWin.class );
-            System.err.println( "javaprocess.exec start new window rc = " + rc + "=" );
+            System.out.println( "javaprocess.exec start new window rc = " + rc + "=" );
         } catch (IOException ex) {
             Logger.getLogger(JFileFinderWin.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InterruptedException ex) {
@@ -2369,7 +2369,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
         try {
             int rc = JavaProcess.execJava( com.towianski.jfileprocessor.JFileFinderWin.class, DesktopUtils.getTrashFolder().toString() );
-            System.err.println( "javaprocess.exec start new window rc = " + rc + "=" );
+            System.out.println( "javaprocess.exec start new window rc = " + rc + "=" );
         } catch (IOException ex) {
             Logger.getLogger(JFileFinderWin.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InterruptedException ex) {
@@ -2385,7 +2385,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
             {
             try {
                 int rc = JavaProcess.execJava( com.towianski.jfileprocessor.JFileFinderWin.class );
-                System.err.println( "javaprocess.exec start new window rc = " + rc + "=" );
+                System.out.println( "javaprocess.exec start new window rc = " + rc + "=" );
             } catch (IOException ex) {
                 Logger.getLogger(JFileFinderWin.class.getName()).log(Level.SEVERE, null, ex);
             } catch (InterruptedException ex) {
@@ -2397,7 +2397,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
             {
             try {
                 int rc = JavaProcess.execJava( com.towianski.jfileprocessor.JFileFinderWin.class, DesktopUtils.getTrashFolder().toString() );
-                System.err.println( "javaprocess.exec start new window rc = " + rc + "=" );
+                System.out.println( "javaprocess.exec start new window rc = " + rc + "=" );
             } catch (IOException ex) {
                 Logger.getLogger(JFileFinderWin.class.getName()).log(Level.SEVERE, null, ex);
             } catch (InterruptedException ex) {
@@ -2414,7 +2414,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
         DefaultListModel listModel = (DefaultListModel) savedPathReplacablePanel.getSavedPathsList().getModel();
         int index = savedPathsList.getSelectedIndex();
         String strPath = listModel.getElementAt(index).toString();
-        System.err.println( "delete path() index =" + index + "   element =" + strPath + "=" );
+        System.out.println( "delete path() index =" + index + "   element =" + strPath + "=" );
         if ( strPath.equals( "New Window" ) || strPath.equals( "Trash" ) )
             {
             return;
@@ -2426,14 +2426,14 @@ public class JFileFinderWin extends javax.swing.JFrame {
 
     private void addPathActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addPathActionPerformed
         DefaultListModel listModel = (DefaultListModel) savedPathReplacablePanel.getSavedPathsList().getModel();
-        System.err.println( "add path() startingFolder.getText() =" + startingFolder.getText() + "=" );
+        System.out.println( "add path() startingFolder.getText() =" + startingFolder.getText() + "=" );
         String ans = JOptionPane.showInputDialog( "Name: ", Paths.get( startingFolder.getText() ).getFileName() );
         if ( ans == null )
             {
             return;
             }
         savedPathReplacablePanel.getSavedPathsHm().put( ans, startingFolder.getText() );
-        System.err.println( "savedPathReplacablePanel.getSavedPathsHm().size() =" + savedPathReplacablePanel.getSavedPathsHm().size() + "=" );
+        System.out.println( "savedPathReplacablePanel.getSavedPathsHm().size() =" + savedPathReplacablePanel.getSavedPathsHm().size() + "=" );
         listModel.addElement( ans );
     }//GEN-LAST:event_addPathActionPerformed
 
@@ -2466,10 +2466,10 @@ public class JFileFinderWin extends javax.swing.JFrame {
             int reply = JOptionPane.showConfirmDialog( null, "Add current files into list ? ", "List", JOptionPane.YES_NO_OPTION);
             if (reply == JOptionPane.YES_OPTION) 
                 {
-                System.err.println( "add list path() num of items =" + maxRows + "=" );
+                System.out.println( "add list path() num of items =" + maxRows + "=" );
                 for( int i = 0; i < maxRows; i++ )
                     {
-    //                System.err.println( "add list path() path =" + (String) filesTblModel.getValueAt( i, FilesTblModel.FILESTBLMODEL_PATH ) + "=" );
+    //                System.out.println( "add list path() path =" + (String) filesTblModel.getValueAt( i, FilesTblModel.FILESTBLMODEL_PATH ) + "=" );
                     listModel.addElement( (String) filesTblModel.getValueAt( i, FilesTblModel.FILESTBLMODEL_PATH ) );
                     }
                 }
@@ -2489,7 +2489,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
         File selectedFile = new File( DesktopUtils.getBookmarks().toString() );
-        System.err.println( "Bookmarks File =" + selectedFile + "=" );
+        System.out.println( "Bookmarks File =" + selectedFile + "=" );
         
         try
             {
@@ -2504,8 +2504,8 @@ public class JFileFinderWin extends javax.swing.JFrame {
             //DefaultListModel thisListModel = (DefaultListModel) savedPathsList.getModel();
             DefaultListModel listModel = (DefaultListModel) savedPathReplacablePanel.getSavedPathsList().getModel();
             int numItems = listModel.getSize();
-            System.err.println( "thisListModel.getSize() num of items =" + numItems + "=" );
-            System.err.println( "savedPathReplacablePanel.getSavedPathsHm().size() =" + savedPathReplacablePanel.getSavedPathsHm().size() + "=" );
+            System.out.println( "thisListModel.getSize() num of items =" + numItems + "=" );
+            System.out.println( "savedPathReplacablePanel.getSavedPathsHm().size() =" + savedPathReplacablePanel.getSavedPathsHm().size() + "=" );
             
             //loop for jtable rows
             for( int i = 0; i < numItems; i++ )
@@ -2513,7 +2513,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
                 if ( ! listModel.getElementAt( i ).toString().equals( "New Window" ) && 
                      ! listModel.getElementAt( i ).toString().equals( "Trash" ) )
                     {
-                    System.err.println( "bookmark saving =" + listModel.getElementAt( i ).toString() + "=" );
+                    System.out.println( "bookmark saving =" + listModel.getElementAt( i ).toString() + "=" );
                     bw.write( listModel.getElementAt( i ).toString() + "," + savedPathReplacablePanel.getSavedPathsHm().get( listModel.getElementAt( i ).toString() ) );
                     bw.write( "\n" );
                     }
@@ -2532,10 +2532,10 @@ public class JFileFinderWin extends javax.swing.JFrame {
 
     private void startCmdWinActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startCmdWinActionPerformed
         try {
-            System.err.println( "javaprocess.exec start new window getStartingFolder() =" + getStartingFolder() + "=   startConsoleCmd.getText() =" + startConsoleCmd.getText() + "=" );
+            System.out.println( "javaprocess.exec start new window getStartingFolder() =" + getStartingFolder() + "=   startConsoleCmd.getText() =" + startConsoleCmd.getText() + "=" );
             int rc = 0;
             rc = JavaProcess.exec( getStartingFolder(), startConsoleCmd.getText() );
-            System.err.println( "javaprocess.exec start new window rc = " + rc + "=" );
+            System.out.println( "javaprocess.exec start new window rc = " + rc + "=" );
         } catch (IOException ex) {
             Logger.getLogger(JFileFinderWin.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InterruptedException ex) {
@@ -2591,7 +2591,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
             else
                 {
                     //  should go to stderr but oh well for now
-                System.setErr( console );
+                System.setOut( console );
                 }
             } 
         catch (Exception e) 
@@ -2606,7 +2606,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
             System.out.println( "stdErrFilePropertyChange() set to file =" + stdErrFile.getText() + "=" );
             if ( stdErrFile.getText() != null && ! stdErrFile.getText().equals( "" ) )
                 {
-                System.setOut(new PrintStream(new File( stdErrFile.getText() ) ) );
+                System.setErr(new PrintStream(new File( stdErrFile.getText() ) ) );
                 }
             else
                 {
@@ -2648,10 +2648,10 @@ public class JFileFinderWin extends javax.swing.JFrame {
 //            DefaultComboBoxModel listModel = (DefaultComboBoxModel) listOfFilesPanel.getModel();
 //
 //            //loop for jtable rows
-//            System.err.println( "add list path() num of items =" + maxRows + "=" );
+//            System.out.println( "add list path() num of items =" + maxRows + "=" );
 //            for( int i = 0; i < maxRows; i++ )
 //                {
-////                System.err.println( "add list path() path =" + (String) filesTblModel.getValueAt( i, FilesTblModel.FILESTBLMODEL_PATH ) + "=" );
+////                System.out.println( "add list path() path =" + (String) filesTblModel.getValueAt( i, FilesTblModel.FILESTBLMODEL_PATH ) + "=" );
 //                listModel.addElement( (String) filesTblModel.getValueAt( i, FilesTblModel.FILESTBLMODEL_PATH ) );
 //                }
             codeProcessorPanel.pack();

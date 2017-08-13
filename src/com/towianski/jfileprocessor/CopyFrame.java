@@ -61,7 +61,7 @@ public class CopyFrame extends javax.swing.JFrame {
      */
     public CopyFrame() {
         initComponents();
-        System.err.println( "CopyFrame constructor()" );
+        System.out.println( "CopyFrame constructor()" );
 //        MyLogger.init();
         
         this.setLocationRelativeTo( getRootPane() );
@@ -93,7 +93,7 @@ public class CopyFrame extends javax.swing.JFrame {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                //System.err.println( "previewImportWin formWindow dispose()" );
+                //System.out.println( "previewImportWin formWindow dispose()" );
                 win.dispatchEvent( new WindowEvent( win, WindowEvent.WINDOW_CLOSING )); 
                 win.dispose();
             }
@@ -296,7 +296,6 @@ public class CopyFrame extends javax.swing.JFrame {
         gridBagConstraints.gridy = 3;
         getContentPane().add(jLabel3, gridBagConstraints);
 
-        copyAttribs.setSelected(true);
         copyAttribs.setText("Copy Attributes");
         copyAttribs.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -334,7 +333,7 @@ public class CopyFrame extends javax.swing.JFrame {
     private void doCmdBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_doCmdBtnActionPerformed
         if ( doCmdBtn.getText().equalsIgnoreCase( PROCESS_STATUS_CANCEL_COPY ) )
             {
-            System.err.println( "hit stop button, got rootPaneCheckingEnabled =" + rootPaneCheckingEnabled + "=" );
+            System.out.println( "hit stop button, got rootPaneCheckingEnabled =" + rootPaneCheckingEnabled + "=" );
             setProcessStatus( PROCESS_STATUS_COPY_CANCELED );
             this.stopSearch();
             //JOptionPane.showConfirmDialog( null, "at call stop search" );
@@ -352,9 +351,9 @@ public class CopyFrame extends javax.swing.JFrame {
 
 //                CopyOption[] copyOptsAR = copyOpts.toArray( new CopyOption[ copyOpts.size() ] );
 //
-//                System.err.println( "copyOpts length =" + copyOptsAR.length + "=" );
+//                System.out.println( "copyOpts length =" + copyOptsAR.length + "=" );
 //                for ( CopyOption cc : copyOptsAR )
-//                    System.err.println( "cc =" + cc + "=" );
+//                    System.out.println( "cc =" + cc + "=" );
                 
                 jfilecopy = new JFileCopy( jFileFinderWin, this, isDoingCutFlag, startingPath, copyPaths, toPath, copyOpts.toArray( new CopyOption[ copyOpts.size() ] ) );
                 CopyFrameSwingWorker copyFrameSwingWorker = new CopyFrameSwingWorker( jFileFinderWin, this, jfilecopy, copyPaths, toPath );

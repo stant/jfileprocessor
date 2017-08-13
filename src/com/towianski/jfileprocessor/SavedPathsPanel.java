@@ -116,7 +116,7 @@ public class SavedPathsPanel extends javax.swing.JPanel {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         DefaultListModel listModel = (DefaultListModel) savedPathsList.getModel();
-        System.err.println( "add path() startingFolder.getText() =" + jFileFinderWin.getStartingFolder() + "=" );
+        System.out.println( "add path() startingFolder.getText() =" + jFileFinderWin.getStartingFolder() + "=" );
         String ans = JOptionPane.showInputDialog( "Name: ", Paths.get( jFileFinderWin.getStartingFolder() ).getFileName() );
         if ( ans == null )
             {
@@ -130,7 +130,7 @@ public class SavedPathsPanel extends javax.swing.JPanel {
         DefaultListModel listModel = (DefaultListModel) savedPathsList.getModel();
         int index = savedPathsList.getSelectedIndex();
         String strPath = listModel.getElementAt(index).toString();
-        System.err.println( "delete path() index =" + index + "   element =" + strPath + "=" );
+        System.out.println( "delete path() index =" + index + "   element =" + strPath + "=" );
         if ( strPath.equals( "New Window" ) || strPath.equals( "Trash" ) )
             {
             return;
@@ -147,7 +147,7 @@ public class SavedPathsPanel extends javax.swing.JPanel {
             {
             try {
                 int rc = JavaProcess.execJava( com.towianski.jfileprocessor.JFileFinderWin.class );
-                System.err.println( "javaprocess.exec start new window rc = " + rc + "=" );
+                System.out.println( "javaprocess.exec start new window rc = " + rc + "=" );
             } catch (IOException ex) {
                 Logger.getLogger(JFileFinderWin.class.getName()).log(Level.SEVERE, null, ex);
             } catch (InterruptedException ex) {
@@ -159,7 +159,7 @@ public class SavedPathsPanel extends javax.swing.JPanel {
             {
             try {
                 int rc = JavaProcess.execJava( com.towianski.jfileprocessor.JFileFinderWin.class, DesktopUtils.getTrashFolder().toString() );
-                System.err.println( "javaprocess.exec start new window rc = " + rc + "=" );
+                System.out.println( "javaprocess.exec start new window rc = " + rc + "=" );
             } catch (IOException ex) {
                 Logger.getLogger(JFileFinderWin.class.getName()).log(Level.SEVERE, null, ex);
             } catch (InterruptedException ex) {
