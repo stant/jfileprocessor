@@ -140,6 +140,10 @@ public class SavedPathsPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void savedPathsListMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_savedPathsListMouseClicked
+          if ( evt.getClickCount() < 2) 
+            {
+            return;
+            }
         DefaultListModel listModel = (DefaultListModel) savedPathsList.getModel();
         int index = savedPathsList.getSelectedIndex();
         String strPath = listModel.getElementAt(index).toString();
