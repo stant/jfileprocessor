@@ -151,7 +151,6 @@ public class JFileFinderWin extends javax.swing.JFrame {
     public void start() 
     {
         jSplitPane2.setLeftComponent( savedPathReplacablePanel );
-        this.validate();
 
         date2.setMyEnabled( false );
         date2Op.setEnabled( false );
@@ -189,8 +188,9 @@ public class JFileFinderWin extends javax.swing.JFrame {
     listModel.addElement( "Trash" );
     savedPathReplacablePanel.getSavedPathsHm().put( "New Window", "New Window" );
     savedPathReplacablePanel.getSavedPathsHm().put( "Trash", DesktopUtils.getTrashFolder().toString() );
-    readInBookmarks();
     jSplitPane2.setDividerLocation( 150 );
+        System.out.println( "at start jSplitPane1.getLastDividerLocation() =" + jSplitPane1.getLastDividerLocation() );
+    readInBookmarks();
 
     }
         
@@ -1022,6 +1022,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
         addPath = new javax.swing.JButton();
         deletePath = new javax.swing.JButton();
         jPanel10 = new javax.swing.JPanel();
+        topPanel = new javax.swing.JPanel();
         jSplitPane1 = new javax.swing.JSplitPane();
         jPanel6 = new javax.swing.JPanel();
         fileMgrMode = new javax.swing.JCheckBox();
@@ -1096,6 +1097,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
             numFilesInTable = new javax.swing.JLabel();
             upFolder = new javax.swing.JButton();
             countBtn = new javax.swing.JButton();
+            botPanel = new javax.swing.JPanel();
 
             Copy.setText("Copy   (Ctrl-C)");
             Copy.addActionListener(new java.awt.event.ActionListener() {
@@ -1248,7 +1250,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
             jPopupMenu2.add(savePathsToFile1);
 
             setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-            setTitle("JFileProcessor v1.4.10 - Stan Towianski  (c) 2015-2017");
+            setTitle("JFileProcessor v1.4.11 - Stan Towianski  (c) 2015-2017");
             setPreferredSize(new java.awt.Dimension(900, 544));
             addWindowListener(new java.awt.event.WindowAdapter() {
                 public void windowOpened(java.awt.event.WindowEvent evt) {
@@ -1314,6 +1316,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
 
             jPanel10.setPreferredSize(new java.awt.Dimension(800, 500));
             jPanel10.setLayout(new java.awt.BorderLayout());
+            jPanel10.add(topPanel, java.awt.BorderLayout.PAGE_START);
 
             jSplitPane1.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
 
@@ -1928,7 +1931,10 @@ public class JFileFinderWin extends javax.swing.JFrame {
 
             jSplitPane1.setRightComponent(jPanel7);
 
-            jPanel10.add(jSplitPane1, java.awt.BorderLayout.PAGE_START);
+            jPanel10.add(jSplitPane1, java.awt.BorderLayout.CENTER);
+
+            botPanel.setPreferredSize(new java.awt.Dimension(10, 1));
+            jPanel10.add(botPanel, java.awt.BorderLayout.PAGE_END);
 
             jSplitPane2.setRightComponent(jPanel10);
 
@@ -2159,7 +2165,16 @@ public class JFileFinderWin extends javax.swing.JFrame {
             maxDepth.setText( "" );
             showJustFilenameFlag.setSelected( false );
             showFilesFoldersCb.setSelectedItem( SHOWFILESFOLDERSCB_FILES_ONLY );
-            jSplitPane1.setDividerLocation( jSplitPane1.getLastDividerLocation() );
+            System.out.println( "jSplitPane1.getLastDividerLocation() =" + jSplitPane1.getLastDividerLocation() );
+
+            if ( jSplitPane1.getLastDividerLocation() < 0 )
+                {
+                jSplitPane1.setDividerLocation( 150 );
+                }
+            else
+                {
+                jSplitPane1.setDividerLocation( jSplitPane1.getLastDividerLocation() );
+                }
             jPanel6.setBackground( Color.ORANGE );
             }
     }//GEN-LAST:event_fileMgrModeActionPerformed
@@ -2732,6 +2747,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
     private javax.swing.JMenuItem Paste1;
     private javax.swing.JMenuItem Rename;
     private javax.swing.JButton addPath;
+    private javax.swing.JPanel botPanel;
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.ButtonGroup buttonGroup2;
     private javax.swing.JMenuItem copyFilename;
@@ -2814,6 +2830,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
     private javax.swing.JFormattedTextField stdOutFile;
     private javax.swing.JRadioButton tabsLogicAndBtn;
     private javax.swing.JRadioButton tabsLogicOrBtn;
+    private javax.swing.JPanel topPanel;
     private javax.swing.JButton upFolder;
     private javax.swing.JRadioButton useGlobPattern;
     private javax.swing.JRadioButton useRegexPattern;
