@@ -55,16 +55,22 @@ public class FillTableModelSwingWorker extends SwingWorker<ResultsData, Object> 
             //jFileFinderWin.fillInFilesTable( resultsData );
             //jFileFinderWin.setResultsData( resultsData );
             System.out.println( "exiting FillTableModelSwingWorker.done()" );
-        } catch (InterruptedException ignore) {}
-        catch (java.util.concurrent.ExecutionException e) {
+            } 
+        catch (InterruptedException ignore) {}
+        catch (java.util.concurrent.ExecutionException e) 
+            {
             String why = null;
             Throwable cause = e.getCause();
-            if (cause != null) {
+            if (cause != null) 
+                {
                 why = cause.getMessage();
-            } else {
+                } 
+            else 
+                {
                 why = e.getMessage();
+                }
+            System.out.println("Error FillTableModelSwingWorker() retrieving file: " + why);
+            e.printStackTrace();
             }
-            System.out.println("Error retrieving file: " + why);
-        }
-    }    
+        }    
 }

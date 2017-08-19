@@ -20,6 +20,9 @@ public class FilesTblModel extends AbstractTableModel
     public static int FILESTBLMODEL_PATH = 2;
     public static int FILESTBLMODEL_MODIFIEDDATE = 3;
     public static int FILESTBLMODEL_SIZE = 4;
+    public static int FILESTBLMODEL_OWNER = 5;
+    public static int FILESTBLMODEL_GROUP = 6;
+    public static int FILESTBLMODEL_PERMS = 7;
     private HashMap<String,Boolean> editableCells = new HashMap<String,Boolean>(); // 2d array to represent rows and columns
         
 //    public PreviewImportTblModel( ArrayList<String> colNamesArg, String[][] dataArg )
@@ -158,6 +161,9 @@ public class FilesTblModel extends AbstractTableModel
             newRow.add( Path );
             newRow.add( Calendar.getInstance().getTime() );
             newRow.add( (long) 0 );
+            newRow.add( "" );
+            newRow.add( "" );
+            newRow.add( "---" );
             
             data.add( 0, newRow );
             //System.out.println( "after add row table col count =" + this.getColumnCount() );

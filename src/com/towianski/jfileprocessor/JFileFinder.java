@@ -22,12 +22,16 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.DosFileAttributes;
+import java.nio.file.attribute.PosixFileAttributes;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.logging.Level;
+import com.towianski.jfileprocessor.JFileFinderWin;
 
 
 
@@ -35,6 +39,7 @@ public class JFileFinder //  implements Runnable
 {
     static MyLogger logger = MyLogger.getLogger( JFileFinder.class.getName() );
 
+    static JFileFinderWin jFileFinderWin = null;
     static String startingPath = null;
     static String patternType = null;
     static String filePattern = null;
@@ -52,8 +57,9 @@ public class JFileFinder //  implements Runnable
     Date begDate = null;
     Date endDate = null;
     
-    public JFileFinder( String startingPathArg, String patternTypeArg, String filePatternArg, FilterChain chainFilterList, FilterChain chainFilterFolderList, FilterChain chainFilterPreVisitFolderList )
+    public JFileFinder( JFileFinderWin jFileFinderWinArg, String startingPathArg, String patternTypeArg, String filePatternArg, FilterChain chainFilterList, FilterChain chainFilterFolderList, FilterChain chainFilterPreVisitFolderList )
     {
+        this.jFileFinderWin = jFileFinderWinArg;
         startingPath = startingPathArg;   //.replace( "\\\\", "/" ).replace( "\\", "/" );
         patternType = patternTypeArg;
         filePattern = filePatternArg;  //.replace( "\\\\", "/" ).replace( "\\", "/" );
@@ -83,36 +89,13 @@ public class JFileFinder //  implements Runnable
             ArrayList<String> HeaderList = new ArrayList<String>();
             ArrayList<ArrayList> PathsInfoList = new ArrayList<ArrayList>();
 
-            for ( Path fpath : matchedPathsList )
+            if ( jFileFinderWin.getFilesysType() == jFileFinderWin.FILESYSTEM_POSIX )
                 {
-                if ( cancelFillFlag )
-                    {
-                    break;
-                    }
-                ArrayList<Object> rowList = new ArrayList<Object>();
-                BasicFileAttributes attr;
-                try {
-                    attr = Files.readAttributes( fpath, BasicFileAttributes.class );
-
-                    rowList.add( Files.isSymbolicLink( fpath ) );  // needed to make linux work
-                    rowList.add( attr.isDirectory() );
-                    rowList.add( fpath.toString() );
-                    rowList.add( new Date( attr.lastModifiedTime().toMillis() ) );
-                    rowList.add( attr.size() );
-
-                    PathsInfoList.add( rowList );
-                } catch (Exception ex) {
-                    logger.log(Level.SEVERE, ex.toString());
+                getPosixFileInfo( PathsInfoList );
                 }
-    //        System.out.println("creationTime     = " + attr.creationTime());
-    //        System.out.println("lastAccessTime   = " + attr.lastAccessTime());
-    //        System.out.println("lastModifiedTime = " + attr.lastModifiedTime());
-    // 
-    //        System.out.println("isDirectory      = " + attr.isDirectory());
-    //        System.out.println("isOther          = " + attr.isOther());
-    //        System.out.println("isRegularFile    = " + attr.isRegularFile());
-    //        System.out.println("isSymbolicLink   = " + attr.isSymbolicLink());
-    //        System.out.println("size             = " + attr.size());
+            else if ( jFileFinderWin.getFilesysType() == jFileFinderWin.FILESYSTEM_DOS )
+                {
+                getDosFileInfo( PathsInfoList );
                 }
 
             if ( PathsInfoList.size() < 1 )
@@ -133,6 +116,18 @@ public class JFileFinder //  implements Runnable
                 HeaderList.add( "File" );
                 HeaderList.add( "last Modified Time" );
                 HeaderList.add( "Size" );
+//                if ( jFileFinderWin.isShowOwnerFlag() )
+                    {
+                    HeaderList.add( "Owner" );
+                    }
+//                if ( jFileFinderWin.isShowGroupFlag() )
+                    {
+                    HeaderList.add( "Group" );
+                    }
+//                if ( jFileFinderWin.isShowPermsFlag() )
+                    {
+                    HeaderList.add( "Perms" );
+                    }
                 }
 
             //FilesTblModel filesTblModel = new FilesTblModel( HeaderList, PathsInfoList );
@@ -140,6 +135,104 @@ public class JFileFinder //  implements Runnable
             }
     }
     
+    public static void getPosixFileInfo( ArrayList<ArrayList> PathsInfoList )
+        {
+            for ( Path fpath : matchedPathsList )
+                {
+                if ( cancelFillFlag )
+                    {
+                    break;
+                    }
+                ArrayList<Object> rowList = new ArrayList<Object>();
+                BasicFileAttributes attr;
+                try {
+                    attr = Files.readAttributes( fpath, BasicFileAttributes.class );
+
+                    rowList.add( Files.isSymbolicLink( fpath ) );  // needed to make linux work
+                    rowList.add( attr.isDirectory() );
+                    rowList.add( fpath.toString() );
+                    rowList.add( new Date( attr.lastModifiedTime().toMillis() ) );
+                    rowList.add( attr.size() );
+
+                    PosixFileAttributes fsattr = Files.readAttributes( fpath, PosixFileAttributes.class );
+//                    if ( jFileFinderWin.isShowOwnerFlag() )
+                        {
+                        rowList.add( fsattr.owner() );
+                        }
+//                    if ( jFileFinderWin.isShowGroupFlag() )
+                        {
+                        rowList.add( fsattr.group() );
+                        }
+//                    if ( jFileFinderWin.isShowPermsFlag() )
+                        {
+                        rowList.add( PosixFilePermissions.toString( fsattr.permissions() ) );
+                        }
+
+                    PathsInfoList.add( rowList );
+                } catch (Exception ex) {
+                    logger.log(Level.SEVERE, ex.toString());
+                }
+    //        System.out.println("creationTime     = " + attr.creationTime());
+    //        System.out.println("lastAccessTime   = " + attr.lastAccessTime());
+    //        System.out.println("lastModifiedTime = " + attr.lastModifiedTime());
+    // 
+    //        System.out.println("isDirectory      = " + attr.isDirectory());
+    //        System.out.println("isOther          = " + attr.isOther());
+    //        System.out.println("isRegularFile    = " + attr.isRegularFile());
+    //        System.out.println("isSymbolicLink   = " + attr.isSymbolicLink());
+    //        System.out.println("size             = " + attr.size());
+                }
+        }
+
+    public static void getDosFileInfo( ArrayList<ArrayList> PathsInfoList )
+        {
+            for ( Path fpath : matchedPathsList )
+                {
+                if ( cancelFillFlag )
+                    {
+                    break;
+                    }
+                ArrayList<Object> rowList = new ArrayList<Object>();
+                BasicFileAttributes attr;
+                try {
+                    attr = Files.readAttributes( fpath, BasicFileAttributes.class );
+
+                    rowList.add( Files.isSymbolicLink( fpath ) );  // needed to make linux work
+                    rowList.add( attr.isDirectory() );
+                    rowList.add( fpath.toString() );
+                    rowList.add( new Date( attr.lastModifiedTime().toMillis() ) );
+                    rowList.add( attr.size() );
+
+                    DosFileAttributes fsattr = Files.readAttributes( fpath, DosFileAttributes.class );
+//                    if ( jFileFinderWin.isShowOwnerFlag() )
+                        {
+                        rowList.add( Files.getOwner( fpath ) );
+                        }
+//                    if ( jFileFinderWin.isShowGroupFlag() )
+                        {
+                        rowList.add( "" );
+                        }
+//                    if ( jFileFinderWin.isShowPermsFlag() )
+                        {
+                        rowList.add( (fsattr.isReadOnly() ? "R" : "-") + (fsattr.isArchive() ? "A" : "-") + (fsattr.isSystem() ? "S" : "-") );
+                        }
+                    
+                    PathsInfoList.add( rowList );
+                } catch (Exception ex) {
+                    logger.log(Level.SEVERE, ex.toString());
+                }
+    //        System.out.println("creationTime     = " + attr.creationTime());
+    //        System.out.println("lastAccessTime   = " + attr.lastAccessTime());
+    //        System.out.println("lastModifiedTime = " + attr.lastModifiedTime());
+    // 
+    //        System.out.println("isDirectory      = " + attr.isDirectory());
+    //        System.out.println("isOther          = " + attr.isOther());
+    //        System.out.println("isRegularFile    = " + attr.isRegularFile());
+    //        System.out.println("isSymbolicLink   = " + attr.isSymbolicLink());
+    //        System.out.println("size             = " + attr.size());
+                }
+        }
+
     public static FilesTblModel emptyFilesTableModel( Boolean countOnlyFlag ) 
         {
         synchronized( dataSyncLock ) 
@@ -474,7 +567,7 @@ public class JFileFinder //  implements Runnable
 //        filePattern = args[1];
         System.out.println("java Find args[0] =" + args[0] +  "=  args[1] =" + args[1] + "=  args[2] =" + args[2] + "=");
 
-        JFileFinder jfilefinder = new JFileFinder( args[0], args[1], args[2], null, null, null );
+        JFileFinder jfilefinder = new JFileFinder( new JFileFinderWin(), args[0], args[1], args[2], null, null, null );
 
 //        Thread jfinderThread = new Thread( jfilefinder );
 //        jfinderThread.start();

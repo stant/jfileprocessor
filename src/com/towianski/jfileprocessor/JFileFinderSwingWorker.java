@@ -73,7 +73,8 @@ public class JFileFinderSwingWorker extends SwingWorker<ResultsData, Object> {
                 }
             
             System.out.println( "exiting SwingWork.done()" );
-        } catch (InterruptedException ignore) {}
+            } 
+        catch (InterruptedException ignore) {}
         catch (java.util.concurrent.ExecutionException e) {
             String why = null;
             Throwable cause = e.getCause();
@@ -83,6 +84,7 @@ public class JFileFinderSwingWorker extends SwingWorker<ResultsData, Object> {
                 why = e.getMessage();
             }
             System.out.println("Error retrieving file: " + why);
+            e.printStackTrace();
         }
     }    
 }
