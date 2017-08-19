@@ -5,6 +5,7 @@
  */
 package com.towianski.chainfilters;
 
+import com.towianski.jfileprocessor.JFileFinder;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -30,9 +31,9 @@ public class ChainFilterOfMaxDepth implements FilterChainFilter {
     
     // These must be the same parms for all filters that get used.
     //  First check is do we show this folder?
-    public Boolean accept( Path fpath, BasicFileAttributes attr )
+    public Boolean accept( Path fpath, BasicFileAttributes attr, ChainFilterArgs chainFilterArgs, JFileFinder jFileFinder )
         {
-        //System.out.print( "maxdepth for path =" + fpath + "   depthcount =" + fpath.getNameCount() );
+        //System.out.println( "maxdepth for path =" + fpath + "   depthcount =" + fpath.getNameCount() );
 //        if ( attr.isDirectory() )
 //            {
             //System.out.println( " folder <=  max =" + maxDepth + "  true/false =" + (fpath.getNameCount() <= maxDepth) );

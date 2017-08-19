@@ -5,6 +5,7 @@
  */
 package com.towianski.chainfilters;
 
+import com.towianski.jfileprocessor.JFileFinder;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 
@@ -14,7 +15,7 @@ import java.nio.file.attribute.BasicFileAttributes;
  */
 interface FilterChainFilter {
     
-    public Boolean accept( Path fpath, BasicFileAttributes attr );
+    public Boolean accept( Path fpath, BasicFileAttributes attr, ChainFilterArgs chainFilterArgs, JFileFinder jFileFinder );
 //        {
 //        return false;  // expect this method to be overriden
 //        }

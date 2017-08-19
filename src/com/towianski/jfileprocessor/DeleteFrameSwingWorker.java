@@ -46,14 +46,13 @@ public class DeleteFrameSwingWorker extends SwingWorker<ResultsData, Object> {
             //System.out.println( "SwingWork.done() at 2  ii = " + ii );
             //System.out.println( "SwingWork.done() got ans =" + matchedPathsList + "=" );
             NumberFormat numFormat = NumberFormat.getIntegerInstance();
+            String partialMsg = "";
+            String msg = "Deleted " + numFormat.format( resultsData.getFilesMatched() ) + " files and " + numFormat.format( resultsData.getFoldersMatched() ) + " folders out of " + numFormat.format( resultsData.getFilesVisited() );
             if ( ! resultsData.getMessage().equals( "" ) )
                 {
-                deleteFrame.setMessage( resultsData.getMessage() );
+                msg = resultsData.getMessage();
                 }
-            else
-                {
-                deleteFrame.setMessage( "Deleted " + numFormat.format( resultsData.getFilesMatched() ) + " files and " + numFormat.format( resultsData.getFoldersMatched() ) + " folders out of " + numFormat.format( resultsData.getFilesVisited() ) );
-                }
+            
             if ( ! resultsData.getProcessStatus().equals( "" ) )
                 {
                 deleteFrame.setProcessStatus( resultsData.getProcessStatus() );
@@ -61,12 +60,13 @@ public class DeleteFrameSwingWorker extends SwingWorker<ResultsData, Object> {
             else if ( resultsData.getSearchWasCanceled() )
                 {
                 deleteFrame.setProcessStatus( deleteFrame.PROCESS_STATUS_DELETE_CANCELED );
-                deleteFrame.setMessage( deleteFrame.getMessage() + " partial files list." );
+                msg = msg + " PARTIAL files list.";
                 }
             else
                 {
                 deleteFrame.setProcessStatus( deleteFrame.PROCESS_STATUS_DELETE_COMPLETED );
                 }
+            deleteFrame.setMessage( msg + partialMsg );
             deleteFrame.setResultsData( resultsData );
             
             jFileFinderWin.callSearchBtnActionPerformed( null );

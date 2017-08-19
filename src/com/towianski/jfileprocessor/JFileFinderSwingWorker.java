@@ -47,18 +47,19 @@ public class JFileFinderSwingWorker extends SwingWorker<ResultsData, Object> {
             //System.out.println( "SwingWork.done() got ans =" + matchedPathsList + "=" );
             //jFileFinderWin.resetSearchBtn();
             NumberFormat numFormat = NumberFormat.getIntegerInstance();
-            jFileFinderWin.setMessage( "Matched " + numFormat.format( resultsData.getFilesMatched() ) + " files and " + numFormat.format( resultsData.getFoldersMatched() ) 
-                    + " folders out of " + numFormat.format( resultsData.getFilesTested() ) + " files and " + numFormat.format( resultsData.getFoldersTested() ) + " folders.  Total "
-                    + numFormat.format( resultsData.getFilesVisited() ) );
+            String partialMsg = "";
             if ( resultsData.getSearchWasCanceled() )
                 {
                 jFileFinderWin.setProcessStatus( jFileFinderWin.PROCESS_STATUS_SEARCH_CANCELED );
-                jFileFinderWin.setMessage( jFileFinderWin.getMessage() + " partial files list." );
+                partialMsg = " PARTIAL files list.";
                 }
             else
                 {
                 jFileFinderWin.setProcessStatus( jFileFinderWin.PROCESS_STATUS_SEARCH_COMPLETED );
                 }
+            jFileFinderWin.setMessage( "Matched " + numFormat.format( resultsData.getFilesMatched() ) + " files and " + numFormat.format( resultsData.getFoldersMatched() ) 
+                    + " folders out of " + numFormat.format( resultsData.getFilesTested() ) + " files and " + numFormat.format( resultsData.getFoldersTested() ) + " folders.  Total "
+                    + numFormat.format( resultsData.getFilesVisited() ) + partialMsg );
             //SwingUtilities.invokeLater( jFileFinderWin.fillInFilesTable( resultsData ) );
             //jFileFinderWin.fillInFilesTable( resultsData );
             jFileFinderWin.setResultsData( resultsData );

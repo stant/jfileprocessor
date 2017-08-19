@@ -47,6 +47,6 @@ public class LogStringHandlerHide
     logger.log(Level.INFO, "message 1");
     logger.log(Level.SEVERE, "message 2");
     logger.log(Level.FINE, "message 3");
-    System.out.print(strHolder);
+    System.out.println(strHolder);
   }
 }

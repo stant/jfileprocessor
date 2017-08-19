@@ -5,6 +5,7 @@
  */
 package com.towianski.chainfilters;
 
+import com.towianski.jfileprocessor.JFileFinder;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -29,9 +30,9 @@ public class ChainFilterOfPreVisitMinDepth implements FilterChainFilter {
         }
     
     // These must be the same parms for all filters that get used.
-    public Boolean accept( Path fpath, BasicFileAttributes attr )
+    public Boolean accept( Path fpath, BasicFileAttributes attr, ChainFilterArgs chainFilterArgs, JFileFinder jFileFinder )
         {
-        //System.out.print( "mindepth filevisit for path =" + fpath + "   depthcount =" + fpath.getNameCount() );
+        //System.out.println( "mindepth filevisit for path =" + fpath + "   depthcount =" + fpath.getNameCount() );
         if ( ! attr.isDirectory() )
             {
             //System.out.println( "not dir and >  min =" + minDepth + "  true/false =" + (fpath.getNameCount() > minDepth) );

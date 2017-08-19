@@ -5,6 +5,7 @@
  */
 package com.towianski.chainfilters;
 
+import com.towianski.jfileprocessor.JFileFinder;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
@@ -38,7 +39,7 @@ public class ChainFilterOfNames implements FilterChainFilter {
         }
     
     // These must be the same parms for all filters that get used.
-    public Boolean accept( Path fpath, BasicFileAttributes attr )
+    public Boolean accept( Path fpath, BasicFileAttributes attr, ChainFilterArgs chainFilterArgs, JFileFinder jFileFinder )
         {
         //System.out.println( "\ntest chainfilterofNames =" + fpath + "=" );
         if ( fpath.getFileName() != null && matcher.matches( fpath  ) )

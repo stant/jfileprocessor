@@ -48,14 +48,12 @@ public class CopyFrameSwingWorker extends SwingWorker<ResultsData, Object> {
             //System.out.println( "SwingWork.done() at 2  ii = " + ii );
             //System.out.println( "SwingWork.done() got ans =" + matchedPathsList + "=" );
             NumberFormat numFormat = NumberFormat.getIntegerInstance();
-            copyFrame.setMessage( "Copied " + numFormat.format( resultsData.getFilesMatched() ) + " files and " + numFormat.format( resultsData.getFoldersMatched() ) + " folders out of " + numFormat.format( resultsData.getFilesVisited() ) );
+            String partialMsg = "";
+            String msg =  "Copied " + numFormat.format( resultsData.getFilesMatched() ) + " files and " + numFormat.format( resultsData.getFoldersMatched() ) + " folders out of " + numFormat.format( resultsData.getFilesVisited() );
             if ( resultsData.getSearchWasCanceled() )
                 {
                 copyFrame.setProcessStatus( copyFrame.PROCESS_STATUS_COPY_CANCELED );
-//                else
-                    {
-                    copyFrame.setMessage( copyFrame.getMessage() + " partial files list." );
-                    }
+                msg = msg + " PARTIAL files list.";
                 }
             else
                 {
@@ -68,9 +66,10 @@ public class CopyFrameSwingWorker extends SwingWorker<ResultsData, Object> {
                 }
             if ( ! resultsData.getMessage().trim().equals( "" ) )
                 {
-                copyFrame.setMessage( resultsData.getMessage() );
+                msg = resultsData.getMessage();
                 }
 
+            copyFrame.setMessage( msg + partialMsg );
             copyFrame.setResultsData( resultsData );
             
             jFileFinderWin.callSearchBtnActionPerformed( null );

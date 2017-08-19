@@ -5,6 +5,7 @@ package com.towianski.jfileprocessor;
  * @author Stan Towianski - June 2015
  */
 
+import com.towianski.chainfilters.ChainFilterArgs;
 import com.towianski.models.ResultsData;
 import com.towianski.models.FilesTblModel;
 import com.towianski.chainfilters.FilterChain;
@@ -178,8 +179,16 @@ public class JFileFinder //  implements Runnable
         private long numFileTests = 0;
         private long numFolderTests = 0;
         private long numTested = 0;
-
-        Finder(String pattern) {
+        private ChainFilterArgs chainFilterArgs = new ChainFilterArgs();
+        private JFileFinder jFileFinder = null;
+        
+        Finder(String pattern, JFileFinder jFileFinder) {
+            chainFilterArgs.setNumFileMatches(numFileMatches);
+            chainFilterArgs.setNumFolderMatches(numFolderMatches);
+            chainFilterArgs.setNumFileTests(numFileTests);
+            chainFilterArgs.setNumFolderTests(numFolderTests);
+            chainFilterArgs.setNumTested(numTested);
+            this.jFileFinder = jFileFinder;
         }
 
         // Compares the glob pattern against
@@ -198,12 +207,13 @@ public class JFileFinder //  implements Runnable
             {
             numFileTests++;
             numTested++;
+            chainFilterArgs.setNumFileMatches(numFileMatches);
             if ( chainFilterList != null )
                 {
                 //BasicFileAttributes attrs;
                 try {
                     //attrs = Files.readAttributes( file, BasicFileAttributes.class );
-                    if ( chainFilterList.testFilters( file, attrs ) )
+                    if ( chainFilterList.testFilters( file, attrs, chainFilterArgs, jFileFinder ) )
                         {
 //                      rowList.add( fpath.toString() );
 //                      rowList.add( new Date( attr.lastModifiedTime().toMillis() ) );
@@ -241,14 +251,16 @@ public class JFileFinder //  implements Runnable
             {
             numFolderTests++;
             numTested++;
+            chainFilterArgs.setNumFolderMatches(numFolderMatches);
             if ( chainFilterFolderList != null )
                 {
                 try {
-                    //System.out.println( "folder match ? =" + fpath.toString() );
-                    if ( chainFilterFolderList.testFilters( fpath, attrs ) )
+//                    System.out.println( "folder match ? =" + fpath.toString() );
+//                    System.out.println( "folder match result = " + chainFilterFolderList.testFilters( fpath, attrs, chainFilterArgs, jFileFinder ) );
+                    if ( chainFilterFolderList.testFilters( fpath, attrs, chainFilterArgs, jFileFinder ) )
                         {
                         numFolderMatches++;
-                        //System.out.println( "Match =" + fpath );
+//                        System.out.println( "Match =" + fpath + "   numFolderMatches =" + numFolderMatches );
                         matchedPathsList.add( fpath );
                         }
                     } 
@@ -261,6 +273,7 @@ public class JFileFinder //  implements Runnable
             else
                 {
                 numFolderMatches++;
+//                System.out.println( "no filter Match =" + fpath + "   numFolderMatches =" + numFolderMatches );
                 matchedPathsList.add( fpath );
                 }
             return true;
@@ -328,7 +341,7 @@ public class JFileFinder //  implements Runnable
                 {
                 try {
                     //System.out.println( "previsit folder ? =" + fpath.toString() );
-                    if ( chainFilterPreVisitFolderList.testFilters( fpath, attrs ) )
+                    if ( chainFilterPreVisitFolderList.testFilters( fpath, attrs, chainFilterArgs, jFileFinder ) )
                         {
                         return CONTINUE;
                         }
@@ -425,7 +438,7 @@ public class JFileFinder //  implements Runnable
         System.out.println( "matching filePattern =" + (startingPath + filePattern).replace( "\\", "\\\\" ) + "=" );
         System.out.println( "basePathLen =" + basePathLen + "=" );
         
-        finder = new Finder( (startingPath + filePattern).replace( "\\", "\\\\" ) );
+        finder = new Finder( (startingPath + filePattern).replace( "\\", "\\\\" ), this );
         try {
             synchronized( dataSyncLock ) 
                 {            

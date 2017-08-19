@@ -5,6 +5,7 @@
  */
 package com.towianski.chainfilters;
 
+import com.towianski.jfileprocessor.JFileFinder;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 
@@ -51,7 +52,7 @@ public class ChainFilterOfSizes implements FilterChainFilter {
         }
     
     // These must be the same parms for all filters that get used.
-    public Boolean accept( Path fpath, BasicFileAttributes attr )
+    public Boolean accept( Path fpath, BasicFileAttributes attr, ChainFilterArgs chainFilterArgs, JFileFinder jFileFinder )
         {
         long size = attr.size();
         //System.out.println( "entered test for FilterOfSizes() - test size: " + size + " compared to setsize:" + setSize1 );

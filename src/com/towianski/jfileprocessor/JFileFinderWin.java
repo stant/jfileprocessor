@@ -16,6 +16,8 @@ import com.towianski.chainfilters.ChainFilterOfNames;
 import com.towianski.chainfilters.ChainFilterOfMaxDepth;
 import com.towianski.chainfilters.ChainFilterOfSizes;
 import com.towianski.chainfilters.ChainFilterOfDates;
+import com.towianski.chainfilters.ChainFilterOfMaxFileCount;
+import com.towianski.chainfilters.ChainFilterOfMaxFolderCount;
 import com.towianski.chainfilters.ChainFilterOfMinDepth;
 import com.towianski.chainfilters.ChainFilterOfPreVisitMaxDepth;
 import com.towianski.chainfilters.ChainFilterOfPreVisitMinDepth;
@@ -173,6 +175,12 @@ public class JFileFinderWin extends javax.swing.JFrame {
         
         addkeymapstuff();
 
+        stdOutFile.setText( System.getProperty("java.io.tmpdir") + System.getProperty("file.separator") + "jfp-out.log" );
+        stdErrFile.setText( System.getProperty("java.io.tmpdir") + System.getProperty("file.separator") + "jfp-err.log" );
+        stdOutFilePropertyChange( null );
+        stdErrFilePropertyChange( null );
+        stdErrFilePropertyChange( null );
+        
         startingFolder.requestFocus();
         
 //        filesTbl.getInputMap().put(
@@ -716,6 +724,38 @@ public class JFileFinderWin extends javax.swing.JFrame {
                     }
 
                 try {
+                    if ( ! stopFileCount.getText().trim().equals( "" ) )
+                        {
+                        System.out.println( "add filter of stopFileCount!" );
+                        System.out.println( "selected stopFileCount =" + stopFileCount.getText().trim() + "=" );
+                        ChainFilterOfMaxFileCount chainFilterOfMaxFileCount = new ChainFilterOfMaxFileCount( args[0], stopFileCount.getText().trim() );
+                        chainFilterList.addFilter( chainFilterOfMaxFileCount );
+                        }
+                    }
+                catch( Exception ex )
+                    {
+                    JOptionPane.showMessageDialog( this, "Error in stopFileCount filter", "Error", JOptionPane.ERROR_MESSAGE );
+                    setProcessStatus( PROCESS_STATUS_SEARCH_CANCELED );
+                    return;
+                    }
+
+                try {
+                    if ( ! stopFolderCount.getText().trim().equals( "" ) )
+                        {
+                        System.out.println( "add filter of stopFolderCount!" );
+                        System.out.println( "selected stopFolderCount =" + stopFolderCount.getText().trim() + "=" );
+                        ChainFilterOfMaxFolderCount chainFilterOfMaxFolderCount = new ChainFilterOfMaxFolderCount( args[0], stopFolderCount.getText().trim() );
+                        chainFilterFolderList.addFilter( chainFilterOfMaxFolderCount );
+                        }
+                    }
+                catch( Exception ex )
+                    {
+                    JOptionPane.showMessageDialog( this, "Error in stopFolderCount filter", "Error", JOptionPane.ERROR_MESSAGE );
+                    setProcessStatus( PROCESS_STATUS_SEARCH_CANCELED );
+                    return;
+                    }
+
+                try {
                     if ( ! minDepth.getText().trim().equals( "" ) )
                         {
                         System.out.println( "add filter of minDepth!" );
@@ -1069,7 +1109,11 @@ public class JFileFinderWin extends javax.swing.JFrame {
         SpinnerListModel sizeAndOrSpinModel = new CyclingSpinnerListModel( andOrSpinModelList );
         sizeLogicOp = new javax.swing.JSpinner( sizeAndOrSpinModel );
         size1 = new javax.swing.JFormattedTextField();
-        jPanel8 = new javax.swing.JPanel();
+        jLabel14 = new javax.swing.JLabel();
+        jLabel15 = new javax.swing.JLabel();
+        stopFileCount = new javax.swing.JTextField();
+        stopFolderCount = new javax.swing.JTextField();
+        jLabel16 = new javax.swing.JLabel();
         jPanel9 = new javax.swing.JPanel();
         jLabel11 = new javax.swing.JLabel();
         startConsoleCmd = new javax.swing.JTextField();
@@ -1077,6 +1121,8 @@ public class JFileFinderWin extends javax.swing.JFrame {
         jLabel13 = new javax.swing.JLabel();
         stdOutFile = new javax.swing.JFormattedTextField();
         stdErrFile = new javax.swing.JFormattedTextField();
+        leftHistory = new javax.swing.JButton();
+        rightHistory = new javax.swing.JButton();
         jPanel7 = new javax.swing.JPanel();
         searchBtn = new javax.swing.JButton();
         jLabel3 = new javax.swing.JLabel();
@@ -1250,7 +1296,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
             jPopupMenu2.add(savePathsToFile1);
 
             setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-            setTitle("JFileProcessor v1.4.11 - Stan Towianski  (c) 2015-2017");
+            setTitle("JFileProcessor v1.4.13 - Stan Towianski  (c) 2015-2017");
             setPreferredSize(new java.awt.Dimension(900, 544));
             addWindowListener(new java.awt.event.WindowAdapter() {
                 public void windowOpened(java.awt.event.WindowEvent evt) {
@@ -1349,14 +1395,14 @@ public class JFileFinderWin extends javax.swing.JFrame {
                 }
             });
             gridBagConstraints = new java.awt.GridBagConstraints();
-            gridBagConstraints.gridx = 4;
+            gridBagConstraints.gridx = 6;
             gridBagConstraints.gridy = 0;
             gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
             gridBagConstraints.weightx = 0.5;
-            gridBagConstraints.insets = new java.awt.Insets(2, 0, 4, 0);
+            gridBagConstraints.insets = new java.awt.Insets(2, 5, 4, 0);
             jPanel6.add(startingFolder, gridBagConstraints);
 
-            jLabel1.setText("Starting Folder: ");
+            jLabel1.setText("Folder: ");
             gridBagConstraints = new java.awt.GridBagConstraints();
             gridBagConstraints.gridx = 3;
             gridBagConstraints.gridy = 0;
@@ -1589,7 +1635,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
             gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 0);
             jPanel1.add(showFilesFoldersCb, gridBagConstraints);
 
-            jLabel9.setText("Files and/or Folders: ");
+            jLabel9.setText("What counts for a Match: Files and/or Folders: ");
             gridBagConstraints = new java.awt.GridBagConstraints();
             gridBagConstraints.gridx = 5;
             gridBagConstraints.gridy = 1;
@@ -1678,7 +1724,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
                 }
             });
             gridBagConstraints = new java.awt.GridBagConstraints();
-            gridBagConstraints.gridx = 5;
+            gridBagConstraints.gridx = 6;
             gridBagConstraints.gridy = 0;
             gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
             gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 0);
@@ -1686,7 +1732,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
 
             size1Op.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "<", "<=", "=", "!=", ">", ">=" }));
             gridBagConstraints = new java.awt.GridBagConstraints();
-            gridBagConstraints.gridx = 1;
+            gridBagConstraints.gridx = 2;
             gridBagConstraints.gridy = 0;
             gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
             gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
@@ -1695,7 +1741,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
             size2Op.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "<", "<=", "=", "!=", ">", ">=" }));
             size2Op.setEnabled(false);
             gridBagConstraints = new java.awt.GridBagConstraints();
-            gridBagConstraints.gridx = 4;
+            gridBagConstraints.gridx = 5;
             gridBagConstraints.gridy = 0;
             gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
             gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
@@ -1703,7 +1749,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
 
             jLabel7.setText("          ");
             gridBagConstraints = new java.awt.GridBagConstraints();
-            gridBagConstraints.gridx = 8;
+            gridBagConstraints.gridx = 6;
             gridBagConstraints.gridy = 0;
             gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
             gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
@@ -1719,7 +1765,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
                 }
             });
             gridBagConstraints = new java.awt.GridBagConstraints();
-            gridBagConstraints.gridx = 3;
+            gridBagConstraints.gridx = 4;
             gridBagConstraints.gridy = 0;
             gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
             jPanel3.add(sizeLogicOp, gridBagConstraints);
@@ -1727,14 +1773,53 @@ public class JFileFinderWin extends javax.swing.JFrame {
             size1.setMinimumSize(new java.awt.Dimension(6, 23));
             size1.setPreferredSize(new java.awt.Dimension(110, 23));
             gridBagConstraints = new java.awt.GridBagConstraints();
-            gridBagConstraints.gridx = 2;
+            gridBagConstraints.gridx = 3;
             gridBagConstraints.gridy = 0;
             gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
             gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 0);
             jPanel3.add(size1, gridBagConstraints);
 
-            jTabbedPane1.addTab("Sizes", jPanel3);
-            jTabbedPane1.addTab("Process", jPanel8);
+            jLabel14.setText("Limit File Count: ");
+            gridBagConstraints = new java.awt.GridBagConstraints();
+            gridBagConstraints.gridx = 1;
+            gridBagConstraints.gridy = 1;
+            gridBagConstraints.gridwidth = 2;
+            gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 0);
+            jPanel3.add(jLabel14, gridBagConstraints);
+
+            jLabel15.setText("Limit Folder Count: ");
+            gridBagConstraints = new java.awt.GridBagConstraints();
+            gridBagConstraints.gridx = 4;
+            gridBagConstraints.gridy = 1;
+            gridBagConstraints.gridwidth = 2;
+            gridBagConstraints.insets = new java.awt.Insets(5, 0, 0, 0);
+            jPanel3.add(jLabel15, gridBagConstraints);
+
+            stopFileCount.setPreferredSize(new java.awt.Dimension(110, 23));
+            gridBagConstraints = new java.awt.GridBagConstraints();
+            gridBagConstraints.gridx = 3;
+            gridBagConstraints.gridy = 1;
+            gridBagConstraints.gridwidth = 2;
+            gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+            gridBagConstraints.insets = new java.awt.Insets(5, 0, 0, 0);
+            jPanel3.add(stopFileCount, gridBagConstraints);
+
+            stopFolderCount.setPreferredSize(new java.awt.Dimension(110, 23));
+            gridBagConstraints = new java.awt.GridBagConstraints();
+            gridBagConstraints.gridx = 6;
+            gridBagConstraints.gridy = 1;
+            gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+            gridBagConstraints.insets = new java.awt.Insets(5, 0, 0, 0);
+            jPanel3.add(stopFolderCount, gridBagConstraints);
+
+            jLabel16.setText("File Size: ");
+            gridBagConstraints = new java.awt.GridBagConstraints();
+            gridBagConstraints.gridx = 1;
+            gridBagConstraints.gridy = 0;
+            gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
+            jPanel3.add(jLabel16, gridBagConstraints);
+
+            jTabbedPane1.addTab("Numbers", jPanel3);
 
             jPanel9.setLayout(new java.awt.GridBagLayout());
 
@@ -1779,7 +1864,6 @@ public class JFileFinderWin extends javax.swing.JFrame {
             gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
             jPanel9.add(jLabel13, gridBagConstraints);
 
-            stdOutFile.setText("/tmp/jfp-out.log");
             stdOutFile.setMinimumSize(new java.awt.Dimension(300, 24));
             stdOutFile.setPreferredSize(new java.awt.Dimension(300, 24));
             stdOutFile.addActionListener(new java.awt.event.ActionListener() {
@@ -1796,9 +1880,9 @@ public class JFileFinderWin extends javax.swing.JFrame {
             gridBagConstraints.gridx = 1;
             gridBagConstraints.gridy = 1;
             gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+            gridBagConstraints.insets = new java.awt.Insets(5, 0, 0, 0);
             jPanel9.add(stdOutFile, gridBagConstraints);
 
-            stdErrFile.setText("/tmp/jfp-err.log");
             stdErrFile.setMinimumSize(new java.awt.Dimension(300, 24));
             stdErrFile.setPreferredSize(new java.awt.Dimension(300, 24));
             stdErrFile.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
@@ -1810,6 +1894,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
             gridBagConstraints.gridx = 1;
             gridBagConstraints.gridy = 2;
             gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+            gridBagConstraints.insets = new java.awt.Insets(5, 0, 0, 0);
             jPanel9.add(stdErrFile, gridBagConstraints);
 
             jTabbedPane1.addTab("Settings", jPanel9);
@@ -1823,6 +1908,32 @@ public class JFileFinderWin extends javax.swing.JFrame {
             gridBagConstraints.weighty = 1.0;
             jPanel6.add(jTabbedPane1, gridBagConstraints);
             jTabbedPane1.getAccessibleContext().setAccessibleName("Name");
+
+            leftHistory.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/Actions-go-previous-icon-16.png"))); // NOI18N
+            leftHistory.setMinimumSize(new java.awt.Dimension(30, 23));
+            leftHistory.setPreferredSize(new java.awt.Dimension(30, 23));
+            leftHistory.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    leftHistoryActionPerformed(evt);
+                }
+            });
+            gridBagConstraints = new java.awt.GridBagConstraints();
+            gridBagConstraints.gridx = 4;
+            gridBagConstraints.gridy = 0;
+            jPanel6.add(leftHistory, gridBagConstraints);
+
+            rightHistory.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/Actions-go-next-icon-16.png"))); // NOI18N
+            rightHistory.setMinimumSize(new java.awt.Dimension(30, 23));
+            rightHistory.setPreferredSize(new java.awt.Dimension(30, 23));
+            rightHistory.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    rightHistoryActionPerformed(evt);
+                }
+            });
+            gridBagConstraints = new java.awt.GridBagConstraints();
+            gridBagConstraints.gridx = 5;
+            gridBagConstraints.gridy = 0;
+            jPanel6.add(rightHistory, gridBagConstraints);
 
             jSplitPane1.setLeftComponent(jPanel6);
 
@@ -1886,9 +1997,9 @@ public class JFileFinderWin extends javax.swing.JFrame {
             gridBagConstraints = new java.awt.GridBagConstraints();
             gridBagConstraints.gridx = 1;
             gridBagConstraints.gridy = 1;
-            gridBagConstraints.gridwidth = 5;
+            gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
             gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-            gridBagConstraints.ipadx = 636;
+            gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
             gridBagConstraints.weightx = 0.5;
             gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 0);
             jPanel7.add(message, gridBagConstraints);
@@ -2685,6 +2796,14 @@ public class JFileFinderWin extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_stdOutFileActionPerformed
 
+    private void rightHistoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rightHistoryActionPerformed
+        forwardFolderActionPerformed( null );
+    }//GEN-LAST:event_rightHistoryActionPerformed
+
+    private void leftHistoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_leftHistoryActionPerformed
+        backwardFolderActionPerformed( null );
+    }//GEN-LAST:event_leftHistoryActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -2770,6 +2889,9 @@ public class JFileFinderWin extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
+    private javax.swing.JLabel jLabel14;
+    private javax.swing.JLabel jLabel15;
+    private javax.swing.JLabel jLabel16;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -2786,7 +2908,6 @@ public class JFileFinderWin extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
-    private javax.swing.JPanel jPanel8;
     private javax.swing.JPanel jPanel9;
     private javax.swing.JPopupMenu jPopupMenu1;
     private javax.swing.JPopupMenu jPopupMenu2;
@@ -2795,6 +2916,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
     private javax.swing.JSplitPane jSplitPane1;
     private javax.swing.JSplitPane jSplitPane2;
     private javax.swing.JTabbedPane jTabbedPane1;
+    private javax.swing.JButton leftHistory;
     //Level[] logLevelsArr = new Level [] { Level.ALL, Level.CONFIG, Level.FINE, Level.FINER, Level.FINEST, Level.INFO, Level.OFF, Level.SEVERE, Level.WARNING };
     String[] logLevelsArrStr = new String [] { Level.OFF.toString(), Level.SEVERE.toString(), Level.WARNING.toString(), Level.INFO.toString(), Level.CONFIG.toString(), Level.FINE.toString(), Level.FINER.toString(), Level.FINEST.toString(), Level.ALL.toString() };
     LinkedHashMap<String,Level> logLevelsLhm = new LinkedHashMap<String,Level>();
@@ -2808,6 +2930,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
     private javax.swing.JMenuItem openListWindow;
     private javax.swing.JLabel processStatus;
     private javax.swing.JPanel replaceSavePathPanel;
+    private javax.swing.JButton rightHistory;
     private javax.swing.JMenuItem saveAllAttrsToFile;
     private javax.swing.JMenuItem saveAllAttrsToFile1;
     private javax.swing.JMenuItem savePathsToFile;
@@ -2828,6 +2951,8 @@ public class JFileFinderWin extends javax.swing.JFrame {
     private javax.swing.JTextField startingFolder;
     private javax.swing.JFormattedTextField stdErrFile;
     private javax.swing.JFormattedTextField stdOutFile;
+    private javax.swing.JTextField stopFileCount;
+    private javax.swing.JTextField stopFolderCount;
     private javax.swing.JRadioButton tabsLogicAndBtn;
     private javax.swing.JRadioButton tabsLogicOrBtn;
     private javax.swing.JPanel topPanel;

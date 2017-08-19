@@ -133,6 +133,9 @@ public class CodeProcessorPanel extends javax.swing.JFrame {
         gridBagConstraints.insets = new java.awt.Insets(0, 14, 0, 0);
         jPanel1.add(jButton1, gridBagConstraints);
 
+        jScrollPane1.setMinimumSize(new java.awt.Dimension(10, 22));
+        jScrollPane1.setPreferredSize(new java.awt.Dimension(10, 10));
+
         PathsList.setModel(new DefaultComboBoxModel() );
         PathsList.setPreferredSize(new java.awt.Dimension(150, 200));
         jScrollPane1.setViewportView(PathsList);
@@ -141,8 +144,7 @@ public class CodeProcessorPanel extends javax.swing.JFrame {
         gridBagConstraints.gridx = 6;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.weightx = 0.5;
-        gridBagConstraints.weighty = 0.5;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
         jPanel1.add(jScrollPane1, gridBagConstraints);
 
         saveToFile.setText("Save to File");
@@ -177,6 +179,7 @@ public class CodeProcessorPanel extends javax.swing.JFrame {
         gridBagConstraints.gridwidth = 6;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
         jPanel1.add(jScrollPane2, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
