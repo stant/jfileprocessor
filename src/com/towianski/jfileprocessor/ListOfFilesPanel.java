@@ -5,6 +5,10 @@
  */
 package com.towianski.jfileprocessor;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -13,9 +17,13 @@ import java.io.FileWriter;
 import java.util.LinkedHashMap;
 import java.util.List;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JComponent;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
+import javax.swing.ListSelectionModel;
 
 /**
  *
@@ -46,8 +54,10 @@ public class ListOfFilesPanel extends javax.swing.JFrame {
             {
             currentDirectory = jFileFinderWin.getStartingFolder();
             }
+        PathsList.setSelectionMode( ListSelectionModel.MULTIPLE_INTERVAL_SELECTION );
         this.setLocationRelativeTo( getRootPane() );
         this.validate();
+        this.addEscapeListener( this );
     }
 
     public void setJFileFinderWin( JFileFinderWin jFileFinderWin ) {
@@ -74,6 +84,65 @@ public class ListOfFilesPanel extends javax.swing.JFrame {
         DefaultComboBoxModel thisListModel = (DefaultComboBoxModel) PathsList.getModel();
         count.setText( thisListModel.getSize() + "" );
     }
+    
+    public void readFile( File selectedFile )
+    {
+        System.out.println( "File to read =" + selectedFile + "=" );
+        currentDirectory = selectedFile.getParent();
+        currentFile = selectedFile.getAbsolutePath();
+        //Settings.set( "last.directory", dialog.getCurrentDirectory().getAbsolutePath() );
+        //String[] tt = { selectedFile.getPath() };
+        //startingFolder.setText( selectedFile.getPath() );
+        
+        try
+            {
+            if( ! selectedFile.exists() )
+                {
+                selectedFile.createNewFile();
+                }
+
+            FileReader fr = new FileReader( selectedFile.getAbsoluteFile() );
+            BufferedReader br = new BufferedReader(fr);
+
+            DefaultComboBoxModel thisListModel = (DefaultComboBoxModel) PathsList.getModel();
+            thisListModel.removeAllElements();
+            int numItems = thisListModel.getSize();
+            System.out.println( "thisListModel.getSize() num of items =" + numItems + "=" );
+            
+            String line = "";
+            while ( ( line = br.readLine() ) != null )
+                {
+                System.out.println( "read line =" + line + "=" );
+                thisListModel.addElement( line );
+                }
+            //close BufferedWriter
+            br.close();
+            //close FileWriter 
+            fr.close();
+            }
+        catch( Exception ex )
+            {
+
+            }
+        this.setTitle( "List (" + name + ") - " + currentFile );
+        setCount();
+    }
+    
+    public static void addEscapeListener(final JFrame win) {
+        ActionListener escListener = new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //System.out.println( "previewImportWin formWindow dispose()" );
+                win.dispatchEvent( new WindowEvent( win, WindowEvent.WINDOW_CLOSING )); 
+                win.dispose();
+            }
+        };
+
+        win.getRootPane().registerKeyboardAction(escListener,
+                KeyStroke.getKeyStroke( KeyEvent.VK_ESCAPE, KeyEvent.SHIFT_DOWN_MASK ),
+                JComponent.WHEN_IN_FOCUSED_WINDOW);
+    }    
     
     /**
      * This method is called from within the constructor to initialize the form.
@@ -308,7 +377,7 @@ public class ListOfFilesPanel extends javax.swing.JFrame {
             bw.close();
             //close FileWriter 
             fw.close();
-            JOptionPane.showMessageDialog(null, "Data Exported");        
+            JOptionPane.showMessageDialog(null, "Saved to File");        
             this.setTitle( "List (" + name + ") - " + currentFile );
             }
         catch( Exception ex )
@@ -332,48 +401,7 @@ public class ListOfFilesPanel extends javax.swing.JFrame {
     
     if ( chooser.showDialog( this, "Select" ) == JFileChooser.APPROVE_OPTION )
         {
-        File selectedFile = chooser.getSelectedFile();
-        System.out.println( "File to read =" + selectedFile + "=" );
-        currentDirectory = selectedFile.getParent();
-        currentFile = selectedFile.getAbsolutePath();
-        System.out.println( "File to read to =" + selectedFile + "=" );
-        System.out.println( "File to read to =" + selectedFile + "=" );
-        //Settings.set( "last.directory", dialog.getCurrentDirectory().getAbsolutePath() );
-        //String[] tt = { selectedFile.getPath() };
-        //startingFolder.setText( selectedFile.getPath() );
-        
-        try
-            {
-            if( ! selectedFile.exists() )
-                {
-                selectedFile.createNewFile();
-                }
-
-            FileReader fr = new FileReader( selectedFile.getAbsoluteFile() );
-            BufferedReader br = new BufferedReader(fr);
-
-            DefaultComboBoxModel thisListModel = (DefaultComboBoxModel) PathsList.getModel();
-            thisListModel.removeAllElements();
-            int numItems = thisListModel.getSize();
-            System.out.println( "thisListModel.getSize() num of items =" + numItems + "=" );
-            
-            String line = "";
-            while ( ( line = br.readLine() ) != null )
-                {
-                System.out.println( "read line =" + line + "=" );
-                thisListModel.addElement( line );
-                }
-            //close BufferedWriter
-            br.close();
-            //close FileWriter 
-            fr.close();
-            }
-        catch( Exception ex )
-            {
-
-            }
-            this.setTitle( "List (" + name + ") - " + currentFile );
-        setCount();
+        readFile( chooser.getSelectedFile() );
         }
     }//GEN-LAST:event_readFileActionPerformed
 

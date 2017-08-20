@@ -7,18 +7,23 @@ package com.towianski.jfileprocessor;
 
 import com.towianski.jfileprocessor.services.CallGroovy;
 import groovy.lang.Binding;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JComponent;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
 
 /**
  *
@@ -50,6 +55,7 @@ public class CodeProcessorPanel extends javax.swing.JFrame {
             }
         this.setLocationRelativeTo( getRootPane() );
         this.validate();
+        this.addEscapeListener( this );
     }
 
     public void setJFileFinderWin( JFileFinderWin jFileFinderWin ) {
@@ -71,6 +77,22 @@ public class CodeProcessorPanel extends javax.swing.JFrame {
     public void setSavedPathsList(JList<String> savedPathsList) {
         this.PathsList = savedPathsList;
     }
+    
+    public static void addEscapeListener(final JFrame win) {
+        ActionListener escListener = new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //System.out.println( "previewImportWin formWindow dispose()" );
+                win.dispatchEvent( new WindowEvent( win, WindowEvent.WINDOW_CLOSING )); 
+                win.dispose();
+            }
+        };
+
+        win.getRootPane().registerKeyboardAction(escListener,
+                KeyStroke.getKeyStroke( KeyEvent.VK_ESCAPE, KeyEvent.SHIFT_DOWN_MASK ),
+                JComponent.WHEN_IN_FOCUSED_WINDOW);
+    }    
 
     
     /**
@@ -224,8 +246,6 @@ public class CodeProcessorPanel extends javax.swing.JFrame {
         System.out.println( "File to save to =" + selectedFile + "=" );
         currentDirectory = selectedFile.getParent();
         currentFile = selectedFile.getAbsolutePath();
-        System.out.println( "File to save to =" + selectedFile + "=" );
-        System.out.println( "File to save to =" + selectedFile + "=" );
         
         try
             {
@@ -251,7 +271,7 @@ public class CodeProcessorPanel extends javax.swing.JFrame {
             bw.close();
             //close FileWriter 
             fw.close();
-            JOptionPane.showMessageDialog(null, "Data Exported");        
+            JOptionPane.showMessageDialog(null, "Saved to File");        
             this.setTitle( "code - " + currentFile );
             }
         catch( Exception ex )
