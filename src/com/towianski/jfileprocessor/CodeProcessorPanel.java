@@ -7,6 +7,7 @@ package com.towianski.jfileprocessor;
 
 import com.towianski.jfileprocessor.services.CallGroovy;
 import groovy.lang.Binding;
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -36,16 +37,23 @@ public class CodeProcessorPanel extends javax.swing.JFrame {
         DefaultComboBoxModel listOfFilesPanelModel = null;
         String currentDirectory = "";
         String currentFile = "";
+        static Color buttonBgColor = null;
 
     /**
      * Creates new form SavedPathsPanel
      */
-    public CodeProcessorPanel( JFileFinderWin jFileFinderWin, DefaultComboBoxModel listOfFilesPanelModel ) {
+    public CodeProcessorPanel( JFileFinderWin jFileFinderWin, String selectedPath, String listOfFilesPanelName ) {
         this.jFileFinderWin = jFileFinderWin;
-        this.listOfFilesPanelModel = listOfFilesPanelModel;
+        this.listOfFilesPanelModel = jFileFinderWin.getListOfFilesPanelsModel();
         initComponents();
         
-        if ( jFileFinderWin.getStartingFolder().equals( "" ) )
+        buttonBgColor = goButton.getBackground();
+
+        if ( selectedPath != null )
+            {
+            readFile( new File( selectedPath ) );
+            }
+        else if ( jFileFinderWin.getStartingFolder().equals( "" ) )
             {
             currentDirectory = ".";
             }
@@ -53,6 +61,7 @@ public class CodeProcessorPanel extends javax.swing.JFrame {
             {
             currentDirectory = jFileFinderWin.getStartingFolder();
             }
+        listOfLists.setSelectedItem( listOfFilesPanelName );
         this.setLocationRelativeTo( getRootPane() );
         this.validate();
         this.addEscapeListener( this );
@@ -76,6 +85,100 @@ public class CodeProcessorPanel extends javax.swing.JFrame {
 
     public void setSavedPathsList(JList<String> savedPathsList) {
         this.PathsList = savedPathsList;
+    }
+
+    public void setGoButton( Color toColor ) {
+        goButton.setBackground( toColor );
+    }
+    
+    public void resetGoButton() {
+        goButton.setBackground( buttonBgColor );
+    }
+    
+    public void readFile( File selectedFile )
+        {
+        System.out.println( "File to read =" + selectedFile + "=" );
+        currentDirectory = selectedFile.getParent();
+        currentFile = selectedFile.getAbsolutePath();
+        
+        try
+            {
+            if ( ! selectedFile.exists() )
+                {
+                selectedFile.createNewFile();
+                }
+
+            FileReader fr = new FileReader( selectedFile.getAbsoluteFile() );
+            BufferedReader br = new BufferedReader(fr);
+
+//            codePane.read( br, evt );
+            codePane.read( br, null );
+            //close BufferedWriter
+            br.close();
+            //close FileWriter 
+            fr.close();
+            this.setTitle( "code - " + currentFile );
+            }
+        catch( Exception exc )
+            {
+            exc.printStackTrace();
+            }
+        }
+    
+    public void saveToFile( File selectedFile )
+        {
+        System.out.println( "File to save to =" + selectedFile + "=" );
+        currentDirectory = selectedFile.getParent();
+        currentFile = selectedFile.getAbsolutePath();
+        
+        try
+            {
+            if( ! selectedFile.exists() )
+                {
+                selectedFile.createNewFile();
+                }
+
+            FileWriter fw = new FileWriter( selectedFile.getAbsoluteFile());
+            BufferedWriter bw = new BufferedWriter(fw);
+
+            codePane.write(bw);
+//            int numItems = thisListModel.getSize();
+//            System.out.println( "thisListModel.getSize() num of items =" + numItems + "=" );
+//            
+//            //loop for jtable rows
+//            for( int i = 0; i < numItems; i++ )
+//                {
+//                bw.write( (String) thisListModel.getElementAt( i ) );
+//                bw.write( "\n" );
+//            }
+            //close BufferedWriter
+            bw.close();
+            //close FileWriter 
+            fw.close();
+//            JOptionPane.showMessageDialog(null, "Saved to File");        
+            this.setTitle( "code - " + currentFile );
+            }
+        catch( Exception exc )
+            {
+            exc.printStackTrace();
+            }
+        }
+    
+    public void executeScript()
+    {
+        File currentDir = new File( currentDirectory );
+//        this.pathRoots = new String[] { currentDir.getAbsolutePath() };
+        CallGroovy callGroovy = new CallGroovy( new String[] { currentDir.getAbsolutePath() } );
+        System.out.println( "before call: callGroovy.testGroovyScriptEngineVsGroovyShell();" );
+        Binding binding = new Binding();
+        System.out.println( "start codeProcessorPanel.jFileFinderWin.getStartingFolder() =" + this.jFileFinderWin.getStartingFolder() + "=" );
+
+        DefaultComboBoxModel defaultComboBoxModel = (DefaultComboBoxModel) jFileFinderWin.getListPanelModel( (String) listOfLists.getSelectedItem() );
+        
+        binding.setProperty( "codeProcessorPanel", this );
+        binding.setProperty( "defaultComboBoxModel", defaultComboBoxModel );
+        File tmpFile = new File( currentFile );
+        callGroovy.testGroovyScriptEngineVsGroovyShell( tmpFile.getName(), binding );        
     }
     
     public static void addEscapeListener(final JFrame win) {
@@ -108,20 +211,17 @@ public class CodeProcessorPanel extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         cmdCb = new javax.swing.JComboBox<>();
         listOfLists = new javax.swing.JComboBox<>();
-        jButton1 = new javax.swing.JButton();
+        goButton = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         PathsList = new javax.swing.JList<>();
         saveToFile = new javax.swing.JButton();
         readFile = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         codePane = new javax.swing.JEditorPane();
+        jButton1 = new javax.swing.JButton();
 
-        setMinimumSize(new java.awt.Dimension(650, 500));
-        addWindowListener(new java.awt.event.WindowAdapter() {
-            public void windowClosing(java.awt.event.WindowEvent evt) {
-                formWindowClosing(evt);
-            }
-        });
+        setMinimumSize(new java.awt.Dimension(500, 500));
+        setPreferredSize(new java.awt.Dimension(800, 700));
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
         jPanel1.setLayout(new java.awt.GridBagLayout());
@@ -142,10 +242,10 @@ public class CodeProcessorPanel extends javax.swing.JFrame {
         gridBagConstraints.gridy = 0;
         jPanel1.add(listOfLists, gridBagConstraints);
 
-        jButton1.setText("Go");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        goButton.setText("Go");
+        goButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                goButtonActionPerformed(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -153,7 +253,7 @@ public class CodeProcessorPanel extends javax.swing.JFrame {
         gridBagConstraints.gridy = 0;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 14, 0, 0);
-        jPanel1.add(jButton1, gridBagConstraints);
+        jPanel1.add(goButton, gridBagConstraints);
 
         jScrollPane1.setMinimumSize(new java.awt.Dimension(10, 22));
         jScrollPane1.setPreferredSize(new java.awt.Dimension(10, 10));
@@ -163,7 +263,7 @@ public class CodeProcessorPanel extends javax.swing.JFrame {
         jScrollPane1.setViewportView(PathsList);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 6;
+        gridBagConstraints.gridx = 7;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
@@ -176,9 +276,9 @@ public class CodeProcessorPanel extends javax.swing.JFrame {
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridx = 6;
         gridBagConstraints.gridy = 0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 14, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
         jPanel1.add(saveToFile, gridBagConstraints);
 
         readFile.setText("Read File");
@@ -188,9 +288,9 @@ public class CodeProcessorPanel extends javax.swing.JFrame {
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 5;
+        gridBagConstraints.gridx = 4;
         gridBagConstraints.gridy = 0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(0, 14, 0, 0);
         jPanel1.add(readFile, gridBagConstraints);
 
         jScrollPane2.setViewportView(codePane);
@@ -198,11 +298,23 @@ public class CodeProcessorPanel extends javax.swing.JFrame {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
-        gridBagConstraints.gridwidth = 6;
+        gridBagConstraints.gridwidth = 7;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
         jPanel1.add(jScrollPane2, gridBagConstraints);
+
+        jButton1.setText("Save");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 5;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 14, 0, 0);
+        jPanel1.add(jButton1, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
@@ -211,22 +323,10 @@ public class CodeProcessorPanel extends javax.swing.JFrame {
         getContentPane().add(jPanel1, gridBagConstraints);
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void goButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_goButtonActionPerformed
         System.out.println( "before call: new callGroovy();" );
-        File currentDir = new File( currentDirectory );
-//        this.pathRoots = new String[] { currentDir.getAbsolutePath() };
-        CallGroovy callGroovy = new CallGroovy( new String[] { currentDir.getAbsolutePath() } );
-        System.out.println( "before call: callGroovy.testGroovyScriptEngineVsGroovyShell();" );
-        Binding binding = new Binding();
-        System.out.println( "start codeProcessorPanel.jFileFinderWin.getStartingFolder() =" + this.jFileFinderWin.getStartingFolder() + "=" );
-
-        DefaultComboBoxModel defaultComboBoxModel = (DefaultComboBoxModel) jFileFinderWin.getListPanelModel( (String) listOfLists.getSelectedItem() );
-        
-        binding.setProperty( "codeProcessorPanel", this );
-        binding.setProperty( "defaultComboBoxModel", defaultComboBoxModel );
-        File tmpFile = new File( currentFile );
-        callGroovy.testGroovyScriptEngineVsGroovyShell( tmpFile.getName(), binding );
-    }//GEN-LAST:event_jButton1ActionPerformed
+        executeScript();
+    }//GEN-LAST:event_goButtonActionPerformed
 
     private void saveToFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveToFileActionPerformed
         JFileChooser chooser = new JFileChooser();
@@ -243,41 +343,7 @@ public class CodeProcessorPanel extends javax.swing.JFrame {
     if ( chooser.showDialog( this, "Select" ) == JFileChooser.APPROVE_OPTION )
         {
         File selectedFile = chooser.getSelectedFile();
-        System.out.println( "File to save to =" + selectedFile + "=" );
-        currentDirectory = selectedFile.getParent();
-        currentFile = selectedFile.getAbsolutePath();
-        
-        try
-            {
-            if( ! selectedFile.exists() )
-                {
-                selectedFile.createNewFile();
-                }
-
-            FileWriter fw = new FileWriter( selectedFile.getAbsoluteFile());
-            BufferedWriter bw = new BufferedWriter(fw);
-
-            codePane.write(bw);
-//            int numItems = thisListModel.getSize();
-//            System.out.println( "thisListModel.getSize() num of items =" + numItems + "=" );
-//            
-//            //loop for jtable rows
-//            for( int i = 0; i < numItems; i++ )
-//                {
-//                bw.write( (String) thisListModel.getElementAt( i ) );
-//                bw.write( "\n" );
-//            }
-            //close BufferedWriter
-            bw.close();
-            //close FileWriter 
-            fw.close();
-            JOptionPane.showMessageDialog(null, "Saved to File");        
-            this.setTitle( "code - " + currentFile );
-            }
-        catch( Exception ex )
-            {
-
-            }
+        saveToFile( selectedFile );
         }
 
     }//GEN-LAST:event_saveToFileActionPerformed
@@ -295,49 +361,13 @@ public class CodeProcessorPanel extends javax.swing.JFrame {
     
     if ( chooser.showDialog( this, "Select" ) == JFileChooser.APPROVE_OPTION )
         {
-        File selectedFile = chooser.getSelectedFile();
-        System.out.println( "File to read =" + selectedFile + "=" );
-        currentDirectory = selectedFile.getParent();
-        currentFile = selectedFile.getAbsolutePath();
-        System.out.println( "File to read to =" + selectedFile + "=" );
-        System.out.println( "File to read to =" + selectedFile + "=" );
-        
-        try
-            {
-            if( ! selectedFile.exists() )
-                {
-                selectedFile.createNewFile();
-                }
-
-            FileReader fr = new FileReader( selectedFile.getAbsoluteFile() );
-            BufferedReader br = new BufferedReader(fr);
-
-            codePane.read(br, evt);
-//            int numItems = thisListModel.getSize();
-//            System.out.println( "thisListModel.getSize() num of items =" + numItems + "=" );
-//            
-//            String line = "";
-//            while ( ( line = br.readLine() ) != null )
-//                {
-//                System.out.println( "read line =" + line + "=" );
-//                thisListModel.addElement( line );
-//                }
-            //close BufferedWriter
-            br.close();
-            //close FileWriter 
-            fr.close();
-            this.setTitle( "code - " + currentFile );
-            }
-        catch( Exception ex )
-            {
-
-            }
+        readFile( chooser.getSelectedFile() );
         }
     }//GEN-LAST:event_readFileActionPerformed
 
-    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
-        jFileFinderWin.removeListPanel( this.getTitle() );
-    }//GEN-LAST:event_formWindowClosing
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        saveToFile( new File( currentFile )  );
+    }//GEN-LAST:event_jButton1ActionPerformed
 
         
     /**
@@ -350,7 +380,7 @@ public class CodeProcessorPanel extends javax.swing.JFrame {
                            String[] data = {"Fe", "Fi", "Fo", "Fum"};
 
            final DefaultComboBoxModel listOfFilesPanelModel = new DefaultComboBoxModel(data);
-                CodeProcessorPanel dialog = new CodeProcessorPanel( null, listOfFilesPanelModel );
+                CodeProcessorPanel dialog = new CodeProcessorPanel( null, null, null );
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
 
                     public void windowClosing(java.awt.event.WindowEvent e) {
@@ -369,6 +399,7 @@ public class CodeProcessorPanel extends javax.swing.JFrame {
     private javax.swing.JList<String> PathsList;
     private javax.swing.JComboBox<String> cmdCb;
     private javax.swing.JEditorPane codePane;
+    private javax.swing.JButton goButton;
     private javax.swing.JButton jButton1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;

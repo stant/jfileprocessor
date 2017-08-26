@@ -5,6 +5,7 @@
  */
 package com.towianski.jfileprocessor;
 
+import static com.towianski.jfileprocessor.JFileFinderSwingWorker.jFileFinderWin;
 import com.towianski.models.ResultsData;
 import java.text.NumberFormat;
 import javax.swing.SwingWorker;
@@ -54,6 +55,13 @@ public class FillTableModelSwingWorker extends SwingWorker<ResultsData, Object> 
             //SwingUtilities.invokeLater( jFileFinderWin.fillInFilesTable( resultsData ) );
             //jFileFinderWin.fillInFilesTable( resultsData );
             //jFileFinderWin.setResultsData( resultsData );
+            
+            System.out.println( "FillTableModelSwingWorker() jFileFinderWin.afterFillSwingWorker =" + jFileFinderWin.afterFillSwingWorker+ "=" );
+            if ( jFileFinderWin.afterFillSwingWorker != null )
+                {
+                jFileFinderWin.takeAfterFillSwingWorker().execute();    
+                }
+
             System.out.println( "exiting FillTableModelSwingWorker.done()" );
             } 
         catch (InterruptedException ignore) {}

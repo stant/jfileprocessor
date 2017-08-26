@@ -27,6 +27,9 @@
     <Component class="javax.swing.JButton" name="doCmdBtn">
       <Properties>
         <Property name="text" type="java.lang.String" value="Delete"/>
+        <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+          <Dimension value="[150, 23]"/>
+        </Property>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="doCmdBtnActionPerformed"/>

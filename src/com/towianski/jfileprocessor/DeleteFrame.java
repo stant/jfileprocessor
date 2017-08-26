@@ -15,6 +15,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.KeyStroke;
@@ -86,6 +87,14 @@ public class DeleteFrame extends javax.swing.JFrame {
                 KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
                 JComponent.WHEN_IN_FOCUSED_WINDOW);
     }    
+
+    public boolean getDeleteToTrashFlag() {
+        return this.deleteToTrashFlag.isSelected();
+    }
+
+    public void setDeleteToTrashFlag(boolean deleteToTrashFlag) {
+        this.deleteToTrashFlag.setSelected( deleteToTrashFlag );
+    }
 
     public void callDoCmdBtnActionPerformed(java.awt.event.ActionEvent evt)
     {
@@ -184,6 +193,7 @@ public class DeleteFrame extends javax.swing.JFrame {
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
         doCmdBtn.setText("Delete");
+        doCmdBtn.setMaximumSize(new java.awt.Dimension(150, 23));
         doCmdBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 doCmdBtnActionPerformed(evt);

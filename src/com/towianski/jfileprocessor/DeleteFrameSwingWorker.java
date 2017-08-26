@@ -5,6 +5,7 @@
  */
 package com.towianski.jfileprocessor;
 
+import com.towianski.jfileprocess.actions.CloseWinOnTimer;
 import com.towianski.models.ResultsData;
 import java.nio.file.Path;
 import java.text.NumberFormat;
@@ -37,6 +38,14 @@ public class DeleteFrameSwingWorker extends SwingWorker<ResultsData, Object> {
         return jfiledelete.getResultsData();
     }
 
+//    @Override
+//    protected void process(List<Integer> chunks) {
+//        // Get Info
+//        for (int number : chunks) {
+//            System.out.println("Found even number: " + number);
+//        }
+//    }
+
     @Override
     public void done() {
         try {
@@ -65,12 +74,12 @@ public class DeleteFrameSwingWorker extends SwingWorker<ResultsData, Object> {
             else
                 {
                 deleteFrame.setProcessStatus( deleteFrame.PROCESS_STATUS_DELETE_COMPLETED );
+                new CloseWinOnTimer( deleteFrame, 4000 ){{setRepeats(false);}}.start();
                 }
             deleteFrame.setMessage( msg + partialMsg );
             deleteFrame.setResultsData( resultsData );
             
             jFileFinderWin.callSearchBtnActionPerformed( null );
-                    
             //System.out.println( "exiting SwingWork.done()" );
             }
         catch (InterruptedException ignore) 

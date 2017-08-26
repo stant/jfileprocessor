@@ -34,7 +34,6 @@ import com.towianski.jfileprocess.actions.RenameAction;
 import com.towianski.jfileprocess.actions.UpFolderAction;
 import com.towianski.jfileprocess.actions.JavaProcess;
 import com.towianski.jfileprocess.actions.NewFolderAction;
-import static com.towianski.jfileprocessor.JFileFinder.jFileFinderWin;
 import com.towianski.listeners.MyFocusAdapter;
 import com.towianski.models.CircularArrayList;
 import com.towianski.renderers.FiletypeCBCellRenderer;
@@ -81,7 +80,6 @@ import javax.swing.ActionMap;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
 import javax.swing.InputMap;
-import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -92,6 +90,7 @@ import javax.swing.KeyStroke;
 import javax.swing.RowSorter;
 import javax.swing.SortOrder;
 import javax.swing.SpinnerListModel;
+import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
@@ -115,6 +114,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
     private TableCellListener filesTblCellListener = null;
     Boolean isDoingCutFlag = false;
     Boolean countOnlyFlag = false;
+    SwingWorker afterFillSwingWorker = null;
     
     public static final String PROCESS_STATUS_SEARCH_STARTED = "Search Started . . .";
     public static final String PROCESS_STATUS_FILL_STARTED = "Fill Started . . .";
@@ -246,6 +246,9 @@ public class JFileFinderWin extends javax.swing.JFrame {
         inputMap.put( KeyStroke.getKeyStroke( KeyEvent.VK_DELETE, 0 ), "deleteAction" );
         actionMap.put( "deleteAction", deleteAction );
  
+        inputMap.put( KeyStroke.getKeyStroke( KeyEvent.VK_DELETE, InputEvent.SHIFT_DOWN_MASK ), "deleteAction2" );
+        actionMap.put( "deleteAction2", deleteAction );
+        
         inputMap.put( KeyStroke.getKeyStroke( KeyEvent.VK_BACK_SPACE, 0 ), "upFolderAction" );
         actionMap.put( "upFolderAction", upFolderAction );
  
@@ -285,7 +288,6 @@ public class JFileFinderWin extends javax.swing.JFrame {
  
         pathInputMap.put( KeyStroke.getKeyStroke( KeyEvent.VK_RIGHT, InputEvent.ALT_MASK ), "forwardFolderAction" );
         pathActionMap.put( "forwardFolderAction", forwardFolderAction );
- 
     }
 
     public DefaultComboBoxModel getListPanelModel( String listname ) {
@@ -296,6 +298,20 @@ public class JFileFinderWin extends javax.swing.JFrame {
         return null;
     }
 
+    public DefaultComboBoxModel getListOfFilesPanelsModel() {
+        return listOfFilesPanelsModel;
+    }
+
+    public SwingWorker takeAfterFillSwingWorker() {
+        SwingWorker tmp = afterFillSwingWorker;
+        afterFillSwingWorker = null;
+        return tmp;
+    }
+
+    public void setAfterFillSwingWorker(SwingWorker afterFillSwingWorker) {
+        this.afterFillSwingWorker = afterFillSwingWorker;
+    }
+    
     public void readInBookmarks() {
         File selectedFile = new File( DesktopUtils.getBookmarks().toString() );
         System.out.println( "Bookmarks File =" + selectedFile + "=" );
@@ -862,6 +878,8 @@ public class JFileFinderWin extends javax.swing.JFrame {
 //                searchBtn.setBorderPainted(false);
 //                message.setText( "Search started . . ." );
                 //setProcessStatus( PROCESS_STATUS_SEARCH_STARTED );
+                        System.out.println( "*************  jFileFinderSwingWorker.execute()  ****************" );
+            
                 jFileFinderSwingWorker.execute();   //doInBackground();
                 //jfinderThread = new Thread( jfilefinder );
 //                        jfinderThread.start();
@@ -910,19 +928,19 @@ public class JFileFinderWin extends javax.swing.JFrame {
         tblColModel.getColumn( FilesTblModel.FILESTBLMODEL_OWNER ).setCellRenderer( new DefaultTableCellRenderer() );
         tblColModel.getColumn( FilesTblModel.FILESTBLMODEL_GROUP ).setCellRenderer( new DefaultTableCellRenderer() );
         tblColModel.getColumn( FilesTblModel.FILESTBLMODEL_PERMS ).setCellRenderer( new DefaultTableCellRenderer() );
-        if ( ! jFileFinderWin.isShowOwnerFlag() )
+        if ( ! isShowOwnerFlag() )
             {
             tblColModel.getColumn( FilesTblModel.FILESTBLMODEL_OWNER ).setPreferredWidth( 0 );
             tblColModel.getColumn( FilesTblModel.FILESTBLMODEL_OWNER ).setMinWidth( 0 );
             tblColModel.getColumn( FilesTblModel.FILESTBLMODEL_OWNER ).setMaxWidth( 0 );
             }
-        if ( ! jFileFinderWin.isShowGroupFlag() )
+        if ( ! isShowGroupFlag() )
             {
             tblColModel.getColumn( FilesTblModel.FILESTBLMODEL_GROUP ).setPreferredWidth( 0 );
             tblColModel.getColumn( FilesTblModel.FILESTBLMODEL_GROUP ).setMinWidth( 0 );
             tblColModel.getColumn( FilesTblModel.FILESTBLMODEL_GROUP ).setMaxWidth( 0 );
             }
-        if ( ! jFileFinderWin.isShowPermsFlag() )
+        if ( ! isShowPermsFlag() )
             {
             tblColModel.getColumn( FilesTblModel.FILESTBLMODEL_PERMS ).setPreferredWidth( 0 );
             tblColModel.getColumn( FilesTblModel.FILESTBLMODEL_PERMS ).setMinWidth( 0 );
@@ -1097,14 +1115,22 @@ public class JFileFinderWin extends javax.swing.JFrame {
         filesTbl.clearSelection();
     }
     
-    public ListOfFilesPanel getListOfFilesPanel()
-    {
-        String ans = JOptionPane.showInputDialog( "List Name: ", "" );
-        if ( ans == null )
+    public ListOfFilesPanel getListOfFilesPanel( String winName )
+        {
+        String ans = null;
+        if ( winName == null )
             {
-            return null;
+            ans = JOptionPane.showInputDialog( "List Name: ", "" );
+            if ( ans == null )
+                {
+                return null;
+                }
             }
-
+        else
+            {
+            ans = winName;
+            }
+        
         ListOfFilesPanel listOfFilesPanel = null;
         int pmIdx = listOfFilesPanelsModel.getIndexOf( ans );
         if ( listOfFilesPanelsModel.getIndexOf( ans ) < 0 )
@@ -1126,8 +1152,97 @@ public class JFileFinderWin extends javax.swing.JFrame {
             listOfFilesPanel = (ListOfFilesPanel) listOfFilesPanelHm.get( ans );
             }
         return listOfFilesPanel;
+        }
+
+    public void savePathsToFile( File selectedFile )
+    {
+        System.out.println( "File to save to =" + selectedFile + "=" );
+        //Settings.set( "last.directory", dialog.getCurrentDirectory().getAbsolutePath() );
+        //String[] tt = { selectedFile.getPath() };
+        //startingFolder.setText( selectedFile.getPath() );
+        
+        try
+            {
+            if( ! selectedFile.exists() )
+                {
+                selectedFile.createNewFile();
+                }
+
+            FileWriter fw = new FileWriter( selectedFile.getAbsoluteFile());
+            BufferedWriter bw = new BufferedWriter(fw);
+
+            int maxRows = filesTbl.getRowCount();
+            FilesTblModel filesTblModel = (FilesTblModel) filesTbl.getModel();
+            
+            //loop for jtable rows
+            for( int i = 0; i < maxRows; i++ )
+                {
+                bw.write( (String) filesTblModel.getValueAt( i, FilesTblModel.FILESTBLMODEL_PATH ) );
+                bw.write( "\n" );
+                }
+            //close BufferedWriter
+            bw.close();
+            //close FileWriter 
+            fw.close();
+//            JOptionPane.showMessageDialog(null, "Saved to File");        
+            }
+        catch( Exception exc )
+            {
+            exc.printStackTrace();
+            }
     }
     
+    public void openPathsToList( ListOfFilesPanel listOfFilesPanel, String winName )
+        {
+        try
+            {
+            if ( listOfFilesPanel == null )
+                {
+                listOfFilesPanel = getListOfFilesPanel( winName );
+                if ( listOfFilesPanel == null )
+                    {
+                    return;
+                    }
+                }
+            int maxRows = filesTbl.getRowCount();
+            FilesTblModel filesTblModel = (FilesTblModel) filesTbl.getModel();
+            DefaultComboBoxModel listModel = (DefaultComboBoxModel) listOfFilesPanel.getModel();
+            
+            System.out.println( "add list path() num of items =" + maxRows + "=" );
+            int numChanged = 0;
+            
+            //loop for jtable rows
+            for( int i = 0; i < maxRows; i++ )
+                {
+//                    System.out.println( "check path =" + (String) filesTblModel.getValueAt( i, FilesTblModel.FILESTBLMODEL_PATH ) + "=" );
+                String str = (String) filesTblModel.getValueAt( i, FilesTblModel.FILESTBLMODEL_PATH );
+//                int foundAt = listModel.getIndexOf( str );
+//                    System.out.println( "is found idx =" + foundAt + "=" );
+//                if ( foundAt < 0 )
+                    {
+                    listModel.addElement( str );
+                    numChanged ++;
+                    }
+                }
+            listOfFilesPanel.setCount();
+            }
+        catch( Exception exc )
+            {
+            exc.printStackTrace();
+            }
+        }
+
+        public CodeProcessorPanel openCodeWinPanel( JFileFinderWin jFileFinderWin, String selectedPath, String listOfFilesPanelName )
+            {
+            CodeProcessorPanel codeProcessorPanel = new CodeProcessorPanel( jFileFinderWin, selectedPath, listOfFilesPanelName );
+            codeProcessorPanel.setState ( JFrame.ICONIFIED );
+
+            codeProcessorPanel.pack();
+            codeProcessorPanel.setVisible(true);
+            codeProcessorPanel.setState ( JFrame.NORMAL );
+            return codeProcessorPanel;
+            }
+        
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -1405,7 +1520,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
             jPopupMenu2.add(savePathsToFile1);
 
             setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-            setTitle("JFileProcessor v1.4.15 - Stan Towianski  (c) 2015-2017");
+            setTitle("JFileProcessor v1.4.16 - Stan Towianski  (c) 2015-2017");
             setPreferredSize(new java.awt.Dimension(900, 544));
             addWindowListener(new java.awt.event.WindowAdapter() {
                 public void windowOpened(java.awt.event.WindowEvent evt) {
@@ -1415,8 +1530,6 @@ public class JFileFinderWin extends javax.swing.JFrame {
                     formWindowClosing(evt);
                 }
             });
-
-            jSplitPane2.setDividerSize(5);
 
             replaceSavePathPanel.setMinimumSize(new java.awt.Dimension(0, 0));
             replaceSavePathPanel.setPreferredSize(new java.awt.Dimension(100, 500));
@@ -2241,42 +2354,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
     
     if ( chooser.showDialog( this, "Select" ) == JFileChooser.APPROVE_OPTION )
         {
-        File selectedFile = chooser.getSelectedFile();
-        System.out.println( "File to save to =" + selectedFile + "=" );
-        //Settings.set( "last.directory", dialog.getCurrentDirectory().getAbsolutePath() );
-        //String[] tt = { selectedFile.getPath() };
-        //startingFolder.setText( selectedFile.getPath() );
-        
-        try
-            {
-            if( ! selectedFile.exists() )
-                {
-                selectedFile.createNewFile();
-                }
-
-            FileWriter fw = new FileWriter( selectedFile.getAbsoluteFile());
-            BufferedWriter bw = new BufferedWriter(fw);
-
-            int maxRows = filesTbl.getRowCount();
-            //int maxCols =  filesTbl.getColumnCount();
-            FilesTblModel filesTblModel = (FilesTblModel) filesTbl.getModel();
-            
-            //loop for jtable rows
-            for( int i = 0; i < maxRows; i++ )
-                {
-                bw.write( (String) filesTblModel.getValueAt( i, FilesTblModel.FILESTBLMODEL_PATH ) );
-                bw.write( "\n" );
-            }
-            //close BufferedWriter
-            bw.close();
-            //close FileWriter 
-            fw.close();
-            JOptionPane.showMessageDialog(null, "Saved to File");        
-            }
-        catch( Exception ex )
-            {
-
-            }
+        savePathsToFile( chooser.getSelectedFile() );
         }
 
     }//GEN-LAST:event_savePathsToFileActionPerformed
@@ -2486,7 +2564,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
     }//GEN-LAST:event_savePathsToFile1ActionPerformed
 
     private void DeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DeleteActionPerformed
-
+        
         if ( filesTbl.getSelectedRow() < 0 )
             {
             JOptionPane.showMessageDialog( this, "Please select an item first.", "Error", JOptionPane.ERROR_MESSAGE );
@@ -2517,6 +2595,12 @@ public class JFileFinderWin extends javax.swing.JFrame {
                 {
                 JOptionPane.showMessageDialog( this, "No Files selected to Delete.", "Error", JOptionPane.ERROR_MESSAGE );
                 return;
+                }
+
+            if ( evt != null  ) System.out.println( "evt.getModifiers() =" + evt.getModifiers() + "   ((evt.getModifiers() & InputEvent.SHIFT_MASK) != 0) = " + ((evt.getModifiers() & InputEvent.SHIFT_MASK) != 0) );
+            if ( evt != null && (evt.getModifiers() & InputEvent.SHIFT_MASK) != 0 )
+                {
+                deleteFrame.setDeleteToTrashFlag( false );
                 }
             deleteFrame.setup( this, copyPathStartPath, copyPaths );
             deleteFrame.pack();
@@ -2670,7 +2754,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
     private void openListWindowActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openListWindowActionPerformed
         try
             {
-            ListOfFilesPanel listOfFilesPanel = getListOfFilesPanel();
+            ListOfFilesPanel listOfFilesPanel = getListOfFilesPanel( null );
             if ( listOfFilesPanel == null )
                 {
                 return;
@@ -2699,19 +2783,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
             int numChanged = 0;
             if ( reply == JOptionPane.YES_OPTION )  // all files and folders
                 {
-                System.out.println( "add list path() num of items =" + maxRows + "=" );
-                for( int i = 0; i < maxRows; i++ )
-                    {
-//                    System.out.println( "check path =" + (String) filesTblModel.getValueAt( i, FilesTblModel.FILESTBLMODEL_PATH ) + "=" );
-                    String str = (String) filesTblModel.getValueAt( i, FilesTblModel.FILESTBLMODEL_PATH );
-                    int foundAt = listModel.getIndexOf( str );
-//                    System.out.println( "is found idx =" + foundAt + "=" );
-                    if ( foundAt < 0 )
-                        {
-                        listModel.addElement( str );
-                        numChanged ++;
-                        }
-                    }
+                openPathsToList( listOfFilesPanel, null );
                 }
             else if ( reply == JOptionPane.NO_OPTION )  // ADD selected Fitems
                 {
@@ -2736,8 +2808,8 @@ public class JFileFinderWin extends javax.swing.JFrame {
                         numChanged ++;
                         }
                     }
+                JOptionPane.showMessageDialog( this, "Number of files added: " + numChanged );
                 }
-            JOptionPane.showMessageDialog( this, "Number of files added: " + numChanged );
             listOfFilesPanel.setCount();
             }
         catch( Exception exc )
@@ -2885,12 +2957,26 @@ public class JFileFinderWin extends javax.swing.JFrame {
     private void openCodeWinActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openCodeWinActionPerformed
         try
             {
-            CodeProcessorPanel codeProcessorPanel = new CodeProcessorPanel( this, listOfFilesPanelsModel );
-            codeProcessorPanel.setState ( JFrame.ICONIFIED );
-            codeProcessorPanel.setTitle( "code" );
-            codeProcessorPanel.pack();
-            codeProcessorPanel.setVisible(true);
-            codeProcessorPanel.setState ( JFrame.NORMAL );
+            int maxRows = filesTbl.getRowCount();
+            FilesTblModel filesTblModel = (FilesTblModel) filesTbl.getModel();
+            
+            //loop for jtable rows
+            for( int row : filesTbl.getSelectedRows() )
+                {
+                int rowIndex = filesTbl.convertRowIndexToModel( row );
+                //System.out.println( "add copy path  row =" + row + "   rowIndex = " + rowIndex );
+                //System.out.println( "copy path  =" + ((String) filesTblModel.getValueAt( rowIndex, FilesTblModel.FILESTBLMODEL_PATH ) ) + "=" );
+                //copyPaths.add( Paths.get( (String) filesTblModel.getValueAt( rowIndex, FilesTblModel.FILESTBLMODEL_PATH ) ) );
+                //filesList.add( new File( (String) filesTblModel.getValueAt( rowIndex, FilesTblModel.FILESTBLMODEL_PATH ) ) );
+                String selectedPath = (String) filesTblModel.getValueAt( rowIndex, FilesTblModel.FILESTBLMODEL_PATH );
+                System.out.println( "open code fpath =" + (String) filesTblModel.getValueAt( rowIndex, FilesTblModel.FILESTBLMODEL_PATH ) + "=" );
+            
+                openCodeWinPanel( this, selectedPath, null );
+                }
+            if ( maxRows < 2 )
+                {
+                openCodeWinPanel( this, null, null ).setTitle( "code" );
+                }
             }
         catch( Exception exc )
             {
@@ -2920,7 +3006,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
     }//GEN-LAST:event_showOwnerFlagActionPerformed
 
     private void readFileIntoListWinActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_readFileIntoListWinActionPerformed
-        ListOfFilesPanel listOfFilesPanel = getListOfFilesPanel();
+        ListOfFilesPanel listOfFilesPanel = getListOfFilesPanel( null );
         if ( listOfFilesPanel == null )
             {
             return;

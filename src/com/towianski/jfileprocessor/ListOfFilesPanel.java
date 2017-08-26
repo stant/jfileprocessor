@@ -236,9 +236,9 @@ public class ListOfFilesPanel extends javax.swing.JFrame {
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 5;
+        gridBagConstraints.gridx = 6;
         gridBagConstraints.gridy = 0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 14, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
         jPanel1.add(saveToFile, gridBagConstraints);
 
         readFile.setText("Read File");
@@ -248,12 +248,12 @@ public class ListOfFilesPanel extends javax.swing.JFrame {
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 6;
+        gridBagConstraints.gridx = 5;
         gridBagConstraints.gridy = 0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(0, 14, 0, 0);
         jPanel1.add(readFile, gridBagConstraints);
 
-        count.setText("jLabel1");
+        count.setText("   ");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
         gridBagConstraints.gridy = 0;
@@ -406,7 +406,7 @@ public class ListOfFilesPanel extends javax.swing.JFrame {
     }//GEN-LAST:event_readFileActionPerformed
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
-        jFileFinderWin.removeListPanel( this.getTitle() );
+        jFileFinderWin.removeListPanel( this.name );
     }//GEN-LAST:event_formWindowClosing
 
         

@@ -5,9 +5,16 @@
  */
 package com.towianski.utils;
 
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import java.awt.Insets;
+import java.awt.Rectangle;
+import java.awt.Toolkit;
 import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 /**
@@ -225,5 +232,49 @@ public class DesktopUtils
       return bookmarks;
    }
     
-   
+    //public static Rectangle getScreenViewableBounds(Window window) {
+    //    return getScreenViewableBounds((Component) window);
+    //}
+    //
+    //public static Rectangle getScreenViewableBounds(Component comp) {
+    //    return getScreenViewableBounds(getGraphicsDevice(comp));
+    //}
+    //
+    //public static Rectangle getScreenViewableBounds(GraphicsDevice gd) {
+    //    Rectangle bounds = new Rectangle(0, 0, 0, 0);
+    //    if (gd == null) {
+    //        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+    //        gd = ge.getDefaultScreenDevice();
+    //    }
+    //
+    //    if (gd != null) {
+    //        GraphicsConfiguration gc = gd.getDefaultConfiguration();
+    //        bounds = gc.getBounds();
+    //
+    //        Insets insets = Toolkit.getDefaultToolkit().getScreenInsets(gc);
+    //        bounds.x += insets.left;
+    //        bounds.y += insets.top;
+    //        bounds.width -= (insets.left + insets.right);
+    //        bounds.height -= (insets.top + insets.bottom);
+    //    }
+    //
+    //    return bounds;
+    //}   
+
+    public static void moveJframeToBottomScreen( JFrame f )
+        {
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        GraphicsDevice defaultScreen = ge.getDefaultScreenDevice();
+        Rectangle bounds = defaultScreen.getDefaultConfiguration().getBounds();
+        GraphicsConfiguration gc = defaultScreen.getDefaultConfiguration();
+        Insets insets = Toolkit.getDefaultToolkit().getScreenInsets(gc);
+        bounds.x += insets.left;
+        bounds.y += insets.top;
+        bounds.width -= (insets.left + insets.right);
+        bounds.height -= (insets.top + insets.bottom);
+        int x = (int) (bounds.getMaxX() / 2) - (f.getWidth() / 2);
+        int y = (int) bounds.getMaxY() - f.getHeight();
+        f.setLocation(x, y);
+        f.setVisible(true);
+        }
 }
