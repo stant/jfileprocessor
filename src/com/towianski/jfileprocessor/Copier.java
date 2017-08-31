@@ -167,10 +167,20 @@ public class Copier extends SimpleFileVisitor<Path>
             }
         numTested++;
         
-        if ( file.compareTo(toPath.resolve(startingPath.relativize( file ) ) ) == 0 )
+        Path toPathFile = toPath.resolve( startingPath.relativize( file ) );
+        while ( file.compareTo( toPathFile ) == 0 )
             {
-            System.out.println( "Skip Copy to Itself." );
-            return FileVisitResult.CONTINUE;
+            System.out.println( "would Copy to Itself." );
+            Path beforeFile = file;
+            String ans = JOptionPane.showInputDialog( "Copy file onto itself. New name: ", file.getFileName() );
+            if ( ans == null )
+                {
+                return FileVisitResult.CONTINUE;
+                }
+            toPathFile = Paths.get( toPathFile.getParent() + toPathFileSeparator + ans );
+            this.startingPath = fromPath;
+            System.out.println( "beforeFile =" + beforeFile + "=" );
+            System.out.println( "new file =" + toPathFile + "=" );
             }
 
 //            CopyOption[] copyOpts = new CopyOption[3];
@@ -181,12 +191,12 @@ public class Copier extends SimpleFileVisitor<Path>
             if ( copyOptions == null || copyOptions.length < 1 )
                 {
 //                System.out.println("copy with default options. file =" + file + "=   to =" + toPath.resolve(startingPath.relativize( file ) ) + "=" );
-                Files.copy( file, toPath.resolve( startingPath.relativize( file ) ) );
+                Files.copy( file, toPathFile );
                 }
             else
                 {
 //                System.out.println("copy with sent options. file =" + file + "=   to =" + toPath.resolve(startingPath.relativize( file ) ) + "=" );
-                Files.copy( file, toPath.resolve( startingPath.relativize( file ) ), copyOptions );
+                Files.copy( file, toPathFile, copyOptions );
                 }
             }
         catch ( java.nio.file.NoSuchFileException noSuchFileExc ) 

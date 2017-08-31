@@ -181,6 +181,63 @@ public class FilesTblModel extends AbstractTableModel
     public int getRowCount() { return 10;}
     public Object getValueAt(int row, int col) { return new Integer(row*col); }
     */    
+    public void replaceRowAt( int row, String Path ) 
+        {
+        //System.out.println( "getValueAt row =" + row + "  col =" + col );
+        try {
+            //System.out.println( "before add row table col count =" + this.getColumnCount() );
+            ArrayList newRow = new ArrayList();
+            newRow.add( false );
+            newRow.add( true );
+            newRow.add( Path );
+            newRow.add( Calendar.getInstance().getTime() );
+            newRow.add( (long) 0 );
+            newRow.add( "" );
+            newRow.add( "" );
+            newRow.add( "---" );
+            
+            data.set( 0, newRow );
+            //System.out.println( "after add row table col count =" + this.getColumnCount() );
+            editableCells = new HashMap<String,Boolean>();
+            } 
+        catch( Exception ex )
+            {
+            return;
+            }
+        refresh();
+        }
+    
+    /*
+    public int getColumnCount() { return 10; }
+    public int getRowCount() { return 10;}
+    public Object getValueAt(int row, int col) { return new Integer(row*col); }
+    */    
+    public static ArrayList getNewRow( String Path ) 
+        {
+        ArrayList newRow = new ArrayList();
+        try {
+            //System.out.println( "before add row table col count =" + this.getColumnCount() );
+            newRow.add( false );
+            newRow.add( true );
+            newRow.add( Path );
+            newRow.add( Calendar.getInstance().getTime() );
+            newRow.add( (long) 0 );
+            newRow.add( "" );
+            newRow.add( "" );
+            newRow.add( "---" );
+            } 
+        catch( Exception ex )
+            {
+            return null;
+            }
+        return newRow;
+        }
+    
+    /*
+    public int getColumnCount() { return 10; }
+    public int getRowCount() { return 10;}
+    public Object getValueAt(int row, int col) { return new Integer(row*col); }
+    */    
     public void deleteRowAt( int row ) 
         {
         //System.out.println( "delete row =" + row + "  col =" + col );

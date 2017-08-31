@@ -84,7 +84,7 @@ public class Deleter extends SimpleFileVisitor<Path>
             processStatus = "Error";
             message = exAccessDenied.getClass().getSimpleName() + ": " + fpath;
             Logger.getLogger(Deleter.class.getName()).log(Level.SEVERE, null, exAccessDenied );
-            System.out.println( "CAUGHT ERROR  " + "  " + exAccessDenied.getClass().getSimpleName() + ": " + fpath );
+            System.out.println( "visitFile() AccessDeniedException: " + "  " + exAccessDenied.getClass().getSimpleName() + ": " + fpath );
             // I tried to catch accessDenied from an error trying to delete a readOnly file
             // and then do file.setwritable(true) and delete it again, but it did not work and 
             // just cascaded errors down the road. Stan
@@ -95,7 +95,8 @@ public class Deleter extends SimpleFileVisitor<Path>
             processStatus = "Error";
             message = ex.getClass().getSimpleName() + ": " + fpath;
             Logger.getLogger(Deleter.class.getName()).log(Level.SEVERE, null, ex );
-            System.out.println( "CAUGHT ERROR  " + "  " + ex.getClass().getSimpleName() + ": " + fpath );
+            System.out.println( "visitFile() CAUGHT ERROR  " + "  " + ex.getClass().getSimpleName() + ": " + fpath );
+            ex.printStackTrace();
             return FileVisitResult.TERMINATE;
             }
         //System.out.println( "would delete file =" + file );
@@ -130,7 +131,8 @@ public class Deleter extends SimpleFileVisitor<Path>
             processStatus = "Error";
             message = ex2.getClass().getSimpleName() + ": " + dir;
             Logger.getLogger(Deleter.class.getName()).log(Level.SEVERE, null, ex2 );
-            System.out.println( "CAUGHT ERROR  " + "  " + ex2.getClass().getSimpleName() + ": " + dir );
+            System.out.println( "postVisitDirectory() delete folder ERROR  " + "  " + ex2.getClass().getSimpleName() + ": " + dir );
+            ex2.printStackTrace();
             return FileVisitResult.TERMINATE;
             }
         //return FileVisitResult.CONTINUE;

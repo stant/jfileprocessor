@@ -31,7 +31,7 @@ public class FillTableModelSwingWorker extends SwingWorker<ResultsData, Object> 
     @Override
     public ResultsData doInBackground() {
         jFileFinderWin.setProcessStatus( jFileFinderWin.PROCESS_STATUS_FILL_STARTED );
-        jFileFinderWin.fillInFilesTable();
+        jFileFinderWin.fillInFilesTable( null );
         return JFileFinder.getResultsData();
     }
 

@@ -31,7 +31,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.logging.Level;
-import com.towianski.jfileprocessor.JFileFinderWin;
 
 
 
@@ -253,6 +252,38 @@ public class JFileFinder //  implements Runnable
                 rowList.add( "filling table . . ." );
                 }
             PathsInfoList.add( rowList );
+
+            return new FilesTblModel( HeaderList, PathsInfoList );
+            }
+    }
+
+    public static FilesTblModel newfolderOnlyFilesTableModel( String newfolderPath )
+        {
+        synchronized( dataSyncLock ) 
+            {
+            System.out.println( "entered JFileFinder.newfolderOnlyFilesTableModel()" );
+            ArrayList<String> HeaderList = new ArrayList<String>();
+            ArrayList<ArrayList> PathsInfoList = new ArrayList<ArrayList>();
+
+            HeaderList.add( "Link" );
+            HeaderList.add( "Dir" );
+            HeaderList.add( "File" );
+            HeaderList.add( "last Modified Time" );
+            HeaderList.add( "Size" );
+//                if ( jFileFinderWin.isShowOwnerFlag() )
+                {
+                HeaderList.add( "Owner" );
+                }
+//                if ( jFileFinderWin.isShowGroupFlag() )
+                {
+                HeaderList.add( "Group" );
+                }
+//                if ( jFileFinderWin.isShowPermsFlag() )
+                {
+                HeaderList.add( "Perms" );
+                }
+            
+            PathsInfoList.add( FilesTblModel.getNewRow( "" ) );
 
             return new FilesTblModel( HeaderList, PathsInfoList );
             }

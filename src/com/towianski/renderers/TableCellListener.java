@@ -13,7 +13,7 @@ import java.beans.*;
 /*
  *  This class listens for changes made to the data in the table via the
  *  TableCellEditor. When editing is started, the value of the cell is saved
- *  When editing is stopped the new value is saved. When the oold and new
+ *  When editing is stopped the new value is saved. When the old and new
  *  values are different, then the provided Action is invoked.
  *
  *  The source of the Action is a TableCellListener instance.
@@ -247,23 +247,27 @@ public class TableCellListener implements PropertyChangeListener, Runnable
 
             if ( oldValue.equals( skipFirstPath ) )  // New Folder
                 {
+                //System.out.println( "oldValue.equals( skipFirstPath )" );
                 oldValue = null;
                 }
             
             if ( newValue.equals( oldValue ) )
                 {
+                //System.out.println( "newValue.equals( oldValue )" );
                 filesTblModel.setCellEditable( row, column, false );
                 }
             
             if ( ! newValue.equals( oldValue ) )
                    //   || newValue.equals( skipFirstPath )  // old and new == new file path
                 {
+                //System.out.println( "oldValue.NOT equals( oldValue )   row =" + row + "   column =" + column );
                 filesTblModel.setCellEditable( row, column, false );
                 // i added but it is not right    oldValue = null;
 
                 //  Make a copy of the data in case another cell starts editing
                 //  while processing this change
 
+                //System.out.println( "doingCancel =" + doingCancel );
                 if ( doingCancel )
                     {
                     filesTblModel.setValueAt( oldValue, getRow(), getColumn() );

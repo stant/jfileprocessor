@@ -23,7 +23,6 @@ import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JList;
-import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
 /**
@@ -94,7 +93,19 @@ public class CodeProcessorPanel extends javax.swing.JFrame {
     public void resetGoButton() {
         goButton.setBackground( buttonBgColor );
     }
+
+    public String getCodePane() {
+        return codePane.getText();
+    }
+
+    public void setCodePane(String str) {
+        this.codePane.setText(str);
+    }
     
+    public void setListPanelModel(String str, DefaultComboBoxModel defaultComboBoxModel ) {
+        jFileFinderWin.setListPanelModel( (String) listOfLists.getSelectedItem(), defaultComboBoxModel );
+    }
+
     public void readFile( File selectedFile )
         {
         System.out.println( "File to read =" + selectedFile + "=" );

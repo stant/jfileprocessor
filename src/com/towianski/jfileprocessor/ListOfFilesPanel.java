@@ -76,6 +76,10 @@ public class ListOfFilesPanel extends javax.swing.JFrame {
         return (DefaultComboBoxModel) PathsList.getModel();
     }
 
+    public void setModel( DefaultComboBoxModel model ) {
+        PathsList.setModel( model );
+    }
+
     public void setSavedPathsList(JList<String> savedPathsList) {
         this.PathsList = savedPathsList;
     }
