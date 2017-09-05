@@ -20,6 +20,28 @@ Read in a list to a window (adds items to existing list).
 
 has pretty good search ability.
 
+search automatically prepends your starting Folder to your search pattern
+so if you are in a sub-folder it will only search there and below !   watch for this if you do not find what you think.
+
+glob: *whatever*.{java,groovy}     find file containing whatever and ending in .java or .groovy
+
+glob: **whatever*.{java,groovy}     find file containing whatever and ending in .java or .groovy in any sub-folder level.
+
+regex: .*mod.*[.](java|groovy)      find file containing whatever and ending in .java or .groovy in any sub-folder level. note [.] as \. does not work.
+
+changing "What counts for a Match" to "Folder Only"
+
+regex: .*src/.*                     find folder any level below
+
+glob:  *src/*                       find src folder at this level.
+
+glob:  **src/*                      find src folder any level with one sub-folder like ...../src/com
+
+glob:  **src/**                     find src folder any level with any sub-folders like ...../src......
+
+glob:  */*/whatever                 find whatever folder at 3rd level below starting folder
+
+
 Escape: closes windows
 
 Shift-Escape: close main window
