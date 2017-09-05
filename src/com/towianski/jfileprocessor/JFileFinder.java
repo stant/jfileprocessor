@@ -67,6 +67,11 @@ public class JFileFinder //  implements Runnable
         this.chainFilterList = chainFilterList;
         this.chainFilterFolderList = chainFilterFolderList;
         this.chainFilterPreVisitFolderList = chainFilterPreVisitFolderList;
+        
+        System.out.println( "JFIleFinder constructor() with chainFilterList.size()               =" + chainFilterList.size() + "=" );
+        System.out.println( "JFIleFinder constructor() with chainFilterFolderList.size()         =" + chainFilterFolderList.size() + "=" );
+        System.out.println( "JFIleFinder constructor() with chainFilterPreVisitFolderList.size() =" + chainFilterPreVisitFolderList.size() + "=" );
+        
         logger.setLevel( Level.SEVERE );
     }
 
@@ -471,7 +476,7 @@ public class JFileFinder //  implements Runnable
                         }
                     else
                         {
-                        //System.out.println( "SKIP folder =" + fpath.toString() );
+                        System.out.println( "SKIP folder =" + fpath.toString() );
                         return FileVisitResult.SKIP_SUBTREE;
                         }
                     }

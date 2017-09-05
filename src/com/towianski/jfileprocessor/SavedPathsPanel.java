@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
+import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 
@@ -68,10 +69,11 @@ public class SavedPathsPanel extends javax.swing.JPanel {
         jButton2 = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         savedPathsList = new javax.swing.JList<>();
+        jButton3 = new javax.swing.JButton();
 
         setLayout(new java.awt.GridBagLayout());
 
-        jButton1.setText("Add");
+        jButton1.setText("+");
         jButton1.setMinimumSize(new java.awt.Dimension(0, 0));
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -84,7 +86,7 @@ public class SavedPathsPanel extends javax.swing.JPanel {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         add(jButton1, gridBagConstraints);
 
-        jButton2.setText("Delete");
+        jButton2.setText("-");
         jButton2.setMinimumSize(new java.awt.Dimension(0, 0));
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -94,6 +96,7 @@ public class SavedPathsPanel extends javax.swing.JPanel {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         add(jButton2, gridBagConstraints);
 
         savedPathsList.setModel(new DefaultListModel() );
@@ -107,11 +110,22 @@ public class SavedPathsPanel extends javax.swing.JPanel {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
-        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.gridwidth = 3;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 0.5;
         gridBagConstraints.weighty = 0.5;
         add(jScrollPane1, gridBagConstraints);
+
+        jButton3.setText("Edit");
+        jButton3.setMinimumSize(new java.awt.Dimension(0, 0));
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        add(jButton3, gridBagConstraints);
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
@@ -124,6 +138,7 @@ public class SavedPathsPanel extends javax.swing.JPanel {
             }
         savedPathsHm.put( ans, jFileFinderWin.getStartingFolder() );
         listModel.addElement( ans );
+        jFileFinderWin.saveBookmarks();
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
@@ -137,6 +152,7 @@ public class SavedPathsPanel extends javax.swing.JPanel {
             }
         savedPathsHm.remove( listModel.getElementAt(index).toString() );
         listModel.remove( index );
+        jFileFinderWin.saveBookmarks();
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void savedPathsListMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_savedPathsListMouseClicked
@@ -176,10 +192,21 @@ public class SavedPathsPanel extends javax.swing.JPanel {
 
     }//GEN-LAST:event_savedPathsListMouseClicked
 
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+            TextEditPanel textEditPanel = new TextEditPanel( jFileFinderWin, DesktopUtils.getBookmarks().toString() );
+            textEditPanel.setState ( JFrame.ICONIFIED );
+
+            textEditPanel.pack();
+            textEditPanel.setVisible(true);
+            textEditPanel.setState ( JFrame.NORMAL );
+
+    }//GEN-LAST:event_jButton3ActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JList<String> savedPathsList;
     // End of variables declaration//GEN-END:variables

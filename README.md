@@ -1,6 +1,6 @@
 # jfileprocessor
 
-This is a File Manager with search features: 
+This is a File and List Manager with search features: 
 
 Does: Copy, Cut, Paste, Delete, New Folder,...
 

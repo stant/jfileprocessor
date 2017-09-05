@@ -26,6 +26,7 @@ public class ChainFilterOfNames implements FilterChainFilter {
     
     public ChainFilterOfNames( String patternType, String pattern ) 
         {
+        System.out.println( "patternType =" + patternType + "=" );
         if ( patternType.equalsIgnoreCase( "-regex" ) )
             {
             matcher = FileSystems.getDefault().getPathMatcher("regex:" + pattern);

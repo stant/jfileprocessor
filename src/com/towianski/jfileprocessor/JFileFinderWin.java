@@ -182,8 +182,8 @@ public class JFileFinderWin extends javax.swing.JFrame {
         
         addkeymapstuff();
 
-        stdOutFile.setText( System.getProperty("java.io.tmpdir") + System.getProperty("file.separator") + "jfp-out.log" );
-        stdErrFile.setText( System.getProperty("java.io.tmpdir") + System.getProperty("file.separator") + "jfp-err.log" );
+        stdOutFile.setText( System.getProperty("java.io.tmpdir") + System.getProperty("file.separator") + "jfp-out-" + MyLogger.getNewLogDate() + ".log" );
+        stdErrFile.setText( System.getProperty("java.io.tmpdir") + System.getProperty("file.separator") + "jfp-err-" + MyLogger.getNewLogDate() + ".log" );
         stdOutFilePropertyChange( null );
         stdErrFilePropertyChange( null );
         stdErrFilePropertyChange( null );
@@ -198,15 +198,9 @@ public class JFileFinderWin extends javax.swing.JFrame {
 //        SpinnerListModel andOrSpinModel = new CyclingSpinnerListModel( andOrSpinModelList );
 //        jSpinner1 = new javax.swing.JSpinner( andOrSpinModel );        
 
-    DefaultListModel listModel = (DefaultListModel) savedPathReplacablePanel.getSavedPathsList().getModel();
-    listModel.addElement( "New Window" );
-    listModel.addElement( "Trash" );
-    savedPathReplacablePanel.getSavedPathsHm().put( "New Window", "New Window" );
-    savedPathReplacablePanel.getSavedPathsHm().put( "Trash", DesktopUtils.getTrashFolder().toString() );
     jSplitPane2.setDividerLocation( 150 );
-        System.out.println( "at start jSplitPane1.getLastDividerLocation() =" + jSplitPane1.getLastDividerLocation() );
+    System.out.println( "at start jSplitPane1.getLastDividerLocation() =" + jSplitPane1.getLastDividerLocation() );
     readInBookmarks();
-
     }
         
     public void addkeymapstuff()
@@ -320,6 +314,12 @@ public class JFileFinderWin extends javax.swing.JFrame {
     }
     
     public void readInBookmarks() {
+        DefaultListModel listModel = (DefaultListModel) savedPathReplacablePanel.getSavedPathsList().getModel();
+        listModel.clear();
+        listModel.addElement( "New Window" );
+        listModel.addElement( "Trash" );
+        savedPathReplacablePanel.getSavedPathsHm().put( "New Window", "New Window" );
+        savedPathReplacablePanel.getSavedPathsHm().put( "Trash", DesktopUtils.getTrashFolder().toString() );
         File selectedFile = new File( DesktopUtils.getBookmarks().toString() );
         System.out.println( "Bookmarks File =" + selectedFile + "=" );
             
@@ -334,7 +334,6 @@ public class JFileFinderWin extends javax.swing.JFrame {
             BufferedReader br = new BufferedReader(fr);
 
 //            DefaultComboBoxModel thisListModel = (DefaultComboBoxModel) savedPathsList.getModel();
-            DefaultListModel listModel = (DefaultListModel) savedPathReplacablePanel.getSavedPathsList().getModel();
             int numItems = listModel.getSize();
             System.out.println( "thisListModel.getSize() num of items =" + numItems + "=" );
             
@@ -357,6 +356,48 @@ public class JFileFinderWin extends javax.swing.JFrame {
             }
     }
 
+    public void saveBookmarks() {
+        File selectedFile = new File( DesktopUtils.getBookmarks().toString() );
+        System.out.println( "Bookmarks File =" + selectedFile + "=" );
+        
+        try
+            {
+            if ( ! selectedFile.exists() )
+                {
+                selectedFile.createNewFile();
+                }
+
+            FileWriter fw = new FileWriter( selectedFile.getAbsoluteFile() );
+            BufferedWriter bw = new BufferedWriter(fw);
+
+            //DefaultListModel thisListModel = (DefaultListModel) savedPathsList.getModel();
+            DefaultListModel listModel = (DefaultListModel) savedPathReplacablePanel.getSavedPathsList().getModel();
+            int numItems = listModel.getSize();
+            System.out.println( "thisListModel.getSize() num of items =" + numItems + "=" );
+            System.out.println( "savedPathReplacablePanel.getSavedPathsHm().size() =" + savedPathReplacablePanel.getSavedPathsHm().size() + "=" );
+            
+            //loop for jtable rows
+            for( int i = 0; i < numItems; i++ )
+                {
+                if ( ! listModel.getElementAt( i ).toString().equals( "New Window" ) && 
+                     ! listModel.getElementAt( i ).toString().equals( "Trash" ) )
+                    {
+                    System.out.println( "bookmark saving =" + listModel.getElementAt( i ).toString() + "=" );
+                    bw.write( listModel.getElementAt( i ).toString() + "," + savedPathReplacablePanel.getSavedPathsHm().get( listModel.getElementAt( i ).toString() ) );
+                    bw.write( "\n" );
+                    }
+                }
+            //close BufferedWriter
+            bw.close();
+            //close FileWriter 
+            fw.close();
+            }
+        catch( Exception ex )
+            {
+            ex.printStackTrace();
+            }
+        }
+    
     public void removeListPanel( String listname ) {
         listOfFilesPanelsModel.removeElement( listname );
         listOfFilesPanelHm.remove( listname );
@@ -725,12 +766,45 @@ public class JFileFinderWin extends javax.swing.JFrame {
                         {
                         System.out.println( "add filter of names!" );
                         ChainFilterOfNames chainFilterOfNames = new ChainFilterOfNames( args[1], (args[0] + args[2]).replace( "\\", "\\\\" ) );
-                        chainFilterList.addFilter( chainFilterOfNames );
+                        if ( showFilesFoldersCb.getSelectedItem().equals( SHOWFILESFOLDERSCB_FOLDERS_ONLY )  ||
+                             showFilesFoldersCb.getSelectedItem().equals( SHOWFILESFOLDERSCB_BOTH ) )
+                            {
+                            chainFilterFolderList.addFilter( chainFilterOfNames );
+                            }
+                        if ( showFilesFoldersCb.getSelectedItem().equals( SHOWFILESFOLDERSCB_FILES_ONLY )  ||
+                             showFilesFoldersCb.getSelectedItem().equals( SHOWFILESFOLDERSCB_BOTH ) )
+                            {
+                            chainFilterList.addFilter( chainFilterOfNames );
+                            }
                         }
                     }
                 catch( Exception ex )
                     {
                     JOptionPane.showMessageDialog( this, "Error in a Name filter", "Error", JOptionPane.ERROR_MESSAGE );
+                    setProcessStatus( PROCESS_STATUS_SEARCH_CANCELED );
+                    return;
+                    }
+
+                try {
+                    System.out.println( "showFilesFoldersCb.getSelectedItem() =" + showFilesFoldersCb.getSelectedItem() + "=" );
+                    if ( showFilesFoldersCb.getSelectedItem().equals( SHOWFILESFOLDERSCB_FILES_ONLY ) 
+                         || showFilesFoldersCb.getSelectedItem().equals( SHOWFILESFOLDERSCB_NEITHER ) )
+                        {
+                        System.out.println( "add filter Boolean False for folders" );
+                        ChainFilterOfBoolean chainFilterOfBoolean = new ChainFilterOfBoolean( false );
+                        chainFilterFolderList.addFilter( chainFilterOfBoolean );
+                        }
+                    if ( showFilesFoldersCb.getSelectedItem().equals( SHOWFILESFOLDERSCB_FOLDERS_ONLY ) 
+                         || showFilesFoldersCb.getSelectedItem().equals( SHOWFILESFOLDERSCB_NEITHER ) )
+                        {
+                        System.out.println( "add filter Boolean False for files" );
+                        ChainFilterOfBoolean chainFilterOfBoolean = new ChainFilterOfBoolean( false );
+                        chainFilterList.addFilter( chainFilterOfBoolean );
+                        }
+                    }
+                catch( Exception ex )
+                    {
+                    JOptionPane.showMessageDialog( this, "Error in a Boolean filter", "Error", JOptionPane.ERROR_MESSAGE );
                     setProcessStatus( PROCESS_STATUS_SEARCH_CANCELED );
                     return;
                     }
@@ -836,30 +910,6 @@ public class JFileFinderWin extends javax.swing.JFrame {
                     return;
                     }
                 
-                try {
-                    System.out.println( "showFilesFoldersCb.getSelectedItem() =" + showFilesFoldersCb.getSelectedItem() + "=" );
-                    if ( showFilesFoldersCb.getSelectedItem().equals( SHOWFILESFOLDERSCB_FILES_ONLY ) 
-                         || showFilesFoldersCb.getSelectedItem().equals( SHOWFILESFOLDERSCB_NEITHER ) )
-                        {
-                        System.out.println( "add filter Boolean False for folders" );
-                        ChainFilterOfBoolean chainFilterOfBoolean = new ChainFilterOfBoolean( false );
-                        chainFilterFolderList.addFilter( chainFilterOfBoolean );
-                        }
-                    if ( showFilesFoldersCb.getSelectedItem().equals( SHOWFILESFOLDERSCB_FOLDERS_ONLY ) 
-                         || showFilesFoldersCb.getSelectedItem().equals( SHOWFILESFOLDERSCB_NEITHER ) )
-                        {
-                        System.out.println( "add filter Boolean False for files" );
-                        ChainFilterOfBoolean chainFilterOfBoolean = new ChainFilterOfBoolean( false );
-                        chainFilterList.addFilter( chainFilterOfBoolean );
-                        }
-                    }
-                catch( Exception ex )
-                    {
-                    JOptionPane.showMessageDialog( this, "Error in a Boolean filter", "Error", JOptionPane.ERROR_MESSAGE );
-                    setProcessStatus( PROCESS_STATUS_SEARCH_CANCELED );
-                    return;
-                    }
-
                 try {
                     if ( ! showHiddenFilesFlag.isSelected() )
                         {
@@ -1526,9 +1576,8 @@ public class JFileFinderWin extends javax.swing.JFrame {
             jPopupMenu2.add(savePathsToFile1);
 
             setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-            setTitle("JFileProcessor v1.4.17 - Stan Towianski  (c) 2015-2017");
+            setTitle("JFileProcessor v1.4.18 - Stan Towianski  (c) 2015-2017");
             setIconImage(Toolkit.getDefaultToolkit().getImage( JFileFinderWin.class.getResource("/icons/jfp.png") ));
-            setPreferredSize(new java.awt.Dimension(900, 544));
             addWindowListener(new java.awt.event.WindowAdapter() {
                 public void windowOpened(java.awt.event.WindowEvent evt) {
                     formWindowOpened(evt);
@@ -2833,45 +2882,22 @@ public class JFileFinderWin extends javax.swing.JFrame {
     }//GEN-LAST:event_openListWindowActionPerformed
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
-        File selectedFile = new File( DesktopUtils.getBookmarks().toString() );
-        System.out.println( "Bookmarks File =" + selectedFile + "=" );
+        saveBookmarks();
         
         try
             {
-            if ( ! selectedFile.exists() )
+            if ( stdOutFile.getText() != null && ! stdOutFile.getText().equals( "" ) )
                 {
-                selectedFile.createNewFile();
+                Files.deleteIfExists( Paths.get( stdOutFile.getText() ) );
                 }
-
-            FileWriter fw = new FileWriter( selectedFile.getAbsoluteFile() );
-            BufferedWriter bw = new BufferedWriter(fw);
-
-            //DefaultListModel thisListModel = (DefaultListModel) savedPathsList.getModel();
-            DefaultListModel listModel = (DefaultListModel) savedPathReplacablePanel.getSavedPathsList().getModel();
-            int numItems = listModel.getSize();
-            System.out.println( "thisListModel.getSize() num of items =" + numItems + "=" );
-            System.out.println( "savedPathReplacablePanel.getSavedPathsHm().size() =" + savedPathReplacablePanel.getSavedPathsHm().size() + "=" );
-            
-            //loop for jtable rows
-            for( int i = 0; i < numItems; i++ )
+            if ( stdErrFile.getText() != null && ! stdErrFile.getText().equals( "" ) )
                 {
-                if ( ! listModel.getElementAt( i ).toString().equals( "New Window" ) && 
-                     ! listModel.getElementAt( i ).toString().equals( "Trash" ) )
-                    {
-                    System.out.println( "bookmark saving =" + listModel.getElementAt( i ).toString() + "=" );
-                    bw.write( listModel.getElementAt( i ).toString() + "," + savedPathReplacablePanel.getSavedPathsHm().get( listModel.getElementAt( i ).toString() ) );
-                    bw.write( "\n" );
-                    }
+                Files.deleteIfExists( Paths.get( stdErrFile.getText() ) );
                 }
-            //close BufferedWriter
-            bw.close();
-            //close FileWriter 
-            fw.close();
-//            JOptionPane.showMessageDialog(null, "Data Exported");        
             }
         catch( Exception ex )
             {
-
+            ex.printStackTrace();
             }
     }//GEN-LAST:event_formWindowClosing
 

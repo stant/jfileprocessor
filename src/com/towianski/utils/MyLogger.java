@@ -5,10 +5,10 @@
  */
 package com.towianski.utils;
 
-import java.util.logging.Handler;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
-import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 /**
@@ -128,7 +128,13 @@ public void clearLog()
 //    System.out.println( "log outBuf after  clear =\n" + outBuf.toString() + "\n=" );
     loghand.clearLog();
     }
-  
+
+public static String getNewLogDate() 
+    {
+    SimpleDateFormat sdf = new SimpleDateFormat( "yyyyMMdd.HHmmss");
+    return sdf.format( Calendar.getInstance().getTime() );
+    }
+
  public static void main(String[] args) 
     {
     MyLogger logger2 = MyLogger.getLogger("test");
