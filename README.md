@@ -20,6 +20,7 @@ Read in a list to a window (adds items to existing list).
 
 has pretty good search ability.
 
+```java
 search automatically prepends your starting Folder to your search pattern
 so if you are in a sub-folder it will only search there and below !   watch for this if you do not find what you think.
 
@@ -40,6 +41,7 @@ glob:  **src/*                      find src folder any level with one sub-folde
 glob:  **src/**                     find src folder any level with any sub-folders like ...../src......
 
 glob:  */*/whatever                 find whatever folder at 3rd level below starting folder
+```
 
 
 Escape: closes windows
