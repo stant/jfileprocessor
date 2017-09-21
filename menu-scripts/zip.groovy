@@ -39,7 +39,7 @@ class Test {
     
     if ( chooser.showDialog( codeProcessorPanel.jFileFinderWin, "Select" ) == JFileChooser.APPROVE_OPTION )
         {        
-        System.out.println( "selected item =" + codeProcessorPanel.listOfLists.getSelectedItem() + "=" );
+   //     System.out.println( "selected item =" + codeProcessorPanel.listOfLists.getSelectedItem() + "=" );
         int numItems = defaultComboBoxModel.getSize();
         System.out.println( "defaultComboBoxModel.getSize() num of items =" + numItems + "=" );
         String str = "";
@@ -53,17 +53,16 @@ class Test {
         for( int i = 0; i < numItems; i++ )
             {
             str = defaultComboBoxModel.getElementAt( i ).toString();
-            System.out.println( "add to zip file =" + i + "   str =" + str + "=" );
+            //System.out.println( "add to zip file =" + i + "   str =" + str + "=" );
 
             zipFileList.append( " '" ).append ( str ).append( "'" );
             zipFileAr[i+offset] = str;
-            System.out.println( "zipFileList =" + zipFileList + "=" );
+            //System.out.println( "zipFileList =" + zipFileList + "=" );
             }
         System.out.println( "zip " + chooser.getSelectedFile() + " " + zipFileList );
 //        String cmd = "zip "  + chooser.getSelectedFile() + " " + zipFileList;
 //        def output = cmd.execute().text;
         def output = zipFileAr.execute().text;
-        
 
         TextEditPanel textEditPanel = new TextEditPanel( codeProcessorPanel.jFileFinderWin, null );
         textEditPanel.setState ( JFrame.ICONIFIED );

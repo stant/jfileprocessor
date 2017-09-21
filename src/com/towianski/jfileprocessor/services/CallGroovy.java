@@ -33,12 +33,12 @@ public CallGroovy( String[] pathRoots )
         }
     }
     
-public void testGroovyScriptEngineVsGroovyShell( String groovyFile, Binding binding ) 
+public void groovyScriptEngineRun( String groovyFile, Binding binding ) 
 //        throws IOException, ResourceException, ScriptException 
     {
     try {
         gse.run( groovyFile, binding );
-        System.out.println( "callGroovy.testGroovyScriptEngineVsGroovyShell() at 5" );
+        System.out.println( "callGroovy.groovyScriptEngineRun() at 5" );
         }
     catch( Exception exc )
         {

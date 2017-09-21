@@ -153,7 +153,7 @@ public class TextEditPanel extends javax.swing.JFrame {
         binding.setProperty( "codeProcessorPanel", this );
 //        binding.setProperty( "defaultComboBoxModel", defaultComboBoxModel );
         File tmpFile = new File( currentFile );
-        callGroovy.testGroovyScriptEngineVsGroovyShell( tmpFile.getName(), binding );        
+        callGroovy.groovyScriptEngineRun( tmpFile.getName(), binding );        
     }
     
     public static void addEscapeListener(final JFrame win) {
@@ -191,6 +191,7 @@ public class TextEditPanel extends javax.swing.JFrame {
         jButton1 = new javax.swing.JButton();
 
         setMinimumSize(new java.awt.Dimension(500, 500));
+        setPreferredSize(new java.awt.Dimension(700, 600));
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
         jPanel1.setLayout(new java.awt.GridBagLayout());

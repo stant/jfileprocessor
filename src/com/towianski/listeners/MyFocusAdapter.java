@@ -5,16 +5,11 @@
  */
 package com.towianski.listeners;
 
-import com.towianski.models.FilesTblModel;
 import com.towianski.jfileprocessor.JFileFinderWin;
 import com.towianski.renderers.TableCellListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
-import java.awt.event.MouseEvent;
-import java.io.File;
-import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 
 /**
  *

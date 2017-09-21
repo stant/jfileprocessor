@@ -22,7 +22,7 @@ class Test {
         System.out.println( "got codeProcessorPanel.jFileFinderWin.getStartingFolder() =" + codeProcessorPanel.jFileFinderWin.getStartingFolder() + "=" );
         ResultsData resultsData = binding.getVariable( "resultsData" );
 
-        System.out.println( "selected item =" + codeProcessorPanel.listOfLists.getSelectedItem() + "=" );
+   //     System.out.println( "selected item =" + codeProcessorPanel.listOfLists.getSelectedItem() + "=" );
         int numItems = defaultComboBoxModel.getSize();
         System.out.println( "defaultComboBoxModel.getSize() num of items =" + numItems + "=" );
         String str = "";
@@ -44,6 +44,7 @@ class Test {
                     {
                     outFile << "--Canceled--" + System.getProperty("line.separator");
                     resultsData.setProcessStatus( codeProcessorPanel.PROCESS_STATUS_COPY_CANCELED );
+                    resultsData.setMessage( "by user" );
                     break;
                     }
             }

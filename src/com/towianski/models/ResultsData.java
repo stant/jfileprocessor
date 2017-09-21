@@ -54,6 +54,13 @@ public class ResultsData {
         this.foldersMatched = foldersMatched;
         }
     
+    public ResultsData( Boolean searchWasCanceledArg, String processStatus, String message )
+        {
+        this.searchWasCanceled = searchWasCanceledArg;
+        this.processStatus = processStatus;
+        this.message = message;
+        }
+    
     public ArrayList<Path> getMatchedPathsList() {
         return matchedPathsList;
     }

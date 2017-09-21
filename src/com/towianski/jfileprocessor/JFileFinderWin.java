@@ -35,6 +35,7 @@ import com.towianski.jfileprocess.actions.UpFolderAction;
 import com.towianski.jfileprocess.actions.JavaProcess;
 import com.towianski.jfileprocess.actions.NewFolderAction;
 import com.towianski.listeners.MyFocusAdapter;
+import com.towianski.listeners.ScriptMenuItemListener;
 import com.towianski.models.CircularArrayList;
 import com.towianski.renderers.FiletypeCBCellRenderer;
 import com.towianski.renderers.LinktypeCBCellRenderer;
@@ -83,6 +84,7 @@ import javax.swing.InputMap;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -115,6 +117,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
     Boolean isDoingCutFlag = false;
     Boolean countOnlyFlag = false;
     SwingWorker afterFillSwingWorker = null;
+    File scriptsFile = new File( System.getProperty( "user.dir" ) + System.getProperty( "file.separator" ) + "menu-scripts" );
     
     public static final String PROCESS_STATUS_SEARCH_STARTED = "Search Started . . .";
     public static final String PROCESS_STATUS_FILL_STARTED = "Fill Started . . .";
@@ -140,7 +143,10 @@ public class JFileFinderWin extends javax.swing.JFrame {
     SavedPathsPanel savedPathReplacablePanel = new SavedPathsPanel( this );
 //    HashMap<String,String> savedPathsHm = new HashMap<String,String>();
     HashMap<String,ListOfFilesPanel> listOfFilesPanelHm = new HashMap<String,ListOfFilesPanel>();
-    DefaultComboBoxModel listOfFilesPanelsModel = new DefaultComboBoxModel();
+    static final String LIST_OF_FILES_SELECTED = "--Selected Items--";
+    String[] data = { LIST_OF_FILES_SELECTED };
+    DefaultComboBoxModel listOfFilesPanelsModel = new DefaultComboBoxModel(data);
+//    DefaultComboBoxModel listOfFilesPanelsModel = new DefaultComboBoxModel();
 
     PrintStream console = System.out;
     
@@ -159,6 +165,8 @@ public class JFileFinderWin extends javax.swing.JFrame {
 
     public void start() 
     {
+        System.out.println("Scripts Directory =" + scriptsFile + "=" );
+        
         jSplitPane2.setLeftComponent( savedPathReplacablePanel );
 
         date2.setMyEnabled( false );
@@ -1172,7 +1180,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
             //copyPaths.add( Paths.get( (String) filesTblModel.getValueAt( rowIndex, FilesTblModel.FILESTBLMODEL_PATH ) ) );
             //filesList.add( new File( (String) filesTblModel.getValueAt( rowIndex, FilesTblModel.FILESTBLMODEL_PATH ) ) );
             stringBuf.append( (String) filesTblModel.getValueAt( rowIndex, FilesTblModel.FILESTBLMODEL_PATH ) ).append( "?" );
-            System.out.println( "add fpath =" + (String) filesTblModel.getValueAt( rowIndex, FilesTblModel.FILESTBLMODEL_PATH ) + "=" );
+//            System.out.println( "add fpath =" + (String) filesTblModel.getValueAt( rowIndex, FilesTblModel.FILESTBLMODEL_PATH ) + "=" );
             }   
 
 //        ClipboardFiles clipboardFiles = new ClipboardFiles( filesList );
@@ -1299,16 +1307,38 @@ public class JFileFinderWin extends javax.swing.JFrame {
             }
         }
 
-        public CodeProcessorPanel openCodeWinPanel( JFileFinderWin jFileFinderWin, String selectedPath, String listOfFilesPanelName )
+    public DefaultComboBoxModel getSelectedItemsAsComboBoxModel()
+        {
+        DefaultComboBoxModel listModel = new DefaultComboBoxModel();
+        try
             {
-            CodeProcessorPanel codeProcessorPanel = new CodeProcessorPanel( jFileFinderWin, selectedPath, listOfFilesPanelName );
-            codeProcessorPanel.setState ( JFrame.ICONIFIED );
-
-            codeProcessorPanel.pack();
-            codeProcessorPanel.setVisible(true);
-            codeProcessorPanel.setState ( JFrame.NORMAL );
-            return codeProcessorPanel;
+            FilesTblModel filesTblModel = (FilesTblModel) filesTbl.getModel();
+            
+            for( int row : filesTbl.getSelectedRows() )
+                {
+                int rowIndex = filesTbl.convertRowIndexToModel( row );
+                String str = (String) filesTblModel.getValueAt( rowIndex, FilesTblModel.FILESTBLMODEL_PATH );
+                listModel.addElement( str );
+//                System.out.println( "add fpath =" + (String) filesTblModel.getValueAt( rowIndex, FilesTblModel.FILESTBLMODEL_PATH ) + "=" );
+                }   
             }
+        catch( Exception exc )
+            {
+            exc.printStackTrace();
+            }
+        return listModel;
+        }
+
+    public CodeProcessorPanel openCodeWinPanel( JFileFinderWin jFileFinderWin, String selectedPath, String listOfFilesPanelName )
+        {
+        CodeProcessorPanel codeProcessorPanel = new CodeProcessorPanel( jFileFinderWin, selectedPath, listOfFilesPanelName );
+        codeProcessorPanel.setState ( JFrame.ICONIFIED );
+
+        codeProcessorPanel.pack();
+        codeProcessorPanel.setVisible(true);
+        codeProcessorPanel.setState ( JFrame.NORMAL );
+        return codeProcessorPanel;
+        }
         
     /**
      * This method is called from within the constructor to initialize the form.
@@ -1326,17 +1356,20 @@ public class JFileFinderWin extends javax.swing.JFrame {
         Cut = new javax.swing.JMenuItem();
         Paste = new javax.swing.JMenuItem();
         Delete = new javax.swing.JMenuItem();
-        NewFolder = new javax.swing.JMenuItem();
         Rename = new javax.swing.JMenuItem();
+        NewFolder = new javax.swing.JMenuItem();
+        copyFilename = new javax.swing.JMenuItem();
         jSeparator1 = new javax.swing.JPopupMenu.Separator();
-        startCmdWin = new javax.swing.JMenuItem();
         Edit = new javax.swing.JMenuItem();
         openFile = new javax.swing.JMenuItem();
-        copyFilename = new javax.swing.JMenuItem();
+        startCmdWin = new javax.swing.JMenuItem();
+        jSeparator2 = new javax.swing.JPopupMenu.Separator();
         savePathsToFile = new javax.swing.JMenuItem();
         openListWindow = new javax.swing.JMenuItem();
         readFileIntoListWin = new javax.swing.JMenuItem();
         openCodeWin = new javax.swing.JMenuItem();
+        jSeparator3 = new javax.swing.JPopupMenu.Separator();
+        scriptsMenu = new javax.swing.JMenu();
         buttonGroup2 = new javax.swing.ButtonGroup();
         jPopupMenu2 = new javax.swing.JPopupMenu();
         Paste1 = new javax.swing.JMenuItem();
@@ -1433,6 +1466,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
             numFilesInTable = new javax.swing.JLabel();
             upFolder = new javax.swing.JButton();
             countBtn = new javax.swing.JButton();
+            logsBtn = new javax.swing.JButton();
             botPanel = new javax.swing.JPanel();
 
             Copy.setText("Copy   (Ctrl-C)");
@@ -1467,6 +1501,14 @@ public class JFileFinderWin extends javax.swing.JFrame {
             });
             jPopupMenu1.add(Delete);
 
+            Rename.setText("Rename   (F2)");
+            Rename.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    RenameActionPerformed(evt);
+                }
+            });
+            jPopupMenu1.add(Rename);
+
             NewFolder.setText("New Folder   (Ctrl-N)");
             NewFolder.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -1475,22 +1517,14 @@ public class JFileFinderWin extends javax.swing.JFrame {
             });
             jPopupMenu1.add(NewFolder);
 
-            Rename.setText("Rename   (F2)");
-            Rename.addActionListener(new java.awt.event.ActionListener() {
+            copyFilename.setText("Copy Filename to Clipboard");
+            copyFilename.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
-                    RenameActionPerformed(evt);
+                    copyFilenameActionPerformed(evt);
                 }
             });
-            jPopupMenu1.add(Rename);
+            jPopupMenu1.add(copyFilename);
             jPopupMenu1.add(jSeparator1);
-
-            startCmdWin.setText("Open Terminal here");
-            startCmdWin.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent evt) {
-                    startCmdWinActionPerformed(evt);
-                }
-            });
-            jPopupMenu1.add(startCmdWin);
 
             Edit.setText("Edit File");
             Edit.addActionListener(new java.awt.event.ActionListener() {
@@ -1508,13 +1542,14 @@ public class JFileFinderWin extends javax.swing.JFrame {
             });
             jPopupMenu1.add(openFile);
 
-            copyFilename.setText("Copy Filename to Clipboard");
-            copyFilename.addActionListener(new java.awt.event.ActionListener() {
+            startCmdWin.setText("Open Terminal here");
+            startCmdWin.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
-                    copyFilenameActionPerformed(evt);
+                    startCmdWinActionPerformed(evt);
                 }
             });
-            jPopupMenu1.add(copyFilename);
+            jPopupMenu1.add(startCmdWin);
+            jPopupMenu1.add(jSeparator2);
 
             savePathsToFile.setText("Save Paths to File");
             savePathsToFile.addActionListener(new java.awt.event.ActionListener() {
@@ -1547,6 +1582,19 @@ public class JFileFinderWin extends javax.swing.JFrame {
                 }
             });
             jPopupMenu1.add(openCodeWin);
+            jPopupMenu1.add(jSeparator3);
+
+            scriptsMenu.setText("Scripts");
+            scriptsMenu.addMenuListener(new javax.swing.event.MenuListener() {
+                public void menuSelected(javax.swing.event.MenuEvent evt) {
+                    scriptsMenuMenuSelected(evt);
+                }
+                public void menuDeselected(javax.swing.event.MenuEvent evt) {
+                }
+                public void menuCanceled(javax.swing.event.MenuEvent evt) {
+                }
+            });
+            jPopupMenu1.add(scriptsMenu);
 
             Paste1.setText("Paste   (Ctrl-P)");
             Paste1.addActionListener(new java.awt.event.ActionListener() {
@@ -1576,7 +1624,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
             jPopupMenu2.add(savePathsToFile1);
 
             setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-            setTitle("JFileProcessor v1.4.18 - Stan Towianski  (c) 2015-2017");
+            setTitle("JFileProcessor v1.5 - Stan Towianski  (c) 2015-2017");
             setIconImage(Toolkit.getDefaultToolkit().getImage( JFileFinderWin.class.getResource("/icons/jfp.png") ));
             addWindowListener(new java.awt.event.WindowAdapter() {
                 public void windowOpened(java.awt.event.WindowEvent evt) {
@@ -2336,6 +2384,18 @@ public class JFileFinderWin extends javax.swing.JFrame {
             gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 0);
             jPanel7.add(countBtn, gridBagConstraints);
 
+            logsBtn.setText("logs");
+            logsBtn.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    logsBtnActionPerformed(evt);
+                }
+            });
+            gridBagConstraints = new java.awt.GridBagConstraints();
+            gridBagConstraints.gridx = 8;
+            gridBagConstraints.gridy = 0;
+            gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+            jPanel7.add(logsBtn, gridBagConstraints);
+
             jSplitPane1.setRightComponent(jPanel7);
 
             jPanel10.add(jSplitPane1, java.awt.BorderLayout.CENTER);
@@ -3061,6 +3121,38 @@ public class JFileFinderWin extends javax.swing.JFrame {
         listOfFilesPanel.readFile( selectedPath );
     }//GEN-LAST:event_readFileIntoListWinActionPerformed
 
+    private void scriptsMenuMenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:event_scriptsMenuMenuSelected
+        
+        scriptsMenu.removeAll();            
+        File[] files = scriptsFile.listFiles();
+        if ( files == null )   return;
+         
+        for ( File file : files ) 
+            {
+            System.out.println(file.getName());
+            if ( file.toString().endsWith( ".groovy" ) )
+                {
+                JMenuItem menuItem = new JMenuItem( file.getName().substring( 0, file.getName().length() - 7 ), null );
+                ScriptMenuItemListener listener = new ScriptMenuItemListener( this, file.getAbsolutePath().toString() );
+                menuItem.addActionListener( listener );
+                scriptsMenu.add( menuItem );
+                }
+            }
+        
+    }//GEN-LAST:event_scriptsMenuMenuSelected
+
+    private void logsBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_logsBtnActionPerformed
+        if ( stdOutFile.getText() != null && ! stdOutFile.getText().equals( "" ) )
+            {
+            desktopOpen( new File( stdOutFile.getText() ) );
+            }
+        if ( stdErrFile.getText() != null && ! stdErrFile.getText().equals( "" ) )
+            {
+            desktopOpen( new File( stdErrFile.getText() ) );
+            }
+
+    }//GEN-LAST:event_logsBtnActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -3168,6 +3260,8 @@ public class JFileFinderWin extends javax.swing.JFrame {
     private javax.swing.JPopupMenu jPopupMenu2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JPopupMenu.Separator jSeparator1;
+    private javax.swing.JPopupMenu.Separator jSeparator2;
+    private javax.swing.JPopupMenu.Separator jSeparator3;
     private javax.swing.JSplitPane jSplitPane1;
     private javax.swing.JSplitPane jSplitPane2;
     private javax.swing.JTabbedPane jTabbedPane1;
@@ -3176,6 +3270,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
     String[] logLevelsArrStr = new String [] { Level.OFF.toString(), Level.SEVERE.toString(), Level.WARNING.toString(), Level.INFO.toString(), Level.CONFIG.toString(), Level.FINE.toString(), Level.FINER.toString(), Level.FINEST.toString(), Level.ALL.toString() };
     LinkedHashMap<String,Level> logLevelsLhm = new LinkedHashMap<String,Level>();
     private javax.swing.JComboBox logLevel;
+    private javax.swing.JButton logsBtn;
     private javax.swing.JTextField maxDepth;
     private javax.swing.JLabel message;
     private javax.swing.JTextField minDepth;
@@ -3191,6 +3286,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
     private javax.swing.JMenuItem savePathsToFile1;
     private javax.swing.JList<String> savedPathsList;
     private javax.swing.JScrollPane savedPathsListScrollPane;
+    private javax.swing.JMenu scriptsMenu;
     protected javax.swing.JButton searchBtn;
     private javax.swing.JComboBox showFilesFoldersCb;
     private javax.swing.JCheckBox showGroupFlag;

@@ -13,7 +13,7 @@ class Test {
 }
 
  static void main(String[] args) {
-        System.out.println( "entered zip()");
+        System.out.println( "entered tar()");
 //        def test = new Test();
 
         com.towianski.jfileprocessor.CodeProcessorPanel codeProcessorPanel = binding.getVariable( "codeProcessorPanel" );
@@ -22,7 +22,7 @@ class Test {
 
         JFileChooser chooser = new JFileChooser();
         chooser.setFileHidingEnabled( true );
-        chooser.setDialogTitle( "File to Save To" );
+        chooser.setDialogTitle( "Tar file to Save To" );
         if ( codeProcessorPanel.jFileFinderWin.getStartingFolder().trim().equals( "" ) )
             {
             chooser.setCurrentDirectory( new java.io.File(".") );
@@ -39,31 +39,29 @@ class Test {
     
     if ( chooser.showDialog( codeProcessorPanel.jFileFinderWin, "Select" ) == JFileChooser.APPROVE_OPTION )
         {        
-        System.out.println( "selected item =" + codeProcessorPanel.listOfLists.getSelectedItem() + "=" );
         int numItems = defaultComboBoxModel.getSize();
         System.out.println( "defaultComboBoxModel.getSize() num of items =" + numItems + "=" );
         String str = "";
         StringBuffer zipFileList = new StringBuffer();
         String[] zipFileAr = new String[ numItems + 3];
         def atFile = null;
-        zipFileAr[0] = "zip";
-        zipFileAr[1] = "-r";
+        zipFileAr[0] = "tar";
+        zipFileAr[1] = "cvfz";
         zipFileAr[2] = chooser.getSelectedFile();
         int offset = 3;
         for( int i = 0; i < numItems; i++ )
             {
             str = defaultComboBoxModel.getElementAt( i ).toString();
-            System.out.println( "add to zip file =" + i + "   str =" + str + "=" );
+            //System.out.println( "add to tar file =" + i + "   str =" + str + "=" );
 
             zipFileList.append( " '" ).append ( str ).append( "'" );
             zipFileAr[i+offset] = str;
-            System.out.println( "zipFileList =" + zipFileList + "=" );
+            //System.out.println( "zipFileList =" + zipFileList + "=" );
             }
-        System.out.println( "zip " + chooser.getSelectedFile() + " " + zipFileList );
+        System.out.println( "tar " + chooser.getSelectedFile() + " " + zipFileList );
 //        String cmd = "zip "  + chooser.getSelectedFile() + " " + zipFileList;
 //        def output = cmd.execute().text;
         def output = zipFileAr.execute().text;
-        
 
         TextEditPanel textEditPanel = new TextEditPanel( codeProcessorPanel.jFileFinderWin, null );
         textEditPanel.setState ( JFrame.ICONIFIED );

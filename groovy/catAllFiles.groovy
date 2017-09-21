@@ -6,7 +6,7 @@ class Test {
 }
 
  static void main(String[] args) {
-        System.out.println( "entered parse.main()");
+        System.out.println( "entered catAllFiles.main()");
 //        def test = new Test();
 
         // we are going to write output to this file !

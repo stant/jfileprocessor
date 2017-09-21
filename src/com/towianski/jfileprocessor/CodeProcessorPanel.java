@@ -5,8 +5,8 @@
  */
 package com.towianski.jfileprocessor;
 
-import com.towianski.jfileprocessor.services.CallGroovy;
-import groovy.lang.Binding;
+import com.towianski.models.ResultsData;
+import com.towianski.utils.MyLogger;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -18,11 +18,11 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.LinkedHashMap;
+import java.util.logging.Level;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
-import javax.swing.JList;
 import javax.swing.KeyStroke;
 
 /**
@@ -31,23 +31,45 @@ import javax.swing.KeyStroke;
  */
 public class CodeProcessorPanel extends javax.swing.JFrame {
 
-        LinkedHashMap<String,String> savedPathsHm = new LinkedHashMap<String,String>();
-        JFileFinderWin jFileFinderWin = null;
-        DefaultComboBoxModel listOfFilesPanelModel = null;
-        String currentDirectory = "";
-        String currentFile = "";
-        static Color buttonBgColor = null;
+    LinkedHashMap<String,String> savedPathsHm = new LinkedHashMap<String,String>();
+    JFileFinderWin jFileFinderWin = null;
+    DefaultComboBoxModel listOfFilesPanelModel = null;
+    String currentDirectory = "";
+    String currentFile = "";
+        
+/// extra vars
+
+    MyLogger logger = MyLogger.getLogger( CopyFrame.class.getName() );
+
+    Thread jfinderThread = null;
+    JFileFinderSwingWorker jFileFinderSwingWorker = null;
+    ResultsData resultsData = null;
+    JRunGroovy jRunGroovy = null;
+    Color saveColor = null;
+    
+    public static final String PROCESS_STATUS_COPY_STARTED = "Started . . .";
+    public static final String PROCESS_STATUS_COPY_CANCELED = "canceled";
+    public static final String PROCESS_STATUS_COPY_COMPLETED = "completed";
+    public static final String PROCESS_STATUS_CANCEL_COPY = "Cancel";
+    public static final String PROCESS_STATUS_COPY_READY = "Run";
+
+    boolean cancelFlag = false;
+    boolean cancelFillFlag = false;
+    String startingPath = null;
+    Boolean dataSyncLock = false;
+        
 
     /**
-     * Creates new form SavedPathsPanel
+     * 
      */
+    public CodeProcessorPanel() {
+    }
+    
     public CodeProcessorPanel( JFileFinderWin jFileFinderWin, String selectedPath, String listOfFilesPanelName ) {
         this.jFileFinderWin = jFileFinderWin;
         this.listOfFilesPanelModel = jFileFinderWin.getListOfFilesPanelsModel();
         initComponents();
         
-        buttonBgColor = goButton.getBackground();
-
         if ( selectedPath != null )
             {
             readFile( new File( selectedPath ) );
@@ -60,7 +82,14 @@ public class CodeProcessorPanel extends javax.swing.JFrame {
             {
             currentDirectory = jFileFinderWin.getStartingFolder();
             }
-        listOfLists.setSelectedItem( listOfFilesPanelName );
+        if ( listOfFilesPanelName != null )
+            {
+            listOfLists.setSelectedItem( listOfFilesPanelName );
+            }
+        else
+            {
+            listOfLists.setSelectedItem( jFileFinderWin.LIST_OF_FILES_SELECTED );
+            }
         this.setLocationRelativeTo( getRootPane() );
         this.validate();
         this.addEscapeListener( this );
@@ -78,22 +107,6 @@ public class CodeProcessorPanel extends javax.swing.JFrame {
         this.savedPathsHm = savedPathsHm;
     }
 
-    public DefaultComboBoxModel getModel() {
-        return (DefaultComboBoxModel) PathsList.getModel();
-    }
-
-    public void setSavedPathsList(JList<String> savedPathsList) {
-        this.PathsList = savedPathsList;
-    }
-
-    public void setGoButton( Color toColor ) {
-        goButton.setBackground( toColor );
-    }
-    
-    public void resetGoButton() {
-        goButton.setBackground( buttonBgColor );
-    }
-
     public String getCodePane() {
         return codePane.getText();
     }
@@ -105,6 +118,79 @@ public class CodeProcessorPanel extends javax.swing.JFrame {
     public void setListPanelModel(String str, DefaultComboBoxModel defaultComboBoxModel ) {
         jFileFinderWin.setListPanelModel( (String) listOfLists.getSelectedItem(), defaultComboBoxModel );
     }
+
+    public void stopSearch() {
+        cancelFlag = true;
+        jRunGroovy.cancelSearch();
+    }
+
+    public boolean getStopSearch() {
+        return cancelFlag;
+    }
+
+    public void stopFill() {
+        cancelFillFlag = true;
+        jRunGroovy.cancelFill();
+    }
+
+    public void setDoCmdBtn( String text, Color setColor )
+        {
+        doCmdBtn.setText( text );
+        doCmdBtn.setBackground( setColor );
+        doCmdBtn.setOpaque(true);
+        }
+
+    public void setResultsData( ResultsData resultsData )
+        {
+        this.resultsData = resultsData;
+        }
+
+//    public void setNumFilesInTable()
+//        {
+//        NumberFormat numFormat = NumberFormat.getIntegerInstance();
+//        numFilesInTable.setText( numFormat.format( filesTbl.getModel().getRowCount() ) );
+//        }
+    
+    public void setProcessStatus( String text )
+        {
+        processStatus.setText(text);
+        switch( text )
+            {
+            case PROCESS_STATUS_COPY_STARTED:  
+                processStatus.setBackground( Color.GREEN );
+                setDoCmdBtn( this.PROCESS_STATUS_CANCEL_COPY, Color.RED );
+                setMessage( "" );
+                break;
+            case PROCESS_STATUS_COPY_CANCELED:
+                processStatus.setBackground( Color.YELLOW );
+                setDoCmdBtn( this.PROCESS_STATUS_COPY_READY, saveColor );
+                break;
+            case PROCESS_STATUS_COPY_COMPLETED:
+                processStatus.setBackground( saveColor );
+                setDoCmdBtn( this.PROCESS_STATUS_COPY_READY, saveColor );
+//                doCmdBtn.setEnabled(false);
+                break;
+            default:
+                processStatus.setBackground( saveColor );
+                setDoCmdBtn( this.PROCESS_STATUS_COPY_READY, saveColor );
+                break;
+            }
+        }
+
+    public String getProcessStatus()
+        {
+        return processStatus.getText();
+        }
+
+    public String getMessage()
+        {
+        return message.getText();
+        }
+
+    public void setMessage( String text )
+        {
+        message.setText(text);
+        }
 
     public void readFile( File selectedFile )
         {
@@ -175,23 +261,23 @@ public class CodeProcessorPanel extends javax.swing.JFrame {
             }
         }
     
-    public void executeScript()
-    {
-        File currentDir = new File( currentDirectory );
-//        this.pathRoots = new String[] { currentDir.getAbsolutePath() };
-        CallGroovy callGroovy = new CallGroovy( new String[] { currentDir.getAbsolutePath() } );
-        System.out.println( "before call: callGroovy.testGroovyScriptEngineVsGroovyShell();" );
-        Binding binding = new Binding();
-        System.out.println( "start codeProcessorPanel.jFileFinderWin.getStartingFolder() =" + this.jFileFinderWin.getStartingFolder() + "=" );
-
-        DefaultComboBoxModel defaultComboBoxModel = (DefaultComboBoxModel) jFileFinderWin.getListPanelModel( (String) listOfLists.getSelectedItem() );
-        
-        binding.setProperty( "codeProcessorPanel", this );
-        binding.setProperty( "defaultComboBoxModel", defaultComboBoxModel );
-        File tmpFile = new File( currentFile );
-        callGroovy.testGroovyScriptEngineVsGroovyShell( tmpFile.getName(), binding );        
-    }
-    
+//    public void executeScript()
+//    {
+//        File currentDir = new File( currentDirectory );
+////        this.pathRoots = new String[] { currentDir.getAbsolutePath() };
+//        CallGroovy callGroovy = new CallGroovy( new String[] { currentDir.getAbsolutePath() } );
+//        System.out.println( "before call: callGroovy.testGroovyScriptEngineVsGroovyShell();" );
+//        Binding binding = new Binding();
+//        System.out.println( "start codeProcessorPanel.jFileFinderWin.getStartingFolder() =" + this.jFileFinderWin.getStartingFolder() + "=" );
+//
+//        DefaultComboBoxModel defaultComboBoxModel = (DefaultComboBoxModel) jFileFinderWin.getListPanelModel( (String) listOfLists.getSelectedItem() );
+//        
+//        binding.setProperty( "codeProcessorPanel", this );
+//        binding.setProperty( "defaultComboBoxModel", defaultComboBoxModel );
+//        File tmpFile = new File( currentFile );
+//        callGroovy.testGroovyScriptEngineVsGroovyShell( tmpFile.getName(), binding );        
+//    }
+//    
     public static void addEscapeListener(final JFrame win) {
         ActionListener escListener = new ActionListener() {
 
@@ -222,14 +308,14 @@ public class CodeProcessorPanel extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         cmdCb = new javax.swing.JComboBox<>();
         listOfLists = new javax.swing.JComboBox<>();
-        goButton = new javax.swing.JButton();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        PathsList = new javax.swing.JList<>();
+        doCmdBtn = new javax.swing.JButton();
         saveToFile = new javax.swing.JButton();
-        readFile = new javax.swing.JButton();
+        openFile = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         codePane = new javax.swing.JEditorPane();
-        jButton1 = new javax.swing.JButton();
+        saveBtn = new javax.swing.JButton();
+        processStatus = new javax.swing.JLabel();
+        message = new javax.swing.JLabel();
 
         setMinimumSize(new java.awt.Dimension(500, 500));
         setPreferredSize(new java.awt.Dimension(800, 700));
@@ -253,10 +339,10 @@ public class CodeProcessorPanel extends javax.swing.JFrame {
         gridBagConstraints.gridy = 0;
         jPanel1.add(listOfLists, gridBagConstraints);
 
-        goButton.setText("Go");
-        goButton.addActionListener(new java.awt.event.ActionListener() {
+        doCmdBtn.setText("Run");
+        doCmdBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                goButtonActionPerformed(evt);
+                doCmdBtnActionPerformed(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -264,23 +350,9 @@ public class CodeProcessorPanel extends javax.swing.JFrame {
         gridBagConstraints.gridy = 0;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 14, 0, 0);
-        jPanel1.add(goButton, gridBagConstraints);
+        jPanel1.add(doCmdBtn, gridBagConstraints);
 
-        jScrollPane1.setMinimumSize(new java.awt.Dimension(10, 22));
-        jScrollPane1.setPreferredSize(new java.awt.Dimension(10, 10));
-
-        PathsList.setModel(new DefaultComboBoxModel() );
-        PathsList.setPreferredSize(new java.awt.Dimension(150, 200));
-        jScrollPane1.setViewportView(PathsList);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 7;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
-        jPanel1.add(jScrollPane1, gridBagConstraints);
-
-        saveToFile.setText("Save to File");
+        saveToFile.setText("Save As...");
         saveToFile.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 saveToFileActionPerformed(evt);
@@ -292,40 +364,52 @@ public class CodeProcessorPanel extends javax.swing.JFrame {
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
         jPanel1.add(saveToFile, gridBagConstraints);
 
-        readFile.setText("Read File");
-        readFile.addActionListener(new java.awt.event.ActionListener() {
+        openFile.setText("Open File");
+        openFile.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                readFileActionPerformed(evt);
+                openFileActionPerformed(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.insets = new java.awt.Insets(0, 14, 0, 0);
-        jPanel1.add(readFile, gridBagConstraints);
+        jPanel1.add(openFile, gridBagConstraints);
 
         jScrollPane2.setViewportView(codePane);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridy = 2;
         gridBagConstraints.gridwidth = 7;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
         jPanel1.add(jScrollPane2, gridBagConstraints);
 
-        jButton1.setText("Save");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        saveBtn.setText("Save");
+        saveBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                saveBtnActionPerformed(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 5;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.insets = new java.awt.Insets(0, 14, 0, 0);
-        jPanel1.add(jButton1, gridBagConstraints);
+        jPanel1.add(saveBtn, gridBagConstraints);
+
+        processStatus.setText("          ");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        jPanel1.add(processStatus, gridBagConstraints);
+
+        message.setText("          ");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        jPanel1.add(message, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
@@ -334,10 +418,38 @@ public class CodeProcessorPanel extends javax.swing.JFrame {
         getContentPane().add(jPanel1, gridBagConstraints);
     }// </editor-fold>//GEN-END:initComponents
 
-    private void goButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_goButtonActionPerformed
-        System.out.println( "before call: new callGroovy();" );
-        executeScript();
-    }//GEN-LAST:event_goButtonActionPerformed
+    private void doCmdBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_doCmdBtnActionPerformed
+        if ( doCmdBtn.getText().equalsIgnoreCase( PROCESS_STATUS_CANCEL_COPY ) )
+            {
+            System.out.println( "hit stop button, got rootPaneCheckingEnabled =" + rootPaneCheckingEnabled + "=" );
+            setProcessStatus( PROCESS_STATUS_COPY_CANCELED );
+            this.stopSearch();
+            //JOptionPane.showConfirmDialog( null, "at call stop search" );
+            }
+        else
+            {
+            try {
+                DefaultComboBoxModel defaultComboBoxModel = null;
+                if ( ((String) listOfLists.getSelectedItem()).equals( jFileFinderWin.LIST_OF_FILES_SELECTED ) )
+                    {
+                    defaultComboBoxModel = jFileFinderWin.getSelectedItemsAsComboBoxModel();
+                    }
+                else
+                    {
+                    defaultComboBoxModel = (DefaultComboBoxModel) jFileFinderWin.getListPanelModel( (String) listOfLists.getSelectedItem() );
+                    }
+                cancelFlag = false;
+                jRunGroovy = new JRunGroovy( jFileFinderWin, this, startingPath, currentDirectory, currentFile, defaultComboBoxModel );
+                GroovySwingWorker groovySwingWorker = new GroovySwingWorker( jFileFinderWin, this, jRunGroovy, currentDirectory, currentFile, defaultComboBoxModel );
+                groovySwingWorker.execute();   //doInBackground();
+                } 
+            catch (Exception ex) 
+                {
+                logger.log(Level.SEVERE, null, ex);
+                } 
+            }
+
+    }//GEN-LAST:event_doCmdBtnActionPerformed
 
     private void saveToFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveToFileActionPerformed
         JFileChooser chooser = new JFileChooser();
@@ -359,10 +471,10 @@ public class CodeProcessorPanel extends javax.swing.JFrame {
 
     }//GEN-LAST:event_saveToFileActionPerformed
 
-    private void readFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_readFileActionPerformed
+    private void openFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openFileActionPerformed
         JFileChooser chooser = new JFileChooser();
         chooser.setFileHidingEnabled( true );
-        chooser.setDialogTitle( "File to Save To" );
+        chooser.setDialogTitle( "Open File" );
         chooser.setCurrentDirectory( new File( currentDirectory ) );
         chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
         //
@@ -374,11 +486,11 @@ public class CodeProcessorPanel extends javax.swing.JFrame {
         {
         readFile( chooser.getSelectedFile() );
         }
-    }//GEN-LAST:event_readFileActionPerformed
+    }//GEN-LAST:event_openFileActionPerformed
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void saveBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveBtnActionPerformed
         saveToFile( new File( currentFile )  );
-    }//GEN-LAST:event_jButton1ActionPerformed
+    }//GEN-LAST:event_saveBtnActionPerformed
 
         
     /**
@@ -407,16 +519,16 @@ public class CodeProcessorPanel extends javax.swing.JFrame {
     
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JList<String> PathsList;
     private javax.swing.JComboBox<String> cmdCb;
     private javax.swing.JEditorPane codePane;
-    private javax.swing.JButton goButton;
-    private javax.swing.JButton jButton1;
+    private javax.swing.JButton doCmdBtn;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JComboBox<String> listOfLists;
-    private javax.swing.JButton readFile;
+    private javax.swing.JLabel message;
+    private javax.swing.JButton openFile;
+    private javax.swing.JLabel processStatus;
+    private javax.swing.JButton saveBtn;
     private javax.swing.JButton saveToFile;
     // End of variables declaration//GEN-END:variables
 }
