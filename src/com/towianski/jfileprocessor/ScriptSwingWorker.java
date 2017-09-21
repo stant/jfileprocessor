@@ -76,7 +76,7 @@ public class ScriptSwingWorker extends CodeProcessorPanel {
             {
             currentDirectory = jFileFinderWin.getStartingFolder();
             }
-        this.setLocationRelativeTo( getRootPane() );
+        this.setLocation( Integer.valueOf( (int) jFileFinderWin.getLocation().getX() ), (Integer.valueOf( (int) jFileFinderWin.getLocation().getY() ) - 80 ) );
         this.validate();
         this.addEscapeListener( this );
         this.setTitle( selectedFile.getName() );
