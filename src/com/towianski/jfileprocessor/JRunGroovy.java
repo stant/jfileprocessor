@@ -111,7 +111,7 @@ public class JRunGroovy //  implements Runnable
 //        copier.done();
         if ( resultsData.getProcessStatus().equals( "" ) )
             {
-            resultsData.setProcessStatus( CodeProcessorPanel.PROCESS_STATUS_COPY_COMPLETED );
+            resultsData.setProcessStatus(CodeProcessorPanel.PROCESS_STATUS_COMPLETED );
             }
         }
         

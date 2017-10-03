@@ -63,7 +63,7 @@ class Test {
         def output = zipFileAr.execute().text;
         
         CodeProcessorPanel codeProcessorPanel2 = codeProcessorPanel.jFileFinderWin.openCodeWinPanel( codeProcessorPanel.jFileFinderWin, null, "" );
-        codeProcessorPanel2.setCodePane( output );
+        codeProcessorPanel2.setText( output );
         codeProcessorPanel2.setTitle( "Zip Output" );
         //JOptionPane.showMessageDialog( null, output, "output", JOptionPane.ERROR_MESSAGE );        
         }

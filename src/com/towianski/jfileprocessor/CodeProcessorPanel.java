@@ -47,11 +47,11 @@ public class CodeProcessorPanel extends javax.swing.JFrame {
     JRunGroovy jRunGroovy = null;
     Color saveColor = null;
     
-    public static final String PROCESS_STATUS_COPY_STARTED = "Started . . .";
-    public static final String PROCESS_STATUS_COPY_CANCELED = "canceled";
-    public static final String PROCESS_STATUS_COPY_COMPLETED = "completed";
-    public static final String PROCESS_STATUS_CANCEL_COPY = "Cancel";
-    public static final String PROCESS_STATUS_COPY_READY = "Run";
+    public static final String PROCESS_STATUS_STARTED = "Started . . .";
+    public static final String PROCESS_STATUS_CANCELED = "canceled";
+    public static final String PROCESS_STATUS_COMPLETED = "completed";
+    public static final String PROCESS_STATUS_DO_CANCEL = "Cancel";
+    public static final String PROCESS_STATUS_RUN = "Run";
 
     boolean cancelFlag = false;
     boolean cancelFillFlag = false;
@@ -107,17 +107,34 @@ public class CodeProcessorPanel extends javax.swing.JFrame {
         this.savedPathsHm = savedPathsHm;
     }
 
-    public String getCodePane() {
+    public javax.swing.JEditorPane getCodePane() {
+        return codePane;
+    }
+
+    public String getText() {
         return codePane.getText();
     }
 
-    public void setCodePane(String str) {
+    public void setText(String str) {
         this.codePane.setText(str);
     }
     
     public void setListPanelModel(String str, DefaultComboBoxModel defaultComboBoxModel ) {
         jFileFinderWin.setListPanelModel( (String) listOfLists.getSelectedItem(), defaultComboBoxModel );
     }
+
+    public DefaultComboBoxModel getListPanelModel( String listName ) 
+        {
+        DefaultComboBoxModel defaultComboBoxModel = null;
+        try {
+            defaultComboBoxModel = (DefaultComboBoxModel) jFileFinderWin.getListPanelModel( listName );
+            } 
+        catch (Exception ex) 
+            {
+            logger.log(Level.SEVERE, null, ex);
+            }
+        return defaultComboBoxModel;
+        }
 
     public void stopSearch() {
         cancelFlag = true;
@@ -156,23 +173,23 @@ public class CodeProcessorPanel extends javax.swing.JFrame {
         processStatus.setText(text);
         switch( text )
             {
-            case PROCESS_STATUS_COPY_STARTED:  
+            case PROCESS_STATUS_STARTED:  
                 processStatus.setBackground( Color.GREEN );
-                setDoCmdBtn( this.PROCESS_STATUS_CANCEL_COPY, Color.RED );
+                setDoCmdBtn(this.PROCESS_STATUS_DO_CANCEL, Color.RED );
                 setMessage( "" );
                 break;
-            case PROCESS_STATUS_COPY_CANCELED:
+            case PROCESS_STATUS_CANCELED:
                 processStatus.setBackground( Color.YELLOW );
-                setDoCmdBtn( this.PROCESS_STATUS_COPY_READY, saveColor );
+                setDoCmdBtn(this.PROCESS_STATUS_RUN, saveColor );
                 break;
-            case PROCESS_STATUS_COPY_COMPLETED:
+            case PROCESS_STATUS_COMPLETED:
                 processStatus.setBackground( saveColor );
-                setDoCmdBtn( this.PROCESS_STATUS_COPY_READY, saveColor );
+                setDoCmdBtn(this.PROCESS_STATUS_RUN, saveColor );
 //                doCmdBtn.setEnabled(false);
                 break;
             default:
                 processStatus.setBackground( saveColor );
-                setDoCmdBtn( this.PROCESS_STATUS_COPY_READY, saveColor );
+                setDoCmdBtn(this.PROCESS_STATUS_RUN, saveColor );
                 break;
             }
         }
@@ -419,10 +436,10 @@ public class CodeProcessorPanel extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void doCmdBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_doCmdBtnActionPerformed
-        if ( doCmdBtn.getText().equalsIgnoreCase( PROCESS_STATUS_CANCEL_COPY ) )
+        if ( doCmdBtn.getText().equalsIgnoreCase(PROCESS_STATUS_DO_CANCEL ) )
             {
             System.out.println( "hit stop button, got rootPaneCheckingEnabled =" + rootPaneCheckingEnabled + "=" );
-            setProcessStatus( PROCESS_STATUS_COPY_CANCELED );
+            setProcessStatus(PROCESS_STATUS_CANCELED );
             this.stopSearch();
             //JOptionPane.showConfirmDialog( null, "at call stop search" );
             }

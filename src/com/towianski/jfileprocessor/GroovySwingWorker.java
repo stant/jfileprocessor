@@ -35,7 +35,7 @@ public class GroovySwingWorker extends SwingWorker<ResultsData, Object> {
 
     @Override
     public ResultsData doInBackground() {
-        codeProcessorPanel.setProcessStatus( codeProcessorPanel.PROCESS_STATUS_COPY_STARTED );
+        codeProcessorPanel.setProcessStatus(codeProcessorPanel.PROCESS_STATUS_STARTED );
         jRunGroovy.run();
         return jRunGroovy.getResultsData();
     }
@@ -49,12 +49,12 @@ public class GroovySwingWorker extends SwingWorker<ResultsData, Object> {
             String msg =  "Done";
             if ( resultsData.getSearchWasCanceled() )
                 {
-                codeProcessorPanel.setProcessStatus( codeProcessorPanel.PROCESS_STATUS_COPY_CANCELED );
+                codeProcessorPanel.setProcessStatus(codeProcessorPanel.PROCESS_STATUS_CANCELED );
                 msg = msg + " PARTIAL run.";
                 }
             else
                 {
-                codeProcessorPanel.setProcessStatus( codeProcessorPanel.PROCESS_STATUS_COPY_COMPLETED );
+                codeProcessorPanel.setProcessStatus(codeProcessorPanel.PROCESS_STATUS_COMPLETED );
                 if ( codeProcessorPanel instanceof ScriptSwingWorker )
                     {
                     System.out.println( "do new CloseWinOnTimer( ScriptSwingWorker, 4000 )" );

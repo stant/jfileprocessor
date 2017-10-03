@@ -8,6 +8,7 @@ package com.towianski.jfileprocessor;
 import com.towianski.jfileprocessor.services.CallGroovy;
 import groovy.lang.Binding;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -38,7 +39,7 @@ public class TextEditPanel extends javax.swing.JFrame {
         static Color buttonBgColor = null;
 
     /**
-     * Creates new form SavedPathsPanel
+     * Creates new 
      */
     public TextEditPanel( JFileFinderWin jFileFinderWin, String selectedPath ) {
         initComponents();
@@ -61,11 +62,29 @@ public class TextEditPanel extends javax.swing.JFrame {
         this.addEscapeListener( this );
     }
 
-    public String getCodePane() {
+    public TextEditPanel( JFileFinderWin jFileFinderWin ) 
+        {
+        initComponents();
+        
+        this.jFileFinderWin = jFileFinderWin;
+        this.setLocationRelativeTo( getRootPane() );
+        this.validate();
+        this.addEscapeListener( this );
+    }
+
+    public javax.swing.JEditorPane getCodePane() {
+        return codePane;
+    }
+
+    public void setFont(Font newFont ) {
+        codePane.setFont( newFont );
+    }
+    
+    public String getText() {
         return codePane.getText();
     }
 
-    public void setCodePane(String str) {
+    public void setText(String str) {
         this.codePane.setText(str);
     }
     
@@ -209,7 +228,7 @@ public class TextEditPanel extends javax.swing.JFrame {
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
         jPanel1.add(saveToFile, gridBagConstraints);
 
-        readFile.setText("Read File");
+        readFile.setText("Open File");
         readFile.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 readFileActionPerformed(evt);

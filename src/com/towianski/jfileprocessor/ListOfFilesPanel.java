@@ -196,7 +196,7 @@ public class ListOfFilesPanel extends javax.swing.JFrame {
         gridBagConstraints.gridy = 0;
         jPanel1.add(listOfLists, gridBagConstraints);
 
-        jButton1.setText("Go");
+        jButton1.setText("Run");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton1ActionPerformed(evt);
@@ -245,7 +245,7 @@ public class ListOfFilesPanel extends javax.swing.JFrame {
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
         jPanel1.add(saveToFile, gridBagConstraints);
 
-        readFile.setText("Read File");
+        readFile.setText("Open File");
         readFile.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 readFileActionPerformed(evt);

@@ -209,6 +209,8 @@ public class JFileFinderWin extends javax.swing.JFrame {
     jSplitPane2.setDividerLocation( 150 );
     System.out.println( "at start jSplitPane1.getLastDividerLocation() =" + jSplitPane1.getLastDividerLocation() );
     readInBookmarks();
+    
+    System.out.println( "read scriptsFile/menu-scripts from  =" + scriptsFile + "=" );
     }
         
     public void addkeymapstuff()
@@ -1624,7 +1626,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
             jPopupMenu2.add(savePathsToFile1);
 
             setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-            setTitle("JFileProcessor v1.5 - Stan Towianski  (c) 2015-2017");
+            setTitle("JFileProcessor v1.5.1 - Stan Towianski  (c) 2015-2017");
             setIconImage(Toolkit.getDefaultToolkit().getImage( JFileFinderWin.class.getResource("/icons/jfp.png") ));
             addWindowListener(new java.awt.event.WindowAdapter() {
                 public void windowOpened(java.awt.event.WindowEvent evt) {

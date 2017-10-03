@@ -66,7 +66,7 @@ class Test {
         TextEditPanel textEditPanel = new TextEditPanel( codeProcessorPanel.jFileFinderWin, null );
         textEditPanel.setState ( JFrame.ICONIFIED );
 
-        textEditPanel.setCodePane( output );
+        textEditPanel.setText( output );
         textEditPanel.pack();
         textEditPanel.setVisible(true);
         textEditPanel.setState ( JFrame.NORMAL );
