@@ -28,9 +28,11 @@ public class CloseWinOnTimer extends Timer
                   System.out.println( "entered CloseWinOnTimer " + delay + " actionPerformed()" );
       //            Window win = SwingUtilities.getWindowAncestor(deleteFrame);
       //            win.dispose();
-                  jframe.dispatchEvent( new WindowEvent( jframe, WindowEvent.WINDOW_CLOSING )); 
-                  jframe.dispose();
-
+                    if ( delay > 0 )
+                    {
+                    jframe.dispatchEvent( new WindowEvent( jframe, WindowEvent.WINDOW_CLOSING )); 
+                    jframe.dispose();
+                    }
                }
             } );
 //        jframe.setState ( JFrame.ICONIFIED );

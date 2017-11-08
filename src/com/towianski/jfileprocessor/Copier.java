@@ -47,12 +47,14 @@ public class Copier extends SimpleFileVisitor<Path>
     String message = "";
     String toPathFileSeparator = "";
     HashMap<Path,Path> renameDirHm = new HashMap<Path,Path>();
+    CopyFrameSwingWorker swingWorker = null;
 
-    public Copier( JFileFinderWin jFileFinderWin, Boolean isDoingCutFlag, CopyOption[] copyOptions )
+    public Copier( JFileFinderWin jFileFinderWin, Boolean isDoingCutFlag, CopyOption[] copyOptions, CopyFrameSwingWorker swingWorker )
     {
         this.jFileFinderWin = jFileFinderWin;
         this.isDoingCutFlag = isDoingCutFlag;
         this.copyOptions = copyOptions;
+        this.swingWorker = swingWorker;
         System.out.println("Copier this.startingPath (startingPath) =" + this.startingPath + "   this.toPath =" + this.toPath + "=" );
         System.out.println( "isDoingCutFlag =" + isDoingCutFlag );
         cancelFlag = false;
@@ -166,6 +168,7 @@ public class Copier extends SimpleFileVisitor<Path>
             return FileVisitResult.TERMINATE;
             }
         numTested++;
+        swingWorker.publish2( numTested );
         
         Path toPathFile = toPath.resolve( startingPath.relativize( file ) );
         while ( file.compareTo( toPathFile ) == 0 )

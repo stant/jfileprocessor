@@ -129,17 +129,19 @@ public class CopyFrame extends javax.swing.JFrame {
         this.resultsData = resultsData;
         }
 
-//    public void setNumFilesInTable()
-//        {
-//        NumberFormat numFormat = NumberFormat.getIntegerInstance();
-//        numFilesInTable.setText( numFormat.format( filesTbl.getModel().getRowCount() ) );
-//        }
-    
-    public void setProcessStatus( String text )
+    public void setCloseOnDoneTb( boolean flag )
         {
+        closeWhenDoneTb.setSelected( flag );
+        }
+
+    public void setShowProgressTb( boolean flag ) {
+        showProgressTb.setSelected( flag );
+    }
+
+    public void setProcessStatus(String text) {
         processStatus.setText(text);
         switch( text )
-            {
+        {
             case PROCESS_STATUS_COPY_STARTED:  
                 processStatus.setBackground( Color.GREEN );
                 setDoCmdBtn( this.PROCESS_STATUS_CANCEL_COPY, Color.RED );
@@ -158,8 +160,8 @@ public class CopyFrame extends javax.swing.JFrame {
                 processStatus.setBackground( saveColor );
                 setDoCmdBtn( this.PROCESS_STATUS_COPY_READY, saveColor );
                 break;
-            }
         }
+    }
 
     public String getProcessStatus()
         {
@@ -207,6 +209,8 @@ public class CopyFrame extends javax.swing.JFrame {
         copyAttribs = new javax.swing.JCheckBox();
         noFollowLinks = new javax.swing.JCheckBox();
         jButton1 = new javax.swing.JButton();
+        showProgressTb = new javax.swing.JToggleButton();
+        closeWhenDoneTb = new javax.swing.JToggleButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Paste");
@@ -229,9 +233,9 @@ public class CopyFrame extends javax.swing.JFrame {
         processStatus.setPreferredSize(new java.awt.Dimension(150, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridy = 6;
         gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(5, 4, 0, 0);
         getContentPane().add(processStatus, gridBagConstraints);
 
         message.setMaximumSize(new java.awt.Dimension(999999, 999999));
@@ -239,12 +243,13 @@ public class CopyFrame extends javax.swing.JFrame {
         message.setPreferredSize(new java.awt.Dimension(200, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridy = 6;
         gridBagConstraints.gridwidth = 4;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(5, 4, 0, 5);
         getContentPane().add(message, gridBagConstraints);
 
+        fromPath.setText("   ");
         fromPath.setMaximumSize(new java.awt.Dimension(99999, 99999));
         fromPath.setMinimumSize(new java.awt.Dimension(300, 25));
         fromPath.setPreferredSize(new java.awt.Dimension(300, 25));
@@ -327,6 +332,23 @@ public class CopyFrame extends javax.swing.JFrame {
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 0);
         getContentPane().add(jButton1, gridBagConstraints);
 
+        showProgressTb.setSelected(true);
+        showProgressTb.setText("Show Progress");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridwidth = 2;
+        getContentPane().add(showProgressTb, gridBagConstraints);
+
+        closeWhenDoneTb.setSelected(true);
+        closeWhenDoneTb.setText("Close When Done");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
+        getContentPane().add(closeWhenDoneTb, gridBagConstraints);
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
@@ -356,7 +378,18 @@ public class CopyFrame extends javax.swing.JFrame {
 //                    System.out.println( "cc =" + cc + "=" );
                 
                 jfilecopy = new JFileCopy( jFileFinderWin, this, isDoingCutFlag, startingPath, copyPaths, toPath, copyOpts.toArray( new CopyOption[ copyOpts.size() ] ) );
-                CopyFrameSwingWorker copyFrameSwingWorker = new CopyFrameSwingWorker( jFileFinderWin, this, jfilecopy, copyPaths, toPath );
+                CopyFrameSwingWorker copyFrameSwingWorker = new CopyFrameSwingWorker( jFileFinderWin, this, jfilecopy, copyPaths, toPath, showProgressTb.isSelected(), closeWhenDoneTb.isSelected() );
+                
+//                 copyFrameSwingWorker.addPropertyChangeListener(
+//     new PropertyChangeListener() {
+//         public  void propertyChange(PropertyChangeEvent evt) {
+//            System.out.println( "copy propertyChange() evt =" + evt + "=" );
+//             if ("cpCount".equals(evt.getPropertyName())) {
+////                 cpCount.setText((Integer)evt.getNewValue());
+//             }
+//         }
+//     });
+                 
                 copyFrameSwingWorker.execute();   //doInBackground();
             } 
             catch (Exception ex) {
@@ -421,6 +454,7 @@ public class CopyFrame extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JToggleButton closeWhenDoneTb;
     private javax.swing.JCheckBox copyAttribs;
     private javax.swing.JButton doCmdBtn;
     private javax.swing.JLabel fromPath;
@@ -433,5 +467,6 @@ public class CopyFrame extends javax.swing.JFrame {
     private javax.swing.JLabel pastePath;
     private javax.swing.JLabel processStatus;
     private javax.swing.JCheckBox replaceExisting;
+    private javax.swing.JToggleButton showProgressTb;
     // End of variables declaration//GEN-END:variables
 }

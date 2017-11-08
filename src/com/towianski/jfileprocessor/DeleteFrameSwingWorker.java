@@ -10,41 +10,53 @@ import com.towianski.models.ResultsData;
 import java.nio.file.Path;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.List;
 import javax.swing.SwingWorker;
 
 /**
  *
  * @author Stan Towianski - June 2015
  */
-public class DeleteFrameSwingWorker extends SwingWorker<ResultsData, Object> {
+public class DeleteFrameSwingWorker extends SwingWorker<ResultsData, Long> {
 
     JFileFinderWin jFileFinderWin = null;
     DeleteFrame deleteFrame = null;
     ArrayList<Path> deletePaths = new ArrayList<Path>();
     JFileDelete jfiledelete = null;
+    boolean showProgressFlag = true;
+    boolean closeWhenDoneFlag = true;
 
-    public DeleteFrameSwingWorker( JFileFinderWin jFileFinderWin, DeleteFrame deleteFrame, JFileDelete jfiledelete, ArrayList<Path> deletePaths )
+    public DeleteFrameSwingWorker( JFileFinderWin jFileFinderWin, DeleteFrame deleteFrame, JFileDelete jfiledelete, ArrayList<Path> deletePaths, boolean showProgressFlag, boolean closeWhenDoneFlag )
         {
         this.jFileFinderWin = jFileFinderWin;
         this.deleteFrame = deleteFrame;
         this.jfiledelete = jfiledelete;
         this.deletePaths = deletePaths;
+        this.showProgressFlag = showProgressFlag;
+        this.closeWhenDoneFlag = closeWhenDoneFlag;
         }
 
     @Override
     public ResultsData doInBackground() {
         deleteFrame.setProcessStatus( deleteFrame.PROCESS_STATUS_DELETE_STARTED );
-        jfiledelete.run();
+        jfiledelete.run( this );
         return jfiledelete.getResultsData();
     }
 
-//    @Override
-//    protected void process(List<Integer> chunks) {
-//        // Get Info
-//        for (int number : chunks) {
-//            System.out.println("Found even number: " + number);
-//        }
-//    }
+    public void publish2( Long num ) {
+        if ( showProgressFlag )
+            {
+            publish( num );
+            }
+        }
+
+    protected void process(List<Long> numList ) {
+        if ( showProgressFlag )
+            {
+            Long lastNum = numList.get( numList.size() - 1 );
+            deleteFrame.setMessage( "" + lastNum );
+            }
+        }
 
     @Override
     public void done() {
@@ -74,7 +86,7 @@ public class DeleteFrameSwingWorker extends SwingWorker<ResultsData, Object> {
             else
                 {
                 deleteFrame.setProcessStatus( deleteFrame.PROCESS_STATUS_DELETE_COMPLETED );
-                new CloseWinOnTimer( deleteFrame, 4000 ){{setRepeats(false);}}.start();
+                new CloseWinOnTimer( deleteFrame, closeWhenDoneFlag ? 4000 : 0 ){{setRepeats(false);}}.start();
                 }
             deleteFrame.setMessage( msg + partialMsg );
             deleteFrame.setResultsData( resultsData );

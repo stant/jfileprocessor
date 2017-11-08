@@ -10,36 +10,56 @@ import com.towianski.models.ResultsData;
 import java.nio.file.Path;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.List;
 import javax.swing.SwingWorker;
 
 /**
  *
  * @author Stan Towianski - June 2015
  */
-public class CopyFrameSwingWorker extends SwingWorker<ResultsData, Object> {
+public class CopyFrameSwingWorker extends SwingWorker<ResultsData, Long> {
 
     JFileFinderWin jFileFinderWin = null;
     CopyFrame copyFrame = null;
     ArrayList<Path> copyPaths = new ArrayList<Path>();
     String toPath = null;
     JFileCopy jfilecopy = null;
+    boolean showProgressFlag = true;
+    boolean closeWhenDoneFlag = true;
 
-    public CopyFrameSwingWorker( JFileFinderWin jFileFinderWin, CopyFrame copyFrame, JFileCopy jfilecopy, ArrayList<Path> copyPaths, String toPath )
+    public CopyFrameSwingWorker( JFileFinderWin jFileFinderWin, CopyFrame copyFrame, JFileCopy jfilecopy, ArrayList<Path> copyPaths, String toPath, boolean showProgressFlag, boolean closeWhenDoneFlag )
         {
         this.jFileFinderWin = jFileFinderWin;
         this.copyFrame = copyFrame;
         this.jfilecopy = jfilecopy;
         this.copyPaths = copyPaths;
         this.toPath = toPath;
+        this.showProgressFlag = showProgressFlag;
+        this.closeWhenDoneFlag = closeWhenDoneFlag;
         }
 
     @Override
     public ResultsData doInBackground() {
         copyFrame.setProcessStatus( copyFrame.PROCESS_STATUS_COPY_STARTED );
-        jfilecopy.run();
+        jfilecopy.run( this );
         return jfilecopy.getResultsData();
     }
 
+    public void publish2( Long num ) {
+        if ( showProgressFlag )
+            {
+            publish( num );
+            }
+        }
+
+    protected void process(List<Long> numList ) {
+        if ( showProgressFlag )
+            {
+            Long lastNum = numList.get( numList.size() - 1 );
+            copyFrame.setMessage( "" + lastNum );
+            }
+        }
+     
     @Override
     public void done() {
         try {
@@ -60,7 +80,7 @@ public class CopyFrameSwingWorker extends SwingWorker<ResultsData, Object> {
                 {
                 copyFrame.setProcessStatus( copyFrame.PROCESS_STATUS_COPY_COMPLETED );
                 System.out.println( "do new CloseWinOnTimer( copyFrame, 4000 )" );
-                new CloseWinOnTimer( copyFrame, 4000 ){{setRepeats(false);}}.start();
+                new CloseWinOnTimer( copyFrame, closeWhenDoneFlag ? 4000 : 0 ){{setRepeats(false);}}.start();
                 }
 
             if ( ! resultsData.getProcessStatus().trim().equals( "" ) )

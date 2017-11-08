@@ -38,14 +38,16 @@ public class Deleter extends SimpleFileVisitor<Path>
     Path trashFolder = DesktopUtils.getTrashFolder().toPath();
     String processStatus = "";
     String message = "";
-    
-    public Deleter( String startingPath, ArrayList<Path> copyPaths, Boolean deleteFilesOnlyFlag, Boolean deleteToTrashFlag, Boolean deleteReadonlyFlag )
+    DeleteFrameSwingWorker swingWorker = null;
+
+    public Deleter( String startingPath, ArrayList<Path> copyPaths, Boolean deleteFilesOnlyFlag, Boolean deleteToTrashFlag, Boolean deleteReadonlyFlag, DeleteFrameSwingWorker swingWorker )
     {
         this.fromPath = Paths.get( startingPath );
         this.copyPaths = copyPaths;
         this.deleteFilesOnlyFlag = deleteFilesOnlyFlag;
         this.deleteToTrashFlag = deleteToTrashFlag;
         this.deleteReadonlyFlag = deleteReadonlyFlag;
+        this.swingWorker = swingWorker;
         System.out.println( "Deleter this.fromPath =" + this.fromPath + "=" );
         cancelFlag = false;
     }
@@ -111,6 +113,7 @@ public class Deleter extends SimpleFileVisitor<Path>
         //if ( ex == null )
         try {
             numTested++;
+            swingWorker.publish2( numTested );
             if ( ! deleteFilesOnlyFlag )
                 {
                 Files.delete( dir );

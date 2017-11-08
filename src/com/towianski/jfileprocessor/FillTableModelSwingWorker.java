@@ -5,9 +5,9 @@
  */
 package com.towianski.jfileprocessor;
 
-import static com.towianski.jfileprocessor.JFileFinderSwingWorker.jFileFinderWin;
 import com.towianski.models.ResultsData;
 import java.text.NumberFormat;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
 /**
@@ -30,8 +30,18 @@ public class FillTableModelSwingWorker extends SwingWorker<ResultsData, Object> 
 
     @Override
     public ResultsData doInBackground() {
+        System.out.println( "FillTableModelSwingWorker.doInBackground() before fillInFilesTable.run()" );
         jFileFinderWin.setProcessStatus( jFileFinderWin.PROCESS_STATUS_FILL_STARTED );
         jFileFinderWin.fillInFilesTable( null );
+        
+        System.out.println( "after FillTableModelSwingWorker.doInBackground()" );
+        System.out.println( "on EDT? = " + javax.swing.SwingUtilities.isEventDispatchThread() );
+//        SwingUtilities.invokeLater(new Runnable() {
+//            public void run() {
+//                jFileFinderWin.replaceDirWatcher();
+//                System.out.println( "entered FillTableModelSwingWorker.doInBackground() set my own DoneFlag" );
+//            }
+//        });
         return JFileFinder.getResultsData();
     }
 
@@ -39,6 +49,7 @@ public class FillTableModelSwingWorker extends SwingWorker<ResultsData, Object> 
     public void done() {
         try {
             System.out.println( "entered FillTableModelSwingWorker.done()" );
+            System.out.println( "on EDT? = " + javax.swing.SwingUtilities.isEventDispatchThread() );
             ResultsData resultsData = get();
             //System.out.println( "SwingWork.done() got ans =" + matchedPathsList + "=" );
             //jFileFinderWin.resetSearchBtn();
@@ -55,6 +66,9 @@ public class FillTableModelSwingWorker extends SwingWorker<ResultsData, Object> 
             //SwingUtilities.invokeLater( jFileFinderWin.fillInFilesTable( resultsData ) );
             //jFileFinderWin.fillInFilesTable( resultsData );
             //jFileFinderWin.setResultsData( resultsData );
+
+            jFileFinderWin.stopDirWatcher();
+            jFileFinderWin.startDirWatcher();
             
             System.out.println( "FillTableModelSwingWorker() jFileFinderWin.afterFillSwingWorker =" + jFileFinderWin.afterFillSwingWorker+ "=" );
             if ( jFileFinderWin.afterFillSwingWorker != null )

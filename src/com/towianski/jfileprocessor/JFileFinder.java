@@ -55,6 +55,7 @@ public class JFileFinder //  implements Runnable
     SimpleDateFormat sdf = new SimpleDateFormat( "yyyy/MM/dd hh:mm:ss");
     Date begDate = null;
     Date endDate = null;
+    JFileFinderSwingWorker jFileFinderSwingWorker = null;
     
     public JFileFinder( JFileFinderWin jFileFinderWinArg, String startingPathArg, String patternTypeArg, String filePatternArg, FilterChain chainFilterList, FilterChain chainFilterFolderList, FilterChain chainFilterPreVisitFolderList )
     {
@@ -392,7 +393,7 @@ public class JFileFinder //  implements Runnable
 //                        System.out.println( "Match =" + fpath + "   numFolderMatches =" + numFolderMatches );
                         matchedPathsList.add( fpath );
                         }
-                    } 
+                    }
                 catch (Exception ex) 
                     {
                     logger.log(Level.SEVERE, null, ex);
@@ -552,10 +553,11 @@ public class JFileFinder //  implements Runnable
         System.exit(-1);
     }
 
-    public void run() 
+    public void run( JFileFinderSwingWorker jFileFinderSwingWorker ) 
     {
         startingPathLength = startingPath.endsWith( System.getProperty( "file.separator" ) ) ? startingPath.length() : startingPath.length() + 1;
         Path startingDir = Paths.get( startingPath );
+        this.jFileFinderSwingWorker = jFileFinderSwingWorker ;
 
         //basePathCount = startingDir.getNameCount();
         basePathLen = startingDir.toString().length();
@@ -566,7 +568,8 @@ public class JFileFinder //  implements Runnable
         System.out.println( "filePattern =" + filePattern + "=" );
         System.out.println( "matching filePattern =" + (startingPath + filePattern).replace( "\\", "\\\\" ) + "=" );
         System.out.println( "basePathLen =" + basePathLen + "=" );
-        
+        System.out.println( "on EDT? = " + javax.swing.SwingUtilities.isEventDispatchThread() );
+    
         finder = new Finder( (startingPath + filePattern).replace( "\\", "\\\\" ), this );
         try {
             synchronized( dataSyncLock ) 
@@ -581,6 +584,7 @@ public class JFileFinder //  implements Runnable
 
                 System.out.println( "BEG: " + sdf.format( begDate ) );
                 System.out.println( "END: " + sdf.format( endDate ) );
+                System.out.println( "matchedPathsList size =" + matchedPathsList.size() + "=" );
                 }
         } catch (IOException ex) {
             logger.log(Level.SEVERE, null, ex);

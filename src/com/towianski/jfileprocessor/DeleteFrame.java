@@ -186,6 +186,8 @@ public class DeleteFrame extends javax.swing.JFrame {
         deleteToTrashFlag = new javax.swing.JCheckBox();
         jLabel3 = new javax.swing.JLabel();
         deleteReadonlyFlag = new javax.swing.JCheckBox();
+        showProgressTb = new javax.swing.JToggleButton();
+        closeWhenDoneTb = new javax.swing.JToggleButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Delete");
@@ -199,8 +201,6 @@ public class DeleteFrame extends javax.swing.JFrame {
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 0);
         getContentPane().add(doCmdBtn, gridBagConstraints);
 
@@ -209,10 +209,10 @@ public class DeleteFrame extends javax.swing.JFrame {
         processStatus.setPreferredSize(new java.awt.Dimension(150, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridy = 7;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(4, 5, 0, 0);
         getContentPane().add(processStatus, gridBagConstraints);
 
         message.setMaximumSize(new java.awt.Dimension(999999, 999999));
@@ -220,12 +220,13 @@ public class DeleteFrame extends javax.swing.JFrame {
         message.setPreferredSize(new java.awt.Dimension(200, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridy = 7;
         gridBagConstraints.gridwidth = 4;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(4, 5, 0, 5);
         getContentPane().add(message, gridBagConstraints);
 
+        fromPath.setText("   ");
         fromPath.setMaximumSize(new java.awt.Dimension(99999, 99999));
         fromPath.setMinimumSize(new java.awt.Dimension(300, 25));
         fromPath.setPreferredSize(new java.awt.Dimension(300, 25));
@@ -234,7 +235,7 @@ public class DeleteFrame extends javax.swing.JFrame {
         gridBagConstraints.gridy = 0;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(5, 4, 0, 0);
         getContentPane().add(fromPath, gridBagConstraints);
 
         jLabel1.setText("From Path(s):");
@@ -284,6 +285,21 @@ public class DeleteFrame extends javax.swing.JFrame {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         getContentPane().add(deleteReadonlyFlag, gridBagConstraints);
 
+        showProgressTb.setSelected(true);
+        showProgressTb.setText("Show Progress");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 5;
+        getContentPane().add(showProgressTb, gridBagConstraints);
+
+        closeWhenDoneTb.setSelected(true);
+        closeWhenDoneTb.setText("Close When Done");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
+        getContentPane().add(closeWhenDoneTb, gridBagConstraints);
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
@@ -302,7 +318,7 @@ public class DeleteFrame extends javax.swing.JFrame {
             try {
                 //JOptionPane.showConfirmDialog( null, "hit key" );  if ( 1 == 1 ) return;
                 jfiledelete = new JFileDelete( startingPath, copyPaths, deleteFilesOnlyFlag.isSelected(), deleteToTrashFlag.isSelected(), deleteReadonlyFlag.isSelected() );
-                DeleteFrameSwingWorker deleteFrameSwingWorker = new DeleteFrameSwingWorker( jFileFinderWin, this, jfiledelete, copyPaths );
+                DeleteFrameSwingWorker deleteFrameSwingWorker = new DeleteFrameSwingWorker( jFileFinderWin, this, jfiledelete, copyPaths, showProgressTb.isSelected(), closeWhenDoneTb.isSelected() );
                 deleteFrameSwingWorker.execute();   //doInBackground();
             } 
             catch (Exception ex) {
@@ -349,6 +365,7 @@ public class DeleteFrame extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JToggleButton closeWhenDoneTb;
     private javax.swing.JCheckBox deleteFilesOnlyFlag;
     private javax.swing.JCheckBox deleteReadonlyFlag;
     private javax.swing.JCheckBox deleteToTrashFlag;
@@ -359,5 +376,6 @@ public class DeleteFrame extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel message;
     private javax.swing.JLabel processStatus;
+    private javax.swing.JToggleButton showProgressTb;
     // End of variables declaration//GEN-END:variables
 }

@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.SwingWorker;
 
 
 
@@ -78,11 +79,11 @@ public class JFileCopy //  implements Runnable
         System.exit(-1);
     }
 
-    public void run() 
+    public void run( CopyFrameSwingWorker swingWorker ) 
         {
         System.out.println( "toPath =" + toPath + "=" );
         
-        copier = new Copier( jFileFinderWin, isDoingCutFlag, copyOptions );
+        copier = new Copier( jFileFinderWin, isDoingCutFlag, copyOptions, swingWorker );
         try {
             synchronized( dataSyncLock ) 
                 {

@@ -5,6 +5,8 @@
  */
 package com.towianski.utils;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 
@@ -15,6 +17,7 @@ import java.util.logging.LogRecord;
 public class LogStringHandler extends Handler {
 
     private StringBuffer outBuf = new StringBuffer();
+    SimpleDateFormat sdf = new SimpleDateFormat( "yyyyMMdd.HHmmss");
 
     public LogStringHandler()
         {
@@ -23,13 +26,17 @@ public class LogStringHandler extends Handler {
     
     public void publish( LogRecord logRecord )
         {
+        outBuf.append( sdf.format( Calendar.getInstance().getTime() ) )
+                .append( " ");
         outBuf.append( logRecord.getLevel() + ": ");
         outBuf.append( logRecord.getSourceClassName() + ": ");
         outBuf.append( logRecord.getSourceMethodName() + ": ");
         outBuf.append( logRecord.getMessage() );
         outBuf.append( "\n");
+        System.out.println( "log-" + outBuf.toString() );
         //System.out.println( "logRecord.getLevel() =" + logRecord.getLevel() + "=" );
         //System.out.println( "logRecord.getMessage() =" + logRecord.getMessage() + "=" );
+        outBuf.setLength( 0 );
         }
 
     public void flush() {

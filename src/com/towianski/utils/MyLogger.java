@@ -23,6 +23,7 @@ public class MyLogger extends java.util.logging.Logger
 static MyLogger mylogger = null;
 
 //    final java.util.logging.Logger logger = null;
+    static SimpleDateFormat sdf = new SimpleDateFormat( "yyyyMMdd.HHmmss");
     protected static LogStringHandler loghand = new LogStringHandler();
   
     protected MyLogger(String name) {
@@ -131,7 +132,6 @@ public void clearLog()
 
 public static String getNewLogDate() 
     {
-    SimpleDateFormat sdf = new SimpleDateFormat( "yyyyMMdd.HHmmss");
     return sdf.format( Calendar.getInstance().getTime() );
     }
 

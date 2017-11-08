@@ -63,9 +63,9 @@ public class JFileDelete //  implements Runnable
         System.exit(-1);
     }
 
-    public void run() 
+    public void run( DeleteFrameSwingWorker swingWorker )
         {
-        deleter = new Deleter( startingPath, copyPaths, deleteFilesOnlyFlag, deleteToTrashFlag, deleteReadonlyFlag );
+        deleter = new Deleter( startingPath, copyPaths, deleteFilesOnlyFlag, deleteToTrashFlag, deleteReadonlyFlag, swingWorker );
 //            synchronized( dataSyncLock ) 
 //                {
                 cancelFlag = false;

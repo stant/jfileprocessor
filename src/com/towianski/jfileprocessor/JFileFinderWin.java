@@ -108,6 +108,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
 
     Thread jfinderThread = null;
     JFileFinderSwingWorker jFileFinderSwingWorker = null;
+    WatchDirSw watchDirSw = null;
     ResultsData resultsData = null;
     JFileFinder jfilefinder = null;
     Color saveColor = null;
@@ -148,8 +149,8 @@ public class JFileFinderWin extends javax.swing.JFrame {
     DefaultComboBoxModel listOfFilesPanelsModel = new DefaultComboBoxModel(data);
 //    DefaultComboBoxModel listOfFilesPanelsModel = new DefaultComboBoxModel();
 
-    PrintStream console = System.out;
-    
+    PrintStream console = System.out;            
+
 //    JDatePickerImpl date1 = null;
 //    JDatePickerImpl date2 = null;
     
@@ -710,8 +711,60 @@ public class JFileFinderWin extends javax.swing.JFrame {
             }
         };
 
+    public void stopDirWatcher()
+        {
+        if ( watchDirSw != null )
+            {
+            watchDirSw.stopWatch();
+            }
+        }
+
+    public void startDirWatcher()
+        {
+        if ( watchDirSw == null )
+            {
+            watchDirSw = new WatchDirSw( this, Paths.get( getStartingFolder() ) );
+            }
+        watchDirSw.actionPerformed(null);
+        }
+
+//    public boolean getSearchLock()
+//        {
+//        if ( searchLock.tryLock() )
+//            {
+//            // Got the lock
+//            System.out.println( "got searchLock" );
+//            return true;
+////            try
+////                {
+////                System.out.println( "got searchLock" );
+////                }
+////            finally
+////                {
+////                // Make sure to unlock so that we don't cause a deadlock
+////                searchLock.unlock();
+////                }
+//            }
+//        else
+//            {
+//            // Someone else had the lock, abort
+//            System.out.println( "could NOT get searchLock" );
+//            }
+//        return false;
+//        }
+//    
+//    public void releaseSearchLock()
+//        {
+//        System.out.println( "JFileFinderSwingWorker.releaseSearchLock()" );
+//        searchLock.unlock();
+//        }
+    
     public void searchBtnAction( java.awt.event.ActionEvent evt )
     {
+        System.out.println("jfilewin searchBtn() searchBtn.getText() =" + searchBtn.getText() + "=" );
+        System.out.println( "on EDT? = " + javax.swing.SwingUtilities.isEventDispatchThread() );
+        stopDirWatcher();
+
         if ( searchBtn.getText().equalsIgnoreCase( PROCESS_STATUS_CANCEL_SEARCH ) )
             {
             System.out.println( "hit stop button, got rootPaneCheckingEnabled =" + rootPaneCheckingEnabled + "=" );
@@ -945,7 +998,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
 //                searchBtn.setBorderPainted(false);
 //                message.setText( "Search started . . ." );
                 //setProcessStatus( PROCESS_STATUS_SEARCH_STARTED );
-                        System.out.println( "*************  jFileFinderSwingWorker.execute()  ****************" );
+                System.out.println( "*************  jFileFinderSwingWorker.execute()  ****************" );
             
                 jFileFinderSwingWorker.execute();   //doInBackground();
                 //jfinderThread = new Thread( jfilefinder );
@@ -960,7 +1013,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
             } 
         }
     }
-    
+
     public void emptyFilesTable()
         {
         System.out.println( "entered JFileFinderWin.emptyFilesTable()" );
@@ -1342,6 +1395,21 @@ public class JFileFinderWin extends javax.swing.JFrame {
         return codeProcessorPanel;
         }
         
+    public ArrayList<String> pathsToNotWatch()
+        {
+        ArrayList<String> ignoreList = new ArrayList<String>();
+            
+        if ( stdOutFile.getText() != null && ! stdOutFile.getText().equals( "" ) )
+            {
+            ignoreList.add( stdOutFile.getText().trim() );
+            }
+        if ( stdErrFile.getText() != null && ! stdErrFile.getText().equals( "" ) )
+            {
+            ignoreList.add( stdErrFile.getText().trim() );
+            }
+        return ignoreList;
+        }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -1626,7 +1694,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
             jPopupMenu2.add(savePathsToFile1);
 
             setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-            setTitle("JFileProcessor v1.5.1 - Stan Towianski  (c) 2015-2017");
+            setTitle("JFileProcessor v1.5.2 - Stan Towianski  (c) 2015-2017");
             setIconImage(Toolkit.getDefaultToolkit().getImage( JFileFinderWin.class.getResource("/icons/jfp.png") ));
             addWindowListener(new java.awt.event.WindowAdapter() {
                 public void windowOpened(java.awt.event.WindowEvent evt) {
