@@ -2,6 +2,9 @@ package com.towianski.testutils;
 
 import com.towianski.jfileprocessor.TextEditPanel;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import com.towianski.models.ResultsData;
 
 // written by: Stan Towianski - August 2017
@@ -25,28 +28,51 @@ class Test {
    //     System.out.println( "selected item =" + codeProcessorPanel.listOfLists.getSelectedItem() + "=" );
         int numItems = defaultComboBoxModel.getSize();
         System.out.println( "defaultComboBoxModel.getSize() num of items =" + numItems + "=" );
+        String baseCmd = null;
+        if ( System.getProperty( "os.name" ).toLowerCase().startsWith( "mac" ) )
+            {
+            baseCmd = "ls -l ";
+            }
+        else if ( System.getProperty( "os.name" ).toLowerCase().startsWith( "win" ) )
+            {
+            baseCmd = "dir ";
+            }
+        else if ( System.getProperty( "os.name" ).toLowerCase().startsWith( "linux" ) )
+            {
+            baseCmd = "ls -l ";
+            }
+        
+        baseCmd = JOptionPane.showInputDialog( "command to run (%f=full file, %F=file name): ", baseCmd + " %f" );
+        if ( baseCmd == null )
+            {
+            numItems = 0;
+            }
+            
         String str = "";
+        String strName = "";
         def atFile = null;
         for( int i = 0; i < numItems; i++ )
             {
             str = defaultComboBoxModel.getElementAt( i ).toString();
-            System.out.println( "check for other list index =" + i + "   str =" + str + "=" );
+            Path path = Paths.get( str );
+            strName = path.getFileName().toString();
 
-    //            String fileContents = new File( str ).text
-    //            outFile << fileContents;
-                String cmd = "ls -l " + str;
-                def list = cmd.execute().text
-                list.eachLine{
-                    outFile << it + System.getProperty("line.separator");
-                    }
-                outFile << System.getProperty("line.separator") + "------ " + i + " -------------------------------" + System.getProperty("line.separator");
-                if ( codeProcessorPanel.getStopSearch() )
-                    {
-                    outFile << "--Canceled--" + System.getProperty("line.separator");
-                    resultsData.setProcessStatus( codeProcessorPanel.PROCESS_STATUS_COPY_CANCELED );
-                    resultsData.setMessage( "by user" );
-                    break;
-                    }
+            outFile << System.getProperty("line.separator") + "------ " + (i + 1) + " - " + str + "  -------------------------------" + System.getProperty("line.separator");
+
+            String cmd = baseCmd.replaceFirst( "%f", str );
+            cmd = baseCmd.replaceFirst( "%F", strName );
+            System.out.println( "do: =" + cmd + "=" );
+            def list = cmd.execute().text
+            list.eachLine{
+                outFile << it + System.getProperty("line.separator");
+                }
+            if ( codeProcessorPanel.getStopSearch() )
+                {
+                outFile << "--Canceled--" + System.getProperty("line.separator");
+                resultsData.setProcessStatus( codeProcessorPanel.PROCESS_STATUS_COPY_CANCELED );
+                resultsData.setMessage( "by user" );
+                break;
+                }
             }
 
  //       resultsData.setMessage( "junk msg" );

@@ -25,10 +25,10 @@ class Test {
         for( int i = 0; i < numItems; i++ )
             {
             str = defaultComboBoxModel.getElementAt( i ).toString();
-            System.out.println( "check for other list index =" + i + "   str =" + str + "=" );
+            outFile << System.getProperty("line.separator") + "------ " + (i + 1) + " - " + str + "  -------------------------------" + System.getProperty("line.separator");
+            System.out.println( "check for other list index =" + (i + 1) + "   str =" + str + "=" );
 
                 String fileContents = new File( str ).text
                 outFile << fileContents;
-                outFile << System.getProperty("line.separator") + "-------------------------------------" + System.getProperty("line.separator");
             }
    }  
