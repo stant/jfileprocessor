@@ -22,73 +22,24 @@ public class WatchDirSw {
  * and open the template in the editor.
  */
     JFileFinderWin jFileFinderWin = null;
-    WatchDirSwingWorker watchDirSwingWorker = null;
-//    AddWatchSwingWorker awsw = null;
     Thread watchThread = null;
     WatchDir watchDir = null;
     
-    boolean cancelFlag = false;
-    boolean doneFlag = false;
-    Path startingPath = null;
-
-    public WatchDirSw( JFileFinderWin jFileFinderWin, Path startingPath )
+    public WatchDirSw( JFileFinderWin jFileFinderWin )
         {
         this.jFileFinderWin = jFileFinderWin;
-        this.startingPath = startingPath;
         }
 
-    public void setIsDone( boolean flag )
+    public void cancelWatch() 
         {
-        doneFlag = flag;
-        }
-
-//    public void addWatch( Path folder )
-//        {
-//        if ( watchDir != null )
-//            {
-//            awsw = new AddWatchSwingWorker( watchDir, folder );
-//            awsw.execute();
-//            }
-//        }
-
-    public void clearSearch( boolean flag )
-        {
-        doneFlag = flag;
-        }
-            
-    public void stopWatch() {
         System.out.println("watchDirSw.stopSearch()");
-
         watchDir.cancelWatch();
-//        watchThread.interrupt();
-//        try {
-//            watchThread.join();
-            
-//        if ( awsw != null )
-//            {
-//            watchDir.cancelRegister();
-//            awsw.cancel( true );
-//            }
-//        
-//        if ( watchDir != null )
-//            {
-////            watchDir.cancelSearch();
-//            watchDir.unRegisterExisting();
-//            }
-        
-//        if ( watchDirSwingWorker != null )
-//            {
-//            watchDirSwingWorker.cancel( true );
-//            }
-//        } catch (InterruptedException ex) {
-//            Logger.getLogger(WatchDirSw.class.getName()).log(Level.SEVERE, null, ex);
-//        }
         }
 
     public void actionPerformed(java.awt.event.ActionEvent evt) {                                         
         if ( jFileFinderWin.searchBtn.getText().equalsIgnoreCase( jFileFinderWin.PROCESS_STATUS_SEARCH_CANCELED ) )
             {
-            this.stopWatch();
+            this.cancelWatch();
             }
         else
             {
@@ -110,11 +61,12 @@ public class WatchDirSw {
         
     }                                        
 
-    public Thread newThread(final Runnable r) {
-            Thread thread = new Thread( r );
-            thread.setName( "watchDir" + thread.getName());
-            thread.setDaemon(true);
-            return thread;
+    public Thread newThread(final Runnable r) 
+        {
+        Thread thread = new Thread( r );
+        thread.setName( "watchDir" + thread.getName());
+        thread.setDaemon(true);
+        return thread;
         }
 
     /**

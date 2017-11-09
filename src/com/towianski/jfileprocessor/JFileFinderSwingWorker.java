@@ -13,8 +13,8 @@ import javax.swing.SwingWorker;
  *
  * @author Stan Towianski - June 2015
  */
-public class JFileFinderSwingWorker extends SwingWorker<ResultsData, String> {
-
+public class JFileFinderSwingWorker extends SwingWorker<ResultsData, String> 
+{
     static JFileFinderWin jFileFinderWin = null;
     static String startingPath = null;
     static String patternType = null;
@@ -54,15 +54,6 @@ public class JFileFinderSwingWorker extends SwingWorker<ResultsData, String> {
         return JFileFinder.getResultsData();
     }
 
-//            @Override
-//            // This will be called if you call publish() from doInBackground()
-//            // Can safely update the GUI here.
-//            protected void process(List<String> chunks) {
-//                String value = chunks.get(chunks.size() - 1);
-//                
-//                jFileFinderWin.setMessage( value );
-//            }
-            
     @Override
     public void done() {
         try {

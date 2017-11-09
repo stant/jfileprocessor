@@ -715,7 +715,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
         {
         if ( watchDirSw != null )
             {
-            watchDirSw.stopWatch();
+            watchDirSw.cancelWatch();
             }
         }
 
@@ -723,7 +723,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
         {
         if ( watchDirSw == null )
             {
-            watchDirSw = new WatchDirSw( this, Paths.get( getStartingFolder() ) );
+            watchDirSw = new WatchDirSw( this );
             }
         watchDirSw.actionPerformed(null);
         }
