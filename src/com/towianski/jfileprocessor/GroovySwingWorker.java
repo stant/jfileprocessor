@@ -6,6 +6,7 @@
 package com.towianski.jfileprocessor;
 
 import com.towianski.jfileprocess.actions.CloseWinOnTimer;
+import static com.towianski.jfileprocessor.FillTableModelSwingWorker.jFileFinderWin;
 import com.towianski.models.ResultsData;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.SwingWorker;
@@ -35,6 +36,7 @@ public class GroovySwingWorker extends SwingWorker<ResultsData, Object> {
 
     @Override
     public ResultsData doInBackground() {
+        jFileFinderWin.stopDirWatcher();
         codeProcessorPanel.setProcessStatus(codeProcessorPanel.PROCESS_STATUS_STARTED );
         jRunGroovy.run();
         return jRunGroovy.getResultsData();
@@ -74,8 +76,7 @@ public class GroovySwingWorker extends SwingWorker<ResultsData, Object> {
             codeProcessorPanel.setMessage( msg + partialMsg );
             codeProcessorPanel.setResultsData( resultsData );
             
-//            jFileFinderWin.callSearchBtnActionPerformed( null );
-            //System.out.println( "exiting SwingWork.done()" );
+            jFileFinderWin.startDirWatcher();
             }
         catch (InterruptedException ignore) 
             {}

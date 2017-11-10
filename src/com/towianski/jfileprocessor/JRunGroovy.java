@@ -89,8 +89,8 @@ public class JRunGroovy //  implements Runnable
                 cancelFillFlag = false;
                 File currentDir = new File( currentDirectory );
         //        this.pathRoots = new String[] { currentDir.getAbsolutePath() };
+                System.out.println( "before call: callGroovy() with String[] pathRoots (currentDir.getAbsolutePath()) =" + currentDir.getAbsolutePath() + "=" );
                 CallGroovy callGroovy = new CallGroovy( new String[] { currentDir.getAbsolutePath() } );
-                System.out.println( "before call: callGroovy.groovyScriptEngineRun();" );
                 Binding binding = new Binding();
                 System.out.println( "start codeProcessorPanel.jFileFinderWin.getStartingFolder() =" + this.jFileFinderWin.getStartingFolder() + "=" );
 

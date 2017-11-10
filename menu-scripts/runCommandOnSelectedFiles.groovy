@@ -31,18 +31,18 @@ class Test {
         String baseCmd = null;
         if ( System.getProperty( "os.name" ).toLowerCase().startsWith( "mac" ) )
             {
-            baseCmd = "ls -l ";
+            baseCmd = "ls -l %f";
             }
         else if ( System.getProperty( "os.name" ).toLowerCase().startsWith( "win" ) )
             {
-            baseCmd = "dir ";
+            baseCmd = "cmd.exe /C dir %f";
             }
         else if ( System.getProperty( "os.name" ).toLowerCase().startsWith( "linux" ) )
             {
-            baseCmd = "ls -l ";
+            baseCmd = "ls -l %f";
             }
         
-        baseCmd = JOptionPane.showInputDialog( "command to run (%f=full file, %F=file name): ", baseCmd + " %f" );
+        baseCmd = JOptionPane.showInputDialog( "command to run (%f=full file, %F=file name): ", baseCmd );
         if ( baseCmd == null )
             {
             numItems = 0;
@@ -59,8 +59,9 @@ class Test {
 
             outFile << System.getProperty("line.separator") + "------ " + (i + 1) + " - " + str + "  -------------------------------" + System.getProperty("line.separator");
 
-            String cmd = baseCmd.replaceFirst( "%f", str );
-            cmd = baseCmd.replaceFirst( "%F", strName );
+            String cmd = baseCmd;
+            cmd = cmd.replace( "%f", str );
+            cmd = cmd.replace( "%F", strName );
             System.out.println( "do: =" + cmd + "=" );
             def list = cmd.execute().text
             list.eachLine{

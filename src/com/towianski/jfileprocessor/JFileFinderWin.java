@@ -721,11 +721,14 @@ public class JFileFinderWin extends javax.swing.JFrame {
 
     public void startDirWatcher()
         {
-        if ( watchDirSw == null )
+        if ( ! stopFileWatchTb.isSelected() )  // if On/Auto
             {
-            watchDirSw = new WatchDirSw( this );
+            if ( watchDirSw == null )
+                {
+                watchDirSw = new WatchDirSw( this );
+                }
+            watchDirSw.actionPerformed(null);
             }
-        watchDirSw.actionPerformed(null);
         }
 
 //    public boolean getSearchLock()
@@ -1514,6 +1517,8 @@ public class JFileFinderWin extends javax.swing.JFrame {
         jLabel13 = new javax.swing.JLabel();
         stdOutFile = new javax.swing.JFormattedTextField();
         stdErrFile = new javax.swing.JFormattedTextField();
+        stopFileWatchTb = new javax.swing.JToggleButton();
+        fileWatchLbl = new javax.swing.JLabel();
         leftHistory = new javax.swing.JButton();
         rightHistory = new javax.swing.JButton();
         jPanel7 = new javax.swing.JPanel();
@@ -1656,12 +1661,12 @@ public class JFileFinderWin extends javax.swing.JFrame {
 
             scriptsMenu.setText("Scripts");
             scriptsMenu.addMenuListener(new javax.swing.event.MenuListener() {
-                public void menuSelected(javax.swing.event.MenuEvent evt) {
-                    scriptsMenuMenuSelected(evt);
+                public void menuCanceled(javax.swing.event.MenuEvent evt) {
                 }
                 public void menuDeselected(javax.swing.event.MenuEvent evt) {
                 }
-                public void menuCanceled(javax.swing.event.MenuEvent evt) {
+                public void menuSelected(javax.swing.event.MenuEvent evt) {
+                    scriptsMenuMenuSelected(evt);
                 }
             });
             jPopupMenu1.add(scriptsMenu);
@@ -1694,7 +1699,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
             jPopupMenu2.add(savePathsToFile1);
 
             setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-            setTitle("JFileProcessor v1.5.2 - Stan Towianski  (c) 2015-2017");
+            setTitle("JFileProcessor v1.5.3 - Stan Towianski  (c) 2015-2017");
             setIconImage(Toolkit.getDefaultToolkit().getImage( JFileFinderWin.class.getResource("/icons/jfp.png") ));
             addWindowListener(new java.awt.event.WindowAdapter() {
                 public void windowOpened(java.awt.event.WindowEvent evt) {
@@ -2310,6 +2315,27 @@ public class JFileFinderWin extends javax.swing.JFrame {
             gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
             gridBagConstraints.insets = new java.awt.Insets(5, 0, 0, 0);
             jPanel9.add(stdErrFile, gridBagConstraints);
+
+            stopFileWatchTb.setText("Auto");
+            stopFileWatchTb.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    stopFileWatchTbActionPerformed(evt);
+                }
+            });
+            gridBagConstraints = new java.awt.GridBagConstraints();
+            gridBagConstraints.gridx = 1;
+            gridBagConstraints.gridy = 3;
+            gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+            gridBagConstraints.insets = new java.awt.Insets(5, 0, 0, 0);
+            jPanel9.add(stopFileWatchTb, gridBagConstraints);
+
+            fileWatchLbl.setText("Watch File Changes:");
+            gridBagConstraints = new java.awt.GridBagConstraints();
+            gridBagConstraints.gridx = 0;
+            gridBagConstraints.gridy = 3;
+            gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+            gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
+            jPanel9.add(fileWatchLbl, gridBagConstraints);
 
             jTabbedPane1.addTab("Settings", jPanel9);
 
@@ -3176,7 +3202,16 @@ public class JFileFinderWin extends javax.swing.JFrame {
     }//GEN-LAST:event_stopFolderCountActionPerformed
 
     private void showOwnerFlagActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showOwnerFlagActionPerformed
-        // TODO add your handling code here:
+        if ( isShowOwnerFlag() )
+            {
+            showGroupFlag.setSelected( true );
+            showPermsFlag.setSelected( true );
+            }
+        else
+            {
+            showGroupFlag.setSelected( false );
+            showPermsFlag.setSelected( false );
+            }
     }//GEN-LAST:event_showOwnerFlagActionPerformed
 
     private void readFileIntoListWinActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_readFileIntoListWinActionPerformed
@@ -3222,6 +3257,19 @@ public class JFileFinderWin extends javax.swing.JFrame {
             }
 
     }//GEN-LAST:event_logsBtnActionPerformed
+
+    private void stopFileWatchTbActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stopFileWatchTbActionPerformed
+        if ( stopFileWatchTb.isSelected() )
+            {
+            stopFileWatchTb.setText( "Off" );
+            stopDirWatcher();
+            }
+        else
+            {
+            stopFileWatchTb.setText( "Auto" );
+            startDirWatcher();
+            }
+    }//GEN-LAST:event_stopFileWatchTbActionPerformed
 
     /**
      * @param args the command line arguments
@@ -3298,6 +3346,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
     private javax.swing.JButton deletePath;
     private javax.swing.JCheckBox fileMgrMode;
     private javax.swing.JTextField filePattern;
+    private javax.swing.JLabel fileWatchLbl;
     private javax.swing.JTable filesTbl;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
@@ -3376,6 +3425,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
     private javax.swing.JFormattedTextField stdErrFile;
     private javax.swing.JFormattedTextField stdOutFile;
     private javax.swing.JTextField stopFileCount;
+    private javax.swing.JToggleButton stopFileWatchTb;
     private javax.swing.JTextField stopFolderCount;
     private javax.swing.JRadioButton tabsLogicAndBtn;
     private javax.swing.JRadioButton tabsLogicOrBtn;
