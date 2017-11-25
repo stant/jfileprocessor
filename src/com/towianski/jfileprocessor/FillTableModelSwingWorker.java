@@ -7,7 +7,6 @@ package com.towianski.jfileprocessor;
 
 import com.towianski.models.ResultsData;
 import java.text.NumberFormat;
-import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
 /**
@@ -67,6 +66,9 @@ public class FillTableModelSwingWorker extends SwingWorker<ResultsData, Object> 
             //jFileFinderWin.fillInFilesTable( resultsData );
             //jFileFinderWin.setResultsData( resultsData );
 
+//            resultsData = null;  // to free up memory 
+//            jFileFinderWin.cleanup();
+//            
             jFileFinderWin.stopDirWatcher();
             jFileFinderWin.startDirWatcher();
             

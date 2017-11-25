@@ -47,6 +47,7 @@ public class JFileFinderSwingWorker extends SwingWorker<ResultsData, String>
     @Override
     public ResultsData doInBackground() {
         System.out.println( "JFileFinderSwingWorker.doInBackground() before jfilefinder.run()" );
+        jFileFinderWin.stopDirWatcher();
         jFileFinderWin.setProcessStatus( jFileFinderWin.PROCESS_STATUS_SEARCH_STARTED );
         System.out.println( "on EDT? = " + javax.swing.SwingUtilities.isEventDispatchThread() );
         jfilefinder.run( this );

@@ -6,7 +6,6 @@
 package com.towianski.jfileprocessor;
 
 import com.towianski.jfileprocess.actions.CloseWinOnTimer;
-import static com.towianski.jfileprocessor.FillTableModelSwingWorker.jFileFinderWin;
 import com.towianski.models.ResultsData;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.SwingWorker;

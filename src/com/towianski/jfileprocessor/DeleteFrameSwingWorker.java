@@ -38,6 +38,7 @@ public class DeleteFrameSwingWorker extends SwingWorker<ResultsData, Long> {
 
     @Override
     public ResultsData doInBackground() {
+        jFileFinderWin.stopDirWatcher();
         deleteFrame.setProcessStatus( deleteFrame.PROCESS_STATUS_DELETE_STARTED );
         jfiledelete.run( this );
         return jfiledelete.getResultsData();

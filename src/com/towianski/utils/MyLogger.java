@@ -5,6 +5,8 @@
  */
 package com.towianski.utils;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.logging.Level;
@@ -39,8 +41,10 @@ static MyLogger mylogger = null;
         //Logger logger = m.getLogger(name);
         Logger logger = m.getLogger(name);
         if (logger == null) 
+            {
             m.addLogger(new MyLogger(name));
-        logger = m.getLogger(name);
+            logger = m.getLogger(name);
+            }
           
         mylogger = (MyLogger)logger;
 
@@ -116,23 +120,31 @@ static MyLogger mylogger = null;
 //    this.setLevel( level );
 //    }
   
-public String getLogString() 
-    {
-    //return outBuf.toString();
-    return loghand.getLogString();
-    }
-  
-public void clearLog()
-    {
-//    System.out.println( "log outBuf before clear =\n" + outBuf.toString() + "\n=" );
-//    outBuf.setLength( 0 );
-//    System.out.println( "log outBuf after  clear =\n" + outBuf.toString() + "\n=" );
-    loghand.clearLog();
-    }
+//public String getLogString() 
+//    {
+//    //return outBuf.toString();
+//    return loghand.getLogString();
+//    }
+//  
+//public void clearLog()
+//    {
+////    System.out.println( "log outBuf before clear =\n" + outBuf.toString() + "\n=" );
+////    outBuf.setLength( 0 );
+////    System.out.println( "log outBuf after  clear =\n" + outBuf.toString() + "\n=" );
+//    loghand.clearLog();
+//    }
 
 public static String getNewLogDate() 
     {
     return sdf.format( Calendar.getInstance().getTime() );
+    }
+
+public String getExceptionAsString( Exception exc ) 
+    {
+    StringWriter sw = new StringWriter();
+    PrintWriter pw = new PrintWriter(sw);
+    exc.printStackTrace(pw);
+    return sw.toString();
     }
 
  public static void main(String[] args) 
@@ -145,7 +157,7 @@ public static String getNewLogDate()
     logger2.log(Level.SEVERE, "message 2");
     logger2.log(Level.FINE, "message 3");
             
-    System.out.println( "log string =\n" + logger2.getLogString() + "\n=" );
+//    System.out.println( "log string =\n" + logger2.getLogString() + "\n=" );
     }    
 
 }

@@ -40,9 +40,14 @@ public class CopyFrameSwingWorker extends SwingWorker<ResultsData, Long> {
 
     @Override
     public ResultsData doInBackground() {
+        jFileFinderWin.stopDirWatcher();
         copyFrame.setProcessStatus( copyFrame.PROCESS_STATUS_COPY_STARTED );
         jfilecopy.run( this );
         return jfilecopy.getResultsData();
+    }
+
+    public void setCloseWhenDoneFlag(boolean closeWhenDoneFlag) {
+        this.closeWhenDoneFlag = closeWhenDoneFlag;
     }
 
     public void publish2( Long num ) {
@@ -70,7 +75,9 @@ public class CopyFrameSwingWorker extends SwingWorker<ResultsData, Long> {
             //System.out.println( "SwingWork.done() got ans =" + matchedPathsList + "=" );
             NumberFormat numFormat = NumberFormat.getIntegerInstance();
             String partialMsg = "";
-            String msg =  "Copied " + numFormat.format( resultsData.getFilesMatched() ) + " files and " + numFormat.format( resultsData.getFoldersMatched() ) + " folders out of " + numFormat.format( resultsData.getFilesVisited() );
+//            String msg =  "Copied " + numFormat.format( resultsData.getFilesMatched() ) + " files and " + numFormat.format( resultsData.getFoldersMatched() ) + " folders out of " + numFormat.format( resultsData.getFilesVisited() );
+            String msg =  "Copied " + numFormat.format( resultsData.getFilesMatched() ) + " files and " + numFormat.format( resultsData.getFoldersMatched() ) + " folders out of " + numFormat.format( resultsData.getFilesTested() ) + " files and " + numFormat.format( resultsData.getFoldersTested() ) + " folders.";
+//            System.out.println( "CopyFrameSwingWorker. got results msg =" + msg + "=" );
             if ( resultsData.getSearchWasCanceled() )
                 {
                 copyFrame.setProcessStatus( copyFrame.PROCESS_STATUS_COPY_CANCELED );

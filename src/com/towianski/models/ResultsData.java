@@ -32,7 +32,7 @@ public class ResultsData {
         }
     
     public ResultsData( ArrayList<Path> matchedPathsList, Boolean searchWasCanceled, Boolean fillWasCanceled, long filesVisited
-            , long filesMatched, long foldersMatched , long filesTested, long foldersTested )
+            , long filesMatched, long foldersMatched, long filesTested, long foldersTested )
         {
         this.matchedPathsList = matchedPathsList;
         this.searchWasCanceled = searchWasCanceled;
@@ -52,6 +52,18 @@ public class ResultsData {
         this.filesVisited = filesVisitedArg;
         this.filesMatched = filesMatchedArg;
         this.foldersMatched = foldersMatched;
+        }
+    
+    public ResultsData( Boolean searchWasCanceledArg, String processStatus, String message, long filesVisitedArg, long filesMatchedArg, long foldersMatched, long filesTested, long foldersTested )
+        {
+        this.searchWasCanceled = searchWasCanceledArg;
+        this.processStatus = processStatus;
+        this.message = message;
+        this.filesVisited = filesVisitedArg;
+        this.filesMatched = filesMatchedArg;
+        this.foldersMatched = foldersMatched;
+        this.filesTested = filesTested;
+        this.foldersTested = foldersTested;
         }
     
     public ResultsData( Boolean searchWasCanceledArg, String processStatus, String message )

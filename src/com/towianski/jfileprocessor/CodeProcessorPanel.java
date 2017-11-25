@@ -39,7 +39,7 @@ public class CodeProcessorPanel extends javax.swing.JFrame {
         
 /// extra vars
 
-    MyLogger logger = MyLogger.getLogger( CopyFrame.class.getName() );
+    private final static MyLogger logger = MyLogger.getLogger( CodeProcessorPanel.class.getName() );
 
     Thread jfinderThread = null;
     JFileFinderSwingWorker jFileFinderSwingWorker = null;

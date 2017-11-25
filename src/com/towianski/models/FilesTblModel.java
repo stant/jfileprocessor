@@ -15,8 +15,16 @@ public class FilesTblModel extends AbstractTableModel
 {
     private ArrayList<String>colNames;
     private ArrayList<ArrayList> data;
-    public static int FILESTBLMODEL_ISLINK = 0;
-    public static int FILESTBLMODEL_ISDIR = 1;
+    public static int FILESTBLMODEL_FILETYPE = 0;
+    public static int FILETYPE_NORMAL = 0;
+    public static int FILETYPE_LINK = 1;
+    public static int FILETYPE_OTHER = 2;
+//    public static int FILESTBLMODEL_ISDIR = 1;
+    public static int FILESTBLMODEL_FOLDERTYPE = 1;
+    public static int FOLDERTYPE_FILE = 0;
+    public static int FOLDERTYPE_FILE_NOT_FOUND = 1;
+    public static int FOLDERTYPE_FOLDER = 2;
+    public static int FOLDERTYPE_FOLDER_NOACCESS = 3;
     public static int FILESTBLMODEL_PATH = 2;
     public static int FILESTBLMODEL_MODIFIEDDATE = 3;
     public static int FILESTBLMODEL_SIZE = 4;
@@ -83,8 +91,10 @@ public class FilesTblModel extends AbstractTableModel
                     data.get( row ).set( col, (Date) aValue );
                 else if ( col == FILESTBLMODEL_SIZE )
                     data.get( row ).set( col, (Long) aValue );
-                else if ( col == FILESTBLMODEL_ISDIR || col == FILESTBLMODEL_ISLINK )
-                    data.get( row ).set( col, (Boolean) aValue );
+                else if ( col == FILESTBLMODEL_FOLDERTYPE )
+                    data.get( row ).set( col, (Integer) aValue );
+                else if ( col == FILESTBLMODEL_FILETYPE )
+                    data.get( row ).set( col, (Integer) aValue );
                 else
                     data.get( row ).set( col, (String) aValue );
                 }
@@ -108,8 +118,10 @@ public class FilesTblModel extends AbstractTableModel
                     return Date.class;
                 else if ( columnIndex == FILESTBLMODEL_SIZE )
                     return Long.class;
-                else if ( columnIndex == FILESTBLMODEL_ISDIR || columnIndex == FILESTBLMODEL_ISLINK )
-                    return Boolean.class;
+                else if ( columnIndex == FILESTBLMODEL_FOLDERTYPE )  //|| columnIndex == FILESTBLMODEL_ISLINK )
+                    return Integer.class;
+                else if ( columnIndex == FILESTBLMODEL_FILETYPE )
+                    return Integer.class;
                 }
             }
         catch ( Exception ex )
@@ -156,8 +168,8 @@ public class FilesTblModel extends AbstractTableModel
         try {
             //System.out.println( "before add row table col count =" + this.getColumnCount() );
             ArrayList newRow = new ArrayList();
-            newRow.add( false );
-            newRow.add( true );
+            newRow.add( FILETYPE_NORMAL );
+            newRow.add( FOLDERTYPE_FOLDER  );
             newRow.add( Path );
             newRow.add( Calendar.getInstance().getTime() );
             newRow.add( (long) 0 );
@@ -187,8 +199,8 @@ public class FilesTblModel extends AbstractTableModel
         try {
             //System.out.println( "before add row table col count =" + this.getColumnCount() );
             ArrayList newRow = new ArrayList();
-            newRow.add( false );
-            newRow.add( true );
+            newRow.add( FILETYPE_NORMAL );
+            newRow.add( FOLDERTYPE_FOLDER  );
             newRow.add( Path );
             newRow.add( Calendar.getInstance().getTime() );
             newRow.add( (long) 0 );
@@ -217,8 +229,8 @@ public class FilesTblModel extends AbstractTableModel
         ArrayList newRow = new ArrayList();
         try {
             //System.out.println( "before add row table col count =" + this.getColumnCount() );
-            newRow.add( false );
-            newRow.add( true );
+            newRow.add( FILETYPE_NORMAL );
+            newRow.add( FOLDERTYPE_FOLDER  );
             newRow.add( Path );
             newRow.add( Calendar.getInstance().getTime() );
             newRow.add( (long) 0 );
@@ -263,7 +275,7 @@ public class FilesTblModel extends AbstractTableModel
     public boolean isCellEditable( int row, int col )  // custom isCellEditable function
         {
         //if ( editableCells.containsKey( row + "-" + col ) )
-            System.out.println( "cell " + row + ", " + col + " is edittable" );
+//        System.out.println( "cell " + row + ", " + col + " is edittable" );
         return editableCells.containsKey( row + "-" + col );
         }
     

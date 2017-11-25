@@ -18,6 +18,7 @@ import java.nio.file.FileVisitOption;
 import static java.nio.file.FileVisitOption.FOLLOW_LINKS;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
@@ -30,13 +31,13 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.logging.Level;
-
 
 
 public class JFileFinder //  implements Runnable 
 {
-    static MyLogger logger = MyLogger.getLogger( JFileFinder.class.getName() );
+    private final static MyLogger logger = MyLogger.getLogger( JFileFinder.class.getName() );
 
     static JFileFinderWin jFileFinderWin = null;
     static String startingPath = null;
@@ -47,6 +48,7 @@ public class JFileFinder //  implements Runnable
     static boolean cancelFlag = false;
     static boolean cancelFillFlag = false;
     static ArrayList<Path> matchedPathsList = new ArrayList<Path>();
+    static HashMap<Path, String> noAccessFolder = new HashMap<Path, String>();
     static Finder finder = null;
     static Boolean dataSyncLock = false;
     static FilterChain chainFilterList = null;
@@ -65,6 +67,7 @@ public class JFileFinder //  implements Runnable
         filePattern = filePatternArg;  //.replace( "\\\\", "/" ).replace( "\\", "/" );
         cancelFlag = false;
         matchedPathsList = new ArrayList<Path>();
+        noAccessFolder = new HashMap<Path, String>();
         this.chainFilterList = chainFilterList;
         this.chainFilterFolderList = chainFilterFolderList;
         this.chainFilterPreVisitFolderList = chainFilterPreVisitFolderList;
@@ -109,14 +112,22 @@ public class JFileFinder //  implements Runnable
                 ArrayList<Object> newRow = new ArrayList<Object>();
 //                newRow.add( false );
 //                newRow.add( true );
-                newRow.add( "No Files Found" );
+                if ( noAccessFolder.size() > 0 )
+                    {
+                    newRow.add( "Inaccessible" );
+                    jFileFinderWin.stopDirWatcher();
+                    }
+                else
+                    {
+                    newRow.add( "No Files Found" );
+                    }
 //                newRow.add( Calendar.getInstance().getTime() );
 //                newRow.add( (long) 0 );
                 PathsInfoList.add( newRow );
                 }
             else
                 {
-                HeaderList.add( "Link" );
+                HeaderList.add( "Type" );
                 HeaderList.add( "Dir" );
                 HeaderList.add( "File" );
                 HeaderList.add( "last Modified Time" );
@@ -142,51 +153,97 @@ public class JFileFinder //  implements Runnable
     
     public static void getPosixFileInfo( ArrayList<ArrayList> PathsInfoList )
         {
-            for ( Path fpath : matchedPathsList )
+        for ( Path fpath : matchedPathsList )
+            {
+            if ( cancelFillFlag )
                 {
-                if ( cancelFillFlag )
+                break;
+                }
+            ArrayList<Object> rowList = new ArrayList<Object>();
+            BasicFileAttributes attr;
+            try {
+                attr = Files.readAttributes( fpath, BasicFileAttributes.class );
+
+                int ftype = FilesTblModel.FILETYPE_NORMAL;
+                if ( Files.isSymbolicLink( fpath ) )
                     {
-                    break;
+                    ftype = FilesTblModel.FILETYPE_LINK;
                     }
-                ArrayList<Object> rowList = new ArrayList<Object>();
-                BasicFileAttributes attr;
-                try {
-                    attr = Files.readAttributes( fpath, BasicFileAttributes.class );
+                else if ( attr.isOther() )
+                    {
+                    ftype = FilesTblModel.FILETYPE_OTHER;
+                    }
+//                    rowList.add( Files.isSymbolicLink( fpath ) );  // needed to make linux work
+                rowList.add( ftype );  // needed to make linux work
 
-                    rowList.add( Files.isSymbolicLink( fpath ) );  // needed to make linux work
-                    rowList.add( attr.isDirectory() );
-                    rowList.add( fpath.toString() );
-                    rowList.add( new Date( attr.lastModifiedTime().toMillis() ) );
-                    rowList.add( attr.size() );
+//                    rowList.add( attr.isDirectory() );
+                int folderType = FilesTblModel.FOLDERTYPE_FILE;
+                if ( attr.isDirectory() )
+                    {
+                    if ( noAccessFolder.containsKey( fpath ) )
+                        {
+                        folderType = FilesTblModel.FOLDERTYPE_FOLDER_NOACCESS;
+                        }
+                    else
+                        {
+                        folderType = FilesTblModel.FOLDERTYPE_FOLDER;
+                        }
+                    }
+                rowList.add( folderType );
 
-                    PosixFileAttributes fsattr = Files.readAttributes( fpath, PosixFileAttributes.class );
+                rowList.add( fpath.toString() );
+                rowList.add( new Date( attr.lastModifiedTime().toMillis() ) );
+                rowList.add( attr.size() );
+
+                PosixFileAttributes fsattr = Files.readAttributes( fpath, PosixFileAttributes.class );
 //                    if ( jFileFinderWin.isShowOwnerFlag() )
-                        {
-                        rowList.add( fsattr.owner() );
-                        }
+                    {
+                    rowList.add( fsattr.owner() );
+                    }
 //                    if ( jFileFinderWin.isShowGroupFlag() )
-                        {
-                        rowList.add( fsattr.group() );
-                        }
+                    {
+                    rowList.add( fsattr.group() );
+                    }
 //                    if ( jFileFinderWin.isShowPermsFlag() )
-                        {
-                        rowList.add( PosixFilePermissions.toString( fsattr.permissions() ) );
-                        }
+                    {
+                    rowList.add( PosixFilePermissions.toString( fsattr.permissions() ) );
+                    }
 
-                    PathsInfoList.add( rowList );
-                } catch (Exception ex) {
-                    logger.log(Level.SEVERE, ex.toString());
+                PathsInfoList.add( rowList );
                 }
-    //        System.out.println("creationTime     = " + attr.creationTime());
-    //        System.out.println("lastAccessTime   = " + attr.lastAccessTime());
-    //        System.out.println("lastModifiedTime = " + attr.lastModifiedTime());
-    // 
-    //        System.out.println("isDirectory      = " + attr.isDirectory());
-    //        System.out.println("isOther          = " + attr.isOther());
-    //        System.out.println("isRegularFile    = " + attr.isRegularFile());
-    //        System.out.println("isSymbolicLink   = " + attr.isSymbolicLink());
-    //        System.out.println("size             = " + attr.size());
+            catch( NoSuchFileException nsf )
+                {
+                int ftype = FilesTblModel.FILETYPE_NORMAL;
+                if ( Files.isSymbolicLink( fpath ) )
+                    {
+                    ftype = FilesTblModel.FILETYPE_LINK;
+                    }
+                rowList.add( ftype );  // needed to make linux work
+
+                rowList.add( FilesTblModel.FOLDERTYPE_FILE_NOT_FOUND );
+                rowList.add( fpath.toString() );
+                rowList.add( Calendar.getInstance().getTime() );
+                rowList.add( (long) 0 );
+                rowList.add( "" );
+                rowList.add( "" );
+                rowList.add( "---" );
+                PathsInfoList.add( rowList );
+                logger.log(Level.SEVERE, nsf.toString());
                 }
+            catch (Exception ex) 
+                {
+                logger.log(Level.SEVERE, ex.toString());
+                }
+//        System.out.println("creationTime     = " + attr.creationTime());
+//        System.out.println("lastAccessTime   = " + attr.lastAccessTime());
+//        System.out.println("lastModifiedTime = " + attr.lastModifiedTime());
+// 
+//        System.out.println("isDirectory      = " + attr.isDirectory());
+//        System.out.println("isOther          = " + attr.isOther());
+//        System.out.println("isRegularFile    = " + attr.isRegularFile());
+//        System.out.println("isSymbolicLink   = " + attr.isSymbolicLink());
+//        System.out.println("size             = " + attr.size());
+            }
         }
 
     public static void getDosFileInfo( ArrayList<ArrayList> PathsInfoList )
@@ -224,7 +281,7 @@ public class JFileFinder //  implements Runnable
                     
                     PathsInfoList.add( rowList );
                 } catch (Exception ex) {
-                    logger.log(Level.SEVERE, ex.toString());
+                    logger.log(Level.SEVERE, ": line " + Thread.currentThread().getStackTrace()[2].getLineNumber() + ": " + ex.toString());
                 }
     //        System.out.println("creationTime     = " + attr.creationTime());
     //        System.out.println("lastAccessTime   = " + attr.lastAccessTime());
@@ -271,7 +328,7 @@ public class JFileFinder //  implements Runnable
             ArrayList<String> HeaderList = new ArrayList<String>();
             ArrayList<ArrayList> PathsInfoList = new ArrayList<ArrayList>();
 
-            HeaderList.add( "Link" );
+            HeaderList.add( "Type" );
             HeaderList.add( "Dir" );
             HeaderList.add( "File" );
             HeaderList.add( "last Modified Time" );
@@ -518,6 +575,24 @@ public class JFileFinder //  implements Runnable
             if ( new File( file.toString() ).isDirectory() )
                 {
                 System.out.println( "skipping inaccessible folder: " + file.toString() );
+                if ( exc instanceof java.nio.file.AccessDeniedException )
+                    {
+                    BasicFileAttributes attrs;
+                    try {
+                        attrs = Files.readAttributes( file, BasicFileAttributes.class );
+                        processFolder( file, attrs );
+                        noAccessFolder.put( file, null );
+                        }
+                    catch (Exception ex) 
+                        {
+                        System.out.println( "Error calling processFolder in visitFileFailed()" );
+                        ex.printStackTrace();
+                        }
+                    }
+                else
+                    {
+                    exc.printStackTrace();
+                    }
                 return FileVisitResult.SKIP_SUBTREE;
                 }
             return CONTINUE;
@@ -586,9 +661,12 @@ public class JFileFinder //  implements Runnable
                 System.out.println( "END: " + sdf.format( endDate ) );
                 System.out.println( "matchedPathsList size =" + matchedPathsList.size() + "=" );
                 }
-        } catch (IOException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        }
+            } 
+        catch (IOException ex)
+            {
+            System.out.println( "walkFileTree Error: " );
+            ex.printStackTrace();
+            }
         finder.done();
     }
         

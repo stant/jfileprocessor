@@ -34,7 +34,7 @@ public class ScriptSwingWorker extends CodeProcessorPanel {
         
 /// extra vars
 
-    MyLogger logger = MyLogger.getLogger( CopyFrame.class.getName() );
+    private final static MyLogger logger = MyLogger.getLogger( ScriptSwingWorker.class.getName() );
         
     Thread jfinderThread = null;
     JFileFinderSwingWorker jFileFinderSwingWorker = null;

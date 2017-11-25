@@ -20,9 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import javax.swing.JComponent;
-import javax.swing.JEditorPane;
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
 /**
@@ -32,7 +30,7 @@ import javax.swing.KeyStroke;
 public class CopyFrame extends javax.swing.JFrame {
 
 //    private final static MyLogger logger = new MyLogger( Logger.getLogger( CopyFrame.class.getName() ) );
-    MyLogger logger = MyLogger.getLogger( CopyFrame.class.getName() );
+    private final static MyLogger logger = MyLogger.getLogger( CopyFrame.class.getName() );
 
     JFileFinderWin jFileFinderWin = null;
     Thread jfinderThread = null;
@@ -44,6 +42,7 @@ public class CopyFrame extends javax.swing.JFrame {
     public static final String PROCESS_STATUS_COPY_STARTED = "Copy Started . . .";
     public static final String PROCESS_STATUS_COPY_CANCELED = "Copy canceled";
     public static final String PROCESS_STATUS_COPY_COMPLETED = "Copy completed";
+    public static final String PROCESS_STATUS_COPY_INCOMPLETED = "Copy incomplete";
     public static final String PROCESS_STATUS_CANCEL_COPY = "Cancel Copy";
     public static final String PROCESS_STATUS_COPY_READY = "Copy";
 
@@ -246,6 +245,7 @@ public class CopyFrame extends javax.swing.JFrame {
         gridBagConstraints.gridy = 6;
         gridBagConstraints.gridwidth = 4;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 0.2;
         gridBagConstraints.insets = new java.awt.Insets(5, 4, 0, 5);
         getContentPane().add(message, gridBagConstraints);
 
@@ -401,14 +401,15 @@ public class CopyFrame extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
 
-        System.out.println( "log string =\n" + logger.getLogString() + "\n=" );
+        //  i basically gutted this by taking out logger.getLogString(). if needed, put it back.
+//        System.out.println( "log string =\n" + logger.getLogString() + "\n=" );
 
-        JEditorPane ep = new JEditorPane( "text/text", logger.getLogString() );
-        ep.setVisible(true);
-        ep.setSize( 900,800 );
+//        JEditorPane ep = new JEditorPane( "text/text", logger.getLogString() );
+//        ep.setVisible(true);
+//        ep.setSize( 900,800 );
 
     // show
-    JOptionPane.showMessageDialog( null, ep );
+//    JOptionPane.showMessageDialog( null, ep );
         
     }//GEN-LAST:event_jButton1ActionPerformed
 
@@ -425,7 +426,7 @@ public class CopyFrame extends javax.swing.JFrame {
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
          * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
          */
-        MyLogger logger = MyLogger.getLogger( CopyFrame.class.getName() );
+//        MyLogger logger = MyLogger.getLogger( CopyFrame.class.getName() );
 
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {

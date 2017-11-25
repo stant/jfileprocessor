@@ -6,7 +6,6 @@
 package com.towianski.jfileprocessor;
 
 import com.towianski.jfileprocess.actions.WatchDir;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;

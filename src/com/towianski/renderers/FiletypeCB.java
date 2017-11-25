@@ -23,6 +23,7 @@ public class FiletypeCB extends JCheckBox {
         try {
             foldericon = new ImageIcon(ImageIO.read(getClass().getResource("/icons/yellow/Folder-Blank-icon-16.png")));
             fileicon = new ImageIcon(ImageIO.read(getClass().getResource("/icons/yellow/document-icon-16.png")));
+            this.setSize( 16, 16 );
         } catch (IOException ex) {
             ex.printStackTrace();
         }

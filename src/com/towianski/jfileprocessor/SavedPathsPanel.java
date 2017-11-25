@@ -5,7 +5,7 @@
  */
 package com.towianski.jfileprocessor;
 
-import com.towianski.jfileprocess.actions.JavaProcess;
+import com.towianski.jfileprocess.actions.ProcessInThread;
 import com.towianski.utils.DesktopUtils;
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -166,8 +166,10 @@ public class SavedPathsPanel extends javax.swing.JPanel {
         if ( strPath.equals( "New Window" ) )
             {
             try {
-                int rc = JavaProcess.execJava( com.towianski.jfileprocessor.JFileFinderWin.class );
-                System.out.println( "javaprocess.exec start new window rc = " + rc + "=" );
+//                int rc = JavaProcess.execJava( com.towianski.jfileprocessor.JFileFinderWin.class );
+                ProcessInThread jp = new ProcessInThread();
+                int rc = jp.execJava( com.towianski.jfileprocessor.JFileFinderWin.class, true );
+                System.out.println( "SavedPathsPanel.javaprocess.exec start new window rc = " + rc + "=" );
             } catch (IOException ex) {
                 Logger.getLogger(JFileFinderWin.class.getName()).log(Level.SEVERE, null, ex);
             } catch (InterruptedException ex) {
@@ -178,7 +180,9 @@ public class SavedPathsPanel extends javax.swing.JPanel {
         else if ( strPath.equals( "Trash" ) )
             {
             try {
-                int rc = JavaProcess.execJava( com.towianski.jfileprocessor.JFileFinderWin.class, DesktopUtils.getTrashFolder().toString() );
+//                int rc = JavaProcess.execJava( com.towianski.jfileprocessor.JFileFinderWin.class );
+                ProcessInThread jp = new ProcessInThread();
+                int rc = jp.execJava( com.towianski.jfileprocessor.JFileFinderWin.class, true, DesktopUtils.getTrashFolder().toString() );
                 System.out.println( "javaprocess.exec start new window rc = " + rc + "=" );
             } catch (IOException ex) {
                 Logger.getLogger(JFileFinderWin.class.getName()).log(Level.SEVERE, null, ex);

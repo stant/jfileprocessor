@@ -5,6 +5,7 @@
  */
 package com.towianski.jfileprocessor;
 
+import com.towianski.jfileprocess.actions.CloseWinOnTimer;
 import com.towianski.utils.MyLogger;
 import java.io.File;
 import java.io.IOException;
@@ -18,6 +19,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 /**
@@ -27,7 +29,7 @@ import javax.swing.JOptionPane;
 public class Copier extends SimpleFileVisitor<Path> 
 {
     //private static final Logger logger = Logger.getLogger( MyLogger.class.getName() );
-    MyLogger logger = MyLogger.getLogger( CopyFrame.class.getName() );  // because this is just used by the copyFrame
+    private static final MyLogger logger = MyLogger.getLogger( Copier.class.getName() );  // because this is just used by the copyFrame
 
     private JFileFinderWin jFileFinderWin = null;
     private Boolean isDoingCutFlag = false;
@@ -37,6 +39,8 @@ public class Copier extends SimpleFileVisitor<Path>
     private CopyOption[] copyOptions = null;
     private long numFileMatches = 0;
     private long numFolderMatches = 0;
+    private long numFileTests = 0;
+    private long numFolderTests = 0;
     private long numTested = 0;
 
     boolean cancelFlag = false;
@@ -49,6 +53,15 @@ public class Copier extends SimpleFileVisitor<Path>
     HashMap<Path,Path> renameDirHm = new HashMap<Path,Path>();
     CopyFrameSwingWorker swingWorker = null;
 
+//      static {
+////       logger.setLevel(Level.INFO);
+//        System.out.println( "\nCopier: list of log handlers" );
+//       for (Handler handler : logger.getHandlers()) {
+////           handler.setLevel(Level.INFO);
+//            System.out.println( "handler =" + handler );
+//       }           
+//   }
+      
     public Copier( JFileFinderWin jFileFinderWin, Boolean isDoingCutFlag, CopyOption[] copyOptions, CopyFrameSwingWorker swingWorker )
     {
         this.jFileFinderWin = jFileFinderWin;
@@ -61,30 +74,29 @@ public class Copier extends SimpleFileVisitor<Path>
         
         logger.setLevel( Level.OFF );
         System.out.println( "Copier logger.getLevel() =" + logger.getLevel() + "=" );
-        System.out.println( "Copier logger.getLogString() =" + logger.getLogString() + "=" );
-        logger.clearLog();
+//        System.out.println( "Copier logger.getLogString() =" + logger.getLogString() + "=" );
+//        logger.clearLog();
         
         logger.setLevel( Level.SEVERE );
         System.out.println( "Copier logger.getLevel() =" + logger.getLevel() + "=" );
-        System.out.println( "Copier logger.getLogString() =" + logger.getLogString() + "=" );
-        logger.clearLog();
+//        System.out.println( "Copier logger.getLogString() =" + logger.getLogString() + "=" );
+//        logger.clearLog();
 
         logger.setLevel( Level.INFO );
         System.out.println( "Copier logger.getLevel() =" + logger.getLevel() + "=" );
-        System.out.println( "Copier logger.getLogString() =" + logger.getLogString() + "=" );
-        logger.clearLog();
+//        System.out.println( "Copier logger.getLogString() =" + logger.getLogString() + "=" );
+//        logger.clearLog();
 
         logger.setLevel( Level.FINE );
         System.out.println( "Copier logger.getLevel() =" + logger.getLevel() + "=" );
-        System.out.println( "Copier logger.getLogString() =" + logger.getLogString() + "=" );
-        logger.clearLog();
+//        System.out.println( "Copier logger.getLogString() =" + logger.getLogString() + "=" );
+//        logger.clearLog();
 
         System.out.println( "Copier jFileFinderWin.getLogLevel() =" + jFileFinderWin.getLogLevel() + "=" );
         logger.setLevel( jFileFinderWin.getLogLevel() );
         System.out.println( "Copier logger.getLevel() =" + logger.getLevel() + "=" );
-        System.out.println( "Copier logger.getLogString() =" + logger.getLogString() + "=" );
-        
-        logger.clearLog();
+//        System.out.println( "Copier logger.getLogString() =" + logger.getLogString() + "=" );        
+//        logger.clearLog();
     }
 
     public void setPaths( Path fromPath, String startingPath, String toPath ) {
@@ -106,19 +118,38 @@ public class Copier extends SimpleFileVisitor<Path>
         System.out.println( "relativize =" + this.startingPath.relativize( fromPath ) + "=" );
         System.out.println( "toPath =" + toPath + "   resolve targetPath =" + targetPath + "=" );
 
-        while ( fromPath.toFile().isDirectory() &&
-                this.startingPath.equals( this.toPath ) )
-            {
-            ans = JOptionPane.showInputDialog( "Folder exists. New name: ", fromPath.getFileName() );
-            if ( ans == null )
+        try {
+            while ( fromPath.toFile().isDirectory() &&
+                    this.toPath.toRealPath().equals( this.startingPath.toRealPath() ) )
                 {
-                cancelFlag = true;
-                break;
+                if ( ! this.startingPath.equals( this.toPath ) )
+                    {
+                    ans = JOptionPane.showInputDialog( "Folder exists (probably through a symbolic link). New name: ", fromPath.getFileName() );
+                    }
+                else
+                    {
+                    ans = JOptionPane.showInputDialog( "Folder exists. New name: ", fromPath.getFileName() );
+                    }
+                if ( ans == null )
+                    {
+                    cancelFlag = true;
+                    break;
+                    }
+                this.toPath = Paths.get( fromParent + toPathFileSeparator + ans );
+                this.startingPath = fromPath;
+                System.out.println( "new this.startingPath =" + this.startingPath + "   this.fromPath =" + this.fromPath + "=" );
+                System.out.println( "new this.toPath =" + this.toPath + "=" );
                 }
-            this.toPath = Paths.get( fromParent + toPathFileSeparator + ans );
-            this.startingPath = fromPath;
-            System.out.println( "new this.startingPath =" + this.startingPath + "   this.fromPath =" + this.fromPath + "=" );
-            System.out.println( "new this.toPath =" + this.toPath + "=" );
+            
+            if ( this.toPath.toRealPath().startsWith( this.fromPath.toRealPath() ) )
+                {
+                JOptionPane.showMessageDialog( jFileFinderWin, "You cannot copy a parent into a child folder." );
+                cancelFlag = true;
+                }
+            } 
+        catch (IOException ex) 
+            {
+            Logger.getLogger(Copier.class.getName()).log(Level.SEVERE, null, ex);
             }
     }
 
@@ -137,6 +168,7 @@ public class Copier extends SimpleFileVisitor<Path>
 //        System.out.println( "preVisitDir toPath =" + toPath + "   resolve targetPath =" + targetPath + "=" );
 
         numTested++;
+        numFolderTests ++;
         numFolderMatches++;
         if ( cancelFlag )
             {
@@ -155,6 +187,7 @@ public class Copier extends SimpleFileVisitor<Path>
     public FileVisitResult visitFile( Path file, BasicFileAttributes attrs ) 
             throws IOException 
         {
+        try {
         Path targetPath = toPath.resolve( startingPath.relativize( file ) );
 //        System.out.println( );
 //        System.out.println("preVisit startingPath =" + startingPath + "   file =" + file + "=" );
@@ -168,7 +201,17 @@ public class Copier extends SimpleFileVisitor<Path>
             return FileVisitResult.TERMINATE;
             }
         numTested++;
+        numFileTests ++;
         swingWorker.publish2( numTested );
+        
+//                    this.toPath.toRealPath().toString().startsWith( this.startingPath.toRealPath().toString() ) )
+//                    if ( this.toPath.toRealPath().toString().startsWith( this.startingPath.toRealPath().toString() ) )
+//                        {
+//                        ans = JOptionPane.showInputDialog( "Cannot copy a parent folder onto a child. New name: ", fromPath.getFileName() );
+//                        }
+//                    else
+//                        {
+//                        }
         
         Path toPathFile = toPath.resolve( startingPath.relativize( file ) );
         while ( file.compareTo( toPathFile ) == 0 )
@@ -190,7 +233,6 @@ public class Copier extends SimpleFileVisitor<Path>
 //            //copyOpts[0] = StandardCopyOption.REPLACE_EXISTING;
 //            copyOpts[1] = StandardCopyOption.COPY_ATTRIBUTES;
 //            //copyOpts[2] = LinkOption.NOFOLLOW_LINKS;
-        try {
             if ( copyOptions == null || copyOptions.length < 1 )
                 {
 //                System.out.println("copy with default options. file =" + file + "=   to =" + toPath.resolve(startingPath.relativize( file ) ) + "=" );
@@ -205,7 +247,14 @@ public class Copier extends SimpleFileVisitor<Path>
         catch ( java.nio.file.NoSuchFileException noSuchFileExc ) 
             {
             logger.log( Level.INFO, "CAUGHT ERROR  " + noSuchFileExc.getClass().getSimpleName() + ": " + file );
-            System.out.println( "CAUGHT ERROR  " + noSuchFileExc.getClass().getSimpleName() + ": " + file );
+            logger.log( Level.INFO, logger.getExceptionAsString( noSuchFileExc ) );
+            return FileVisitResult.CONTINUE;
+            }
+        catch ( java.nio.file.AccessDeniedException exAccessDenied ) 
+            {
+            logger.log( Level.INFO, "CAUGHT WARNING  " + exAccessDenied.getClass().getSimpleName() + ": " + file );
+            logger.log( Level.INFO, logger.getExceptionAsString( exAccessDenied ) );
+            swingWorker.setCloseWhenDoneFlag( false );
             return FileVisitResult.CONTINUE;
             }
         catch ( java.nio.file.FileAlreadyExistsException faeExc )
@@ -270,7 +319,16 @@ public class Copier extends SimpleFileVisitor<Path>
     void done() 
         {
         System.out.println( "Tested:  " + numTested );
-        System.out.println( "Copied count: " + numFileMatches );
+        System.out.println( "Copied numFileMatches: " + numFileMatches );
+        System.out.println( "Copied numFolderMatches: " + numFolderMatches );
+        System.out.println( "Copied numFileTests: " + numFileTests );
+        System.out.println( "Copied numFolderTests: " + numFolderTests );
+
+        if ( numFileMatches != numFileTests  ||
+             numFolderMatches != numFolderTests )
+            {
+            processStatus = CopyFrame.PROCESS_STATUS_COPY_INCOMPLETED;
+            }
 
 //            for ( Path mpath : matchedPathsList )
 //                {
@@ -290,6 +348,14 @@ public class Copier extends SimpleFileVisitor<Path>
 
     public long getNumFolderMatches() {
         return numFolderMatches;
+    }
+
+    public long getNumFileTests() {
+        return numFileTests;
+    }
+
+    public long getNumFolderTests() {
+        return numFolderTests;
     }
 
     public String getProcessStatus() {

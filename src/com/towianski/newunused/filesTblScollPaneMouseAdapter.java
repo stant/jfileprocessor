@@ -63,9 +63,11 @@ public class filesTblScollPaneMouseAdapter extends MouseAdapter
                 int rowIndex = filesTbl.convertRowIndexToModel( filesTbl.getSelectedRow() );
                 //System.out.println( "converted rowIndex =" + rowIndex );
                 String selectedPath = (String) filesTbl.getModel().getValueAt( rowIndex, FilesTblModel.FILESTBLMODEL_PATH );
-                Boolean isDir = (Boolean) filesTbl.getModel().getValueAt( rowIndex, FilesTblModel.FILESTBLMODEL_ISDIR );
+//                Boolean isDir = (Boolean) filesTbl.getModel().getValueAt(rowIndex, FilesTblModel.FILESTBLMODEL_FOLDERTYPE );
+                int folderType = (Integer) filesTbl.getModel().getValueAt(rowIndex, FilesTblModel.FILESTBLMODEL_FOLDERTYPE );
                 //System.out.println( "selected row file =" + selectedPath );
-                if ( isDir )
+//                System.out.println( "mouseClicked selected folderType =" + folderType );
+                if ( folderType == FilesTblModel.FOLDERTYPE_FOLDER ) // skipping no access folder for now !
                     {
                     jFileFinderWin.setStartingFolder( selectedPath );
                     jFileFinderWin.callSearchBtnActionPerformed( null );

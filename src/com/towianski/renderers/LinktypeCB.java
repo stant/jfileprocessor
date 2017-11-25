@@ -23,6 +23,7 @@ public class LinktypeCB extends JCheckBox {
         try {
             foldericon = new ImageIcon(ImageIO.read(getClass().getResource("/icons/yellow/file-link-icon-16.png")));
             fileicon = new ImageIcon(ImageIO.read(getClass().getResource("/icons/yellow/blank-icon-16.png")));
+            this.setSize( 16, 16 );
         } catch (IOException ex) {
             ex.printStackTrace();
         }
