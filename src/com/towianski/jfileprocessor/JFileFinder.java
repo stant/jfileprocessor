@@ -259,8 +259,33 @@ public class JFileFinder //  implements Runnable
                 try {
                     attr = Files.readAttributes( fpath, BasicFileAttributes.class );
 
-                    rowList.add( Files.isSymbolicLink( fpath ) );  // needed to make linux work
-                    rowList.add( attr.isDirectory() );
+                    int ftype = FilesTblModel.FILETYPE_NORMAL;
+                    if ( Files.isSymbolicLink( fpath ) )
+                        {
+                        ftype = FilesTblModel.FILETYPE_LINK;
+                        }
+                    else if ( attr.isOther() )
+                        {
+                        ftype = FilesTblModel.FILETYPE_OTHER;
+                        }
+    //                    rowList.add( Files.isSymbolicLink( fpath ) );  // needed to make linux work
+                    rowList.add( ftype );  // needed to make linux work
+
+    //                    rowList.add( attr.isDirectory() );
+                    int folderType = FilesTblModel.FOLDERTYPE_FILE;
+                    if ( attr.isDirectory() )
+                        {
+                        if ( noAccessFolder.containsKey( fpath ) )
+                            {
+                            folderType = FilesTblModel.FOLDERTYPE_FOLDER_NOACCESS;
+                            }
+                        else
+                            {
+                            folderType = FilesTblModel.FOLDERTYPE_FOLDER;
+                            }
+                        }
+                    rowList.add( folderType );
+                
                     rowList.add( fpath.toString() );
                     rowList.add( new Date( attr.lastModifiedTime().toMillis() ) );
                     rowList.add( attr.size() );

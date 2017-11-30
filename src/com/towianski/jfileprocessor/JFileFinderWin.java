@@ -1694,12 +1694,12 @@ public class JFileFinderWin extends javax.swing.JFrame {
 
             scriptsMenu.setText("Scripts");
             scriptsMenu.addMenuListener(new javax.swing.event.MenuListener() {
-                public void menuSelected(javax.swing.event.MenuEvent evt) {
-                    scriptsMenuMenuSelected(evt);
+                public void menuCanceled(javax.swing.event.MenuEvent evt) {
                 }
                 public void menuDeselected(javax.swing.event.MenuEvent evt) {
                 }
-                public void menuCanceled(javax.swing.event.MenuEvent evt) {
+                public void menuSelected(javax.swing.event.MenuEvent evt) {
+                    scriptsMenuMenuSelected(evt);
                 }
             });
             jPopupMenu1.add(scriptsMenu);
@@ -1732,7 +1732,7 @@ public class JFileFinderWin extends javax.swing.JFrame {
             jPopupMenu2.add(savePathsToFile1);
 
             setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-            setTitle("JFileProcessor v1.5.4 - Stan Towianski  (c) 2015-2017");
+            setTitle("JFileProcessor v1.5.6 - Stan Towianski  (c) 2015-2017");
             setIconImage(Toolkit.getDefaultToolkit().getImage( JFileFinderWin.class.getResource("/icons/jfp.png") ));
             addWindowListener(new java.awt.event.WindowAdapter() {
                 public void windowOpened(java.awt.event.WindowEvent evt) {
