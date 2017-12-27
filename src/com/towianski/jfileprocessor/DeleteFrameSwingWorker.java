@@ -92,6 +92,11 @@ public class DeleteFrameSwingWorker extends SwingWorker<ResultsData, Long> {
             deleteFrame.setMessage( msg + partialMsg );
             deleteFrame.setResultsData( resultsData );
             
+            // clean up
+            resultsData = null;
+            jfiledelete = null;
+            deletePaths = null;            
+            
             jFileFinderWin.callSearchBtnActionPerformed( null );
             //System.out.println( "exiting SwingWork.done()" );
             }

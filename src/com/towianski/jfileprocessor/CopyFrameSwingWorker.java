@@ -102,6 +102,11 @@ public class CopyFrameSwingWorker extends SwingWorker<ResultsData, Long> {
             copyFrame.setMessage( msg + partialMsg );
             copyFrame.setResultsData( resultsData );
             
+            // clean up
+            resultsData = null;
+            jfilecopy = null;
+            copyPaths = null;            
+            
             jFileFinderWin.callSearchBtnActionPerformed( null );
             //System.out.println( "exiting SwingWork.done()" );
             }

@@ -71,9 +71,9 @@ public class JFileDelete //  implements Runnable
                 cancelFlag = false;
                 for ( Path fpath : copyPaths )
                     {
-                    //System.out.println( "delete path =" + fpath + "=" );
+                    System.out.println( "delete path =" + fpath + "=" );
                     //EnumSet<FileVisitOption> opts = EnumSet.of( FOLLOW_LINKS );
-                    if ( fpath.toFile().exists() )
+                    if ( fpath.toFile().exists() || Files.isSymbolicLink( fpath ) )
                         {
                         try {
                             Files.walkFileTree( fpath, deleter );
@@ -81,7 +81,7 @@ public class JFileDelete //  implements Runnable
                         catch (IOException ioex) 
                             {
                             //System.out.println( "up ERROR  " + "my error getSimpleName" + ioex.getClass().getSimpleName() );
-                            //System.out.println( "up ERROR  " + "my error msg" + ioex.getMessage() );
+                            System.out.println( "delete io ERROR  " + "my error msg" + ioex.getMessage() );
                             JOptionPane.showMessageDialog( null, ioex.getClass().getSimpleName() + ": " + ioex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE );
                             Logger.getLogger(JFileDelete.class.getName()).log(Level.SEVERE, null, ioex);
                             }
@@ -89,6 +89,7 @@ public class JFileDelete //  implements Runnable
                             {
                             JOptionPane.showMessageDialog( null, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE );
                             Logger.getLogger(JFileDelete.class.getName()).log(Level.SEVERE, null, ex);
+                            System.out.println( "delete ERROR  " + "my error msg" + ex.getMessage() );
                             }
                         }
                     

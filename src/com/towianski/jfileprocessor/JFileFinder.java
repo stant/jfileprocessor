@@ -5,23 +5,18 @@ package com.towianski.jfileprocessor;
  * @author Stan Towianski - June 2015
  */
 
-import com.towianski.chainfilters.ChainFilterArgs;
 import com.towianski.models.ResultsData;
 import com.towianski.models.FilesTblModel;
 import com.towianski.chainfilters.FilterChain;
+import com.towianski.utils.FinderFileVisitor;
 import com.towianski.utils.MyLogger;
-import java.io.File;
-import static java.nio.file.FileVisitResult.CONTINUE;
-
 import java.io.IOException;
 import java.nio.file.FileVisitOption;
 import static java.nio.file.FileVisitOption.FOLLOW_LINKS;
-import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.DosFileAttributes;
 import java.nio.file.attribute.PosixFileAttributes;
@@ -39,35 +34,36 @@ public class JFileFinder //  implements Runnable
 {
     private final static MyLogger logger = MyLogger.getLogger( JFileFinder.class.getName() );
 
-    static JFileFinderWin jFileFinderWin = null;
-    static String startingPath = null;
-    static String patternType = null;
-    static String filePattern = null;
-    static int startingPathLength = 0;
-    static int basePathLen = 0;
-    static boolean cancelFlag = false;
-    static boolean cancelFillFlag = false;
-    static ArrayList<Path> matchedPathsList = new ArrayList<Path>();
-    static HashMap<Path, String> noAccessFolder = new HashMap<Path, String>();
-    static Finder finder = null;
     static Boolean dataSyncLock = false;
-    static FilterChain chainFilterList = null;
-    static FilterChain chainFilterFolderList = null;
-    static FilterChain chainFilterPreVisitFolderList = null;
-    SimpleDateFormat sdf = new SimpleDateFormat( "yyyy/MM/dd hh:mm:ss");
-    Date begDate = null;
-    Date endDate = null;
-    JFileFinderSwingWorker jFileFinderSwingWorker = null;
-    
+    private JFileFinderWin jFileFinderWin = null;
+    private String startingPath = null;
+    private String patternType = null;
+    private String filePattern = null;
+    private int startingPathLength = 0;
+    private int basePathLen = 0;
+    private boolean cancelFlag = false;
+    private boolean cancelFillFlag = false;
+    private ArrayList<Path> matchedPathsList = null;
+    private HashMap<Path, String> noAccessFolder = new HashMap<Path, String>();
+    private FinderFileVisitor finderFileVisitor = null;
+    private FilterChain chainFilterList = null;
+    private FilterChain chainFilterFolderList = null;
+    private FilterChain chainFilterPreVisitFolderList = null;
+    private SimpleDateFormat sdf = new SimpleDateFormat( "yyyy/MM/dd hh:mm:ss");
+    private Date begDate = null;
+    private Date endDate = null;
+    private JFileFinderSwingWorker jFileFinderSwingWorker = null;
+    private ResultsData resultsData = null;
+
     public JFileFinder( JFileFinderWin jFileFinderWinArg, String startingPathArg, String patternTypeArg, String filePatternArg, FilterChain chainFilterList, FilterChain chainFilterFolderList, FilterChain chainFilterPreVisitFolderList )
     {
         this.jFileFinderWin = jFileFinderWinArg;
-        startingPath = startingPathArg;   //.replace( "\\\\", "/" ).replace( "\\", "/" );
-        patternType = patternTypeArg;
-        filePattern = filePatternArg;  //.replace( "\\\\", "/" ).replace( "\\", "/" );
-        cancelFlag = false;
-        matchedPathsList = new ArrayList<Path>();
-        noAccessFolder = new HashMap<Path, String>();
+        this.startingPath = startingPathArg;   //.replace( "\\\\", "/" ).replace( "\\", "/" );
+        this.patternType = patternTypeArg;
+        this.filePattern = filePatternArg;  //.replace( "\\\\", "/" ).replace( "\\", "/" );
+        this.cancelFlag = false;
+        this.matchedPathsList = new ArrayList<Path>();
+        this.noAccessFolder = new HashMap<Path, String>();
         this.chainFilterList = chainFilterList;
         this.chainFilterFolderList = chainFilterFolderList;
         this.chainFilterPreVisitFolderList = chainFilterPreVisitFolderList;
@@ -82,6 +78,7 @@ public class JFileFinder //  implements Runnable
     public void cancelSearch()
         {
         cancelFlag = true;
+        finderFileVisitor.cancelSearch();
         }
 
     public void cancelFill()
@@ -89,7 +86,7 @@ public class JFileFinder //  implements Runnable
         cancelFillFlag = true;
         }
 
-    public static FilesTblModel getFilesTableModel() 
+    public FilesTblModel getFilesTableModel() 
         {
         synchronized( dataSyncLock ) 
             {
@@ -151,7 +148,7 @@ public class JFileFinder //  implements Runnable
             }
     }
     
-    public static void getPosixFileInfo( ArrayList<ArrayList> PathsInfoList )
+    public void getPosixFileInfo( ArrayList<ArrayList> PathsInfoList )
         {
         for ( Path fpath : matchedPathsList )
             {
@@ -246,7 +243,7 @@ public class JFileFinder //  implements Runnable
             }
         }
 
-    public static void getDosFileInfo( ArrayList<ArrayList> PathsInfoList )
+    public void getDosFileInfo( ArrayList<ArrayList> PathsInfoList )
         {
             for ( Path fpath : matchedPathsList )
                 {
@@ -320,7 +317,7 @@ public class JFileFinder //  implements Runnable
                 }
         }
 
-    public static FilesTblModel emptyFilesTableModel( Boolean countOnlyFlag ) 
+    public FilesTblModel emptyFilesTableModel( Boolean countOnlyFlag ) 
         {
         synchronized( dataSyncLock ) 
             {
@@ -345,7 +342,7 @@ public class JFileFinder //  implements Runnable
             }
     }
 
-    public static FilesTblModel newfolderOnlyFilesTableModel( String newfolderPath )
+    public FilesTblModel newfolderOnlyFilesTableModel( String newfolderPath )
         {
         synchronized( dataSyncLock ) 
             {
@@ -377,277 +374,11 @@ public class JFileFinder //  implements Runnable
             }
     }
     
-    public static ResultsData getResultsData() {
-        //ResultsData resultsData = new ResultsData( getFilesTableModel(), cancelFlag, finder.getNumTested(), finder.getNumMatches() );
-        ResultsData resultsData = new ResultsData( matchedPathsList, cancelFlag, cancelFillFlag, finder.getNumTested()
-                    , finder.getNumFileMatches(), finder.getNumFolderMatches() , finder.getNumFileTests(), finder.getNumFolderTests() );
-        return resultsData;
+    public ResultsData getResultsData() {
+        //System.out.println( "finderFileVisitor =" + finderFileVisitor + "=" );
+        return this.resultsData;
     }
     
-    public static class Finder extends SimpleFileVisitor<Path> 
-        {
-        private long numFileMatches = 0;
-        private long numFolderMatches = 0;
-        private long numFileTests = 0;
-        private long numFolderTests = 0;
-        private long numTested = 0;
-        private ChainFilterArgs chainFilterArgs = new ChainFilterArgs();
-        private JFileFinder jFileFinder = null;
-        
-        Finder(String pattern, JFileFinder jFileFinder) {
-            chainFilterArgs.setNumFileMatches(numFileMatches);
-            chainFilterArgs.setNumFolderMatches(numFolderMatches);
-            chainFilterArgs.setNumFileTests(numFileTests);
-            chainFilterArgs.setNumFolderTests(numFolderTests);
-            chainFilterArgs.setNumTested(numTested);
-            this.jFileFinder = jFileFinder;
-        }
-
-        // Compares the glob pattern against
-        // the file or directory name.
-//        void find(Path file) {
-//            Path name = file.getFileName();
-//            if (name != null && matcher.matches(name)) {
-//                numFileMatches++;
-//                System.out.println( "find =" + file );
-//            }
-//        }
-
-        // Compares the glob pattern against
-        // the file or directory name.
-        Boolean processFile( Path file, BasicFileAttributes attrs )
-            {
-            numFileTests++;
-            numTested++;
-            chainFilterArgs.setNumFileMatches(numFileMatches);
-            if ( chainFilterList != null )
-                {
-                //BasicFileAttributes attrs;
-                try {
-                    //attrs = Files.readAttributes( file, BasicFileAttributes.class );
-                    if ( chainFilterList.testFilters( file, attrs, chainFilterArgs, jFileFinder ) )
-                        {
-//                      rowList.add( fpath.toString() );
-//                      rowList.add( new Date( attr.lastModifiedTime().toMillis() ) );
-//                      rowList.add( attr.size() );
-//                      rowList.add( attr.isDirectory() );
-//                      rowList.add( attr.isSymbolicLink() );
-                        numFileMatches++;
-//                      System.out.println( "Match =" + file );
-                        matchedPathsList.add( file );
-//                      int at = pathStr.indexOf( System.getProperty( "file.separator" ), startingPathLength );
-//                      System.out.println( "search from string =" + pathStr.substring(startingPathLength) + "=" );
-//                      System.out.println( "startingPathLength =" + startingPathLength );
-//                      System.out.println( "path separator >" + System.getProperty( "file.separator" ) + "<" );
-//                      System.out.println( "at =" + at );
-//                      String pkgpath = pathStr.substring( startingPathLength, at );
-                        }
-                    } 
-                catch (Exception ex) 
-                    {
-                    logger.log(Level.SEVERE, null, ex);
-                    return false;
-                    }
-                }
-            else
-                {
-                numFileMatches++;
-                matchedPathsList.add( file );
-                }
-            return true;
-            }
-        
-        // Compares the glob pattern against
-        // the file or directory name.
-        Boolean processFolder( Path fpath, BasicFileAttributes attrs )
-            {
-            numFolderTests++;
-            numTested++;
-            chainFilterArgs.setNumFolderMatches(numFolderMatches);
-            if ( chainFilterFolderList != null )
-                {
-                try {
-//                    System.out.println( "folder match ? =" + fpath.toString() );
-//                    System.out.println( "folder match result = " + chainFilterFolderList.testFilters( fpath, attrs, chainFilterArgs, jFileFinder ) );
-                    if ( chainFilterFolderList.testFilters( fpath, attrs, chainFilterArgs, jFileFinder ) )
-                        {
-                        numFolderMatches++;
-//                        System.out.println( "Match =" + fpath + "   numFolderMatches =" + numFolderMatches );
-                        matchedPathsList.add( fpath );
-                        }
-                    }
-                catch (Exception ex) 
-                    {
-                    logger.log(Level.SEVERE, null, ex);
-                    return false;
-                    }
-                }
-            else
-                {
-                numFolderMatches++;
-//                System.out.println( "no filter Match =" + fpath + "   numFolderMatches =" + numFolderMatches );
-                matchedPathsList.add( fpath );
-                }
-            return true;
-            }
-        
-        // Prints the total number of
-        // matches to standard out.
-        void done() {
-            System.out.println( "Tested:  " + numTested );
-            System.out.println( "Matched Files count: " + numFileMatches );
-            System.out.println( "Matched Folders count: " + numFolderMatches );
-            
-//            for ( Path mpath : matchedPathsList )
-//                {
-//                System.out.println( mpath );
-//                }
-        }
-
-        // Invoke the pattern matching
-        // method on each file.
-        @Override
-        public FileVisitResult visitFile( Path fpath, BasicFileAttributes attrs )
-            {
-            try
-                {
-                if ( cancelFlag )
-                    {
-                    System.out.println( "Search cancelled by user." );
-                    return FileVisitResult.TERMINATE;
-                    }
-                //System.out.println( "test file ? =" + fpath.toString() );
-                processFile( fpath, attrs );
-                }
-            catch( Exception ex )
-                {
-                System.out.println( "Error parsing file =" + fpath + "=" );
-                return FileVisitResult.TERMINATE;
-                }
-            return FileVisitResult.CONTINUE;
-            }
-
-        // Invoke the pattern matching method on each directory.
-        @Override
-        public FileVisitResult preVisitDirectory( Path fpath, BasicFileAttributes attrs )
-            {
-//            System.out.println( "preVisitDirectory() chainFilterFolderlist.size() =" + chainFilterFolderList.size() + "=" );
-//            System.out.println( "preVisitDirectory() chainFilterPreVisitFolderList.size() =" + chainFilterPreVisitFolderList.size() + "=" );
-
-            //  First check is do we show this folder?
-            try {
-                if ( cancelFlag )
-                    {
-                    System.out.println( "Search cancelled by user." );
-                    return FileVisitResult.TERMINATE;
-                    }
-                processFolder( fpath, attrs );
-                }
-            catch (Exception ex) 
-                {
-                logger.log(Level.SEVERE, null, ex);
-                }
-
-            // Second check is do we go into this folder or skip it?
-            if ( chainFilterPreVisitFolderList != null )
-                {
-                try {
-                    //System.out.println( "previsit folder ? =" + fpath.toString() );
-                    if ( chainFilterPreVisitFolderList.testFilters( fpath, attrs, chainFilterArgs, jFileFinder ) )
-                        {
-                        return CONTINUE;
-                        }
-                    else
-                        {
-                        System.out.println( "SKIP folder =" + fpath.toString() );
-                        return FileVisitResult.SKIP_SUBTREE;
-                        }
-                    }
-                catch (Exception ex) 
-                    {
-                    logger.log(Level.SEVERE, null, ex);
-                    }
-                }
-            return FileVisitResult.SKIP_SUBTREE;
-            }
-
-        // Print each directory visited.
-//        @Override
-//        public FileVisitResult postVisitDirectory( Path dir, IOException exc )
-//            {
-            //System.out.format("Directory: %s%n", dir);
-//            BasicFileAttributes attrs;
-//            try {
-//                attrs = Files.readAttributes( dir, BasicFileAttributes.class );
-//                if ( cancelFlag )
-//                    {
-//                    System.out.println( "Search cancelled by user." );
-//                    return FileVisitResult.TERMINATE;
-//                    }
-//                processFolder( dir, attrs );
-//                }
-//            catch (Exception ex) 
-//                {
-//                Logger.getLogger(JFileFinderWin.class.getName()).log(Level.SEVERE, null, ex);
-//                }
-//            return CONTINUE;
-//            }
-
-        @Override
-        public FileVisitResult visitFileFailed( Path file, IOException exc ) 
-            {
-            //System.out.println( exc + "  for file =" + file.toString() );
-            if ( new File( file.toString() ).isDirectory() )
-                {
-                System.out.println( "skipping inaccessible folder: " + file.toString() );
-                if ( exc instanceof java.nio.file.AccessDeniedException )
-                    {
-                    BasicFileAttributes attrs;
-                    try {
-                        attrs = Files.readAttributes( file, BasicFileAttributes.class );
-                        processFolder( file, attrs );
-                        noAccessFolder.put( file, null );
-                        }
-                    catch (Exception ex) 
-                        {
-                        System.out.println( "Error calling processFolder in visitFileFailed()" );
-                        ex.printStackTrace();
-                        }
-                    }
-                else
-                    {
-                    exc.printStackTrace();
-                    }
-                return FileVisitResult.SKIP_SUBTREE;
-                }
-            return CONTINUE;
-            }
-            
-        public long getNumTested()
-            {
-            return numTested;
-            }
-            
-        public long getNumFileMatches()
-            {
-            return numFileMatches;
-            }
-            
-        public long getNumFolderMatches()
-            {
-            return numFolderMatches;
-            }
-
-        public long getNumFileTests() {
-            return numFileTests;
-        }
-
-        public long getNumFolderTests() {
-            return numFolderTests;
-        }
-        
-    }
-
     static void usage() {
         System.out.println("java Find <path>" + " -name \"<glob_pattern>\"");
         System.exit(-1);
@@ -670,7 +401,9 @@ public class JFileFinder //  implements Runnable
         System.out.println( "basePathLen =" + basePathLen + "=" );
         System.out.println( "on EDT? = " + javax.swing.SwingUtilities.isEventDispatchThread() );
     
-        finder = new Finder( (startingPath + filePattern).replace( "\\", "\\\\" ), this );
+        finderFileVisitor = new FinderFileVisitor( (startingPath + filePattern).replace( "\\", "\\\\" ), this, matchedPathsList
+                                                   , chainFilterList, chainFilterFolderList, chainFilterPreVisitFolderList, noAccessFolder );
+        
         try {
             synchronized( dataSyncLock ) 
                 {            
@@ -679,9 +412,12 @@ public class JFileFinder //  implements Runnable
                 EnumSet<FileVisitOption> opts = EnumSet.of(FOLLOW_LINKS);
 
                 begDate = Calendar.getInstance().getTime();
-                Files.walkFileTree( startingDir, opts, Integer.MAX_VALUE, finder );
+                Files.walkFileTree( startingDir, opts, Integer.MAX_VALUE, finderFileVisitor );
                 endDate = Calendar.getInstance().getTime();
 
+                resultsData = new ResultsData( cancelFlag, cancelFillFlag, finderFileVisitor.getNumTested()
+                    , finderFileVisitor.getNumFileMatches(), finderFileVisitor.getNumFolderMatches() , finderFileVisitor.getNumFileTests(), finderFileVisitor.getNumFolderTests() );
+                            
                 System.out.println( "BEG: " + sdf.format( begDate ) );
                 System.out.println( "END: " + sdf.format( endDate ) );
                 System.out.println( "matchedPathsList size =" + matchedPathsList.size() + "=" );
@@ -692,7 +428,8 @@ public class JFileFinder //  implements Runnable
             System.out.println( "walkFileTree Error: " );
             ex.printStackTrace();
             }
-        finder.done();
+        finderFileVisitor.done();
+        finderFileVisitor = null;
     }
         
     public static void main(String[] args) throws IOException 

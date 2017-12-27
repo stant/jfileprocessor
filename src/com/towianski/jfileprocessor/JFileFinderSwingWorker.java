@@ -15,12 +15,12 @@ import javax.swing.SwingWorker;
  */
 public class JFileFinderSwingWorker extends SwingWorker<ResultsData, String> 
 {
-    static JFileFinderWin jFileFinderWin = null;
-    static String startingPath = null;
-    static String patternType = null;
-    static String filePattern = null;
-    static Boolean countOnlyFlag = false;
-    JFileFinder jfilefinder = null;
+    private JFileFinderWin jFileFinderWin = null;
+    private String startingPath = null;
+    private String patternType = null;
+    private String filePattern = null;
+    private Boolean countOnlyFlag = false;
+    private JFileFinder jfilefinder = null;
 
     public JFileFinderSwingWorker( JFileFinderWin jFileFinderWinArg, JFileFinder jfilefinderArg, String startingPathArg, String patternTypeArg, String filePatternArg, Boolean countOnlyFlag )
         {
@@ -52,7 +52,7 @@ public class JFileFinderSwingWorker extends SwingWorker<ResultsData, String>
         System.out.println( "on EDT? = " + javax.swing.SwingUtilities.isEventDispatchThread() );
         jfilefinder.run( this );
         //publish("Listing all text files under the directory: ");
-        return JFileFinder.getResultsData();
+        return jfilefinder.getResultsData();
     }
 
     @Override
@@ -80,13 +80,14 @@ public class JFileFinderSwingWorker extends SwingWorker<ResultsData, String>
             //SwingUtilities.invokeLater( jFileFinderWin.fillInFilesTable( resultsData ) );
             //jFileFinderWin.fillInFilesTable( resultsData );
             jFileFinderWin.setResultsData( resultsData );
-
+            resultsData = null;
+            
             jFileFinderWin.emptyFilesTable();
             
             if ( ! countOnlyFlag )
                 {
-            System.out.println( "call JFileFinderSwingWorker.fillTableModelSwingWorker.execute()" );
-            System.out.println( "on EDT? = " + javax.swing.SwingUtilities.isEventDispatchThread() );
+                System.out.println( "call JFileFinderSwingWorker.fillTableModelSwingWorker.execute()" );
+                System.out.println( "on EDT? = " + javax.swing.SwingUtilities.isEventDispatchThread() );
                 FillTableModelSwingWorker fillTableModelSwingWorker = new FillTableModelSwingWorker( jFileFinderWin, jfilefinder );
                 fillTableModelSwingWorker.execute();   //doInBackground();
                 }

@@ -13,10 +13,13 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 import java.nio.file.CopyOption;
+import java.nio.file.FileVisitOption;
+import static java.nio.file.FileVisitOption.FOLLOW_LINKS;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.logging.Level;
 import javax.swing.JComponent;
@@ -193,7 +196,8 @@ public class CopyFrame extends javax.swing.JFrame {
      */
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
-    private void initComponents() {
+    private void initComponents()
+    {
         java.awt.GridBagConstraints gridBagConstraints;
 
         doCmdBtn = new javax.swing.JButton();
@@ -216,8 +220,10 @@ public class CopyFrame extends javax.swing.JFrame {
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
         doCmdBtn.setText("Copy");
-        doCmdBtn.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        doCmdBtn.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
                 doCmdBtnActionPerformed(evt);
             }
         });
@@ -302,8 +308,10 @@ public class CopyFrame extends javax.swing.JFrame {
         getContentPane().add(jLabel3, gridBagConstraints);
 
         copyAttribs.setText("Copy Attributes");
-        copyAttribs.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        copyAttribs.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
                 copyAttribsActionPerformed(evt);
             }
         });
@@ -313,6 +321,7 @@ public class CopyFrame extends javax.swing.JFrame {
         gridBagConstraints.insets = new java.awt.Insets(0, 7, 0, 0);
         getContentPane().add(copyAttribs, gridBagConstraints);
 
+        noFollowLinks.setSelected(true);
         noFollowLinks.setText("No Follow Links (copy links as links)");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
@@ -321,8 +330,10 @@ public class CopyFrame extends javax.swing.JFrame {
         getContentPane().add(noFollowLinks, gridBagConstraints);
 
         jButton1.setText("Log");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        jButton1.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
                 jButton1ActionPerformed(evt);
             }
         });
@@ -364,20 +375,26 @@ public class CopyFrame extends javax.swing.JFrame {
             {
             try {
                 List<CopyOption> copyOpts = new ArrayList<CopyOption>();
+                EnumSet<FileVisitOption> fileVisitOptions = EnumSet.noneOf( FileVisitOption.class );
                 if ( replaceExisting.isSelected() )
                     copyOpts.add( StandardCopyOption.REPLACE_EXISTING );
                 if ( copyAttribs.isSelected() )
                     copyOpts.add( StandardCopyOption.COPY_ATTRIBUTES );
                 if ( noFollowLinks.isSelected() )
+                    {
                     copyOpts.add( LinkOption.NOFOLLOW_LINKS );
-
+                    }
+                else
+                    {
+                    fileVisitOptions = EnumSet.of( FOLLOW_LINKS );
+                    }
 //                CopyOption[] copyOptsAR = copyOpts.toArray( new CopyOption[ copyOpts.size() ] );
 //
 //                System.out.println( "copyOpts length =" + copyOptsAR.length + "=" );
 //                for ( CopyOption cc : copyOptsAR )
 //                    System.out.println( "cc =" + cc + "=" );
                 
-                jfilecopy = new JFileCopy( jFileFinderWin, this, isDoingCutFlag, startingPath, copyPaths, toPath, copyOpts.toArray( new CopyOption[ copyOpts.size() ] ) );
+                jfilecopy = new JFileCopy( jFileFinderWin, this, isDoingCutFlag, startingPath, copyPaths, toPath, fileVisitOptions, copyOpts.toArray( new CopyOption[ copyOpts.size() ] ) );
                 CopyFrameSwingWorker copyFrameSwingWorker = new CopyFrameSwingWorker( jFileFinderWin, this, jfilecopy, copyPaths, toPath, showProgressTb.isSelected(), closeWhenDoneTb.isSelected() );
                 
 //                 copyFrameSwingWorker.addPropertyChangeListener(

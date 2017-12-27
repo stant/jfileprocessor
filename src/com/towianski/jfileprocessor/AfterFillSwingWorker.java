@@ -5,8 +5,6 @@
  */
 package com.towianski.jfileprocessor;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.SwingWorker;
 
 /**
@@ -15,12 +13,12 @@ import javax.swing.SwingWorker;
  */
 public class AfterFillSwingWorker extends SwingWorker<String, Object> {
 
-    static JFileFinderWin jFileFinderWin = null;
-    static CodeProcessorPanel codeProcessorPanel = null;
-    static String startingPath = null;
-    static String patternType = null;
-    static String filePattern = null;
-    JFileFinder jfilefinder = null;
+    private JFileFinderWin jFileFinderWin = null;
+    private CodeProcessorPanel codeProcessorPanel = null;
+    private String startingPath = null;
+    private String patternType = null;
+    private String filePattern = null;
+    private JFileFinder jfilefinder = null;
 
     public AfterFillSwingWorker( JFileFinderWin jFileFinderWinArg, JFileFinder jfilefinderArg )
         {

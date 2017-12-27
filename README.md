@@ -60,11 +60,13 @@ Shift-Escape: close main window
 ![jfileprocess-1 4 9-search](https://user-images.githubusercontent.com/1928413/29250304-7ed32dea-800e-11e7-80dc-baefc0c47cb3.png)
 
 * "Open Folder Containing Files" or "Open Terminal here" 
+
 For each file you have selected, it will open a new window or a terminal
 for the parent path of each.
 If nothing is selected it uses the "Folder:" you are in.
 
 * Install-Folder/   groovy   or   menu-scripts
+
 groovy: folder for groovy scripts. 
 menu-scripts: special groovy scripts folder. Place scripts in here to make them show up in the right-click "Scripts" menu.
 This is a short cut. It will run the script without a code window on the files you have selected.

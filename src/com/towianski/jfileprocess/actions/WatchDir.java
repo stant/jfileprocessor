@@ -33,6 +33,7 @@ package com.towianski.jfileprocess.actions;
  
 import com.sun.nio.file.SensitivityWatchEventModifier;
 import com.towianski.jfileprocessor.JFileFinderWin;
+import com.towianski.jfileprocessor.WatchDirSw;
 import java.nio.file.*;
 import static java.nio.file.StandardWatchEventKinds.*;
 import static java.nio.file.LinkOption.*;
@@ -44,8 +45,8 @@ import java.util.logging.Logger;
 
 /**
  * Example to watch a directory (or tree) for changes to files.
+ * @author stan
  */
-
 public class WatchDir implements Runnable
     {
     JFileFinderWin jFileFinderWin = null;
@@ -54,17 +55,25 @@ public class WatchDir implements Runnable
     private boolean recursiveFlag = false;
     private boolean trace = false;
     private Path dirToWatch = null;
-    Boolean cancelFlag = false;
+    boolean cancelFlag = false;
     boolean registerOk = false;
-    Boolean triggerSearchFlag = false;
+    boolean triggerSearchFlag = false;
+    WatchDirSw watchDirSw = null;
+    Thread watchDirPostThread = null;
+    WatchDirPost watchDirPost = null;
+    Object lockObj = null;
 
     /**
      * Creates a WatchService and registers the given directory
      */
-    public WatchDir( JFileFinderWin jFileFinderWin, Path dirToWatch, boolean recursiveFlag )
+    public WatchDir( JFileFinderWin jFileFinderWin, Object lockObj, Thread watchDirPostThread, WatchDirPost watchDirPost, Path dirToWatch, WatchDirSw watchDirSw, boolean recursiveFlag )
         {
         this.jFileFinderWin = jFileFinderWin;
+        this.lockObj = lockObj;
+        this.watchDirPostThread = watchDirPostThread;
+        this.watchDirPost = watchDirPost;
         this.dirToWatch = dirToWatch;
+        this.watchDirSw = watchDirSw;
         this.recursiveFlag = recursiveFlag;
         this.keys = new HashMap<WatchKey,Path>();
         this.trace = true;
@@ -274,8 +283,8 @@ public class WatchDir implements Runnable
                         {
                         // pause 1 second to keep from too frequently refreshing as files change
                         try {
-                            System.out.println( "skip watch on this file so sleep 2 seconds" );
-                            Thread.sleep(2000);
+                            System.out.println( "skip watch on this file so sleep 1 seconds" );
+                            Thread.sleep( 1000 );
                             } 
                         catch (InterruptedException ex2) 
                             {
@@ -367,33 +376,11 @@ public class WatchDir implements Runnable
     
 //            WatchDir watchDir = new WatchDir( dirToWatch, false );
         processEvents();
-        System.out.println( "after watchDir processEvents()  - call search button" );
-        System.out.println( "watchDir.run() after watchDir.run()" );
-        System.out.println("watchDir.run() triggerSearchFlag = " + triggerSearchFlag );
-        if ( triggerSearchFlag )
-            {
-            jFileFinderWin.callSearchBtnActionPerformed( null );
-            
-//                SwingUtilities.invokeLater(new Runnable() 
-//                {
-//                    public void run() {
-//                        System.out.println( "WatchDir.run()   invokeLater()" );
-//                        System.out.println( "on EDT? = " + javax.swing.SwingUtilities.isEventDispatchThread() );
-//                        //                watchDirSw.setIsDone(true);
-//                        jFileFinderWin.callSearchBtnActionPerformed( null );
-//                    }
-//                });
-               
-            // pause 1 second to keep from too frequently refreshing as files change
-//            try {
-//                Thread.sleep(1000);
-//                } 
-//            catch (InterruptedException ex2) 
-//                {
-//                System.out.println( "Background interrupted" );
-//                }
-            
+        watchDirPost.setTriggerSearchFlag( triggerSearchFlag );
+        synchronized ( lockObj ) {
+            lockObj.notify();
             }
+        System.out.println( "exiting watchDir processEvents()" );
         }
 
     public static void main(String[] args) throws IOException {

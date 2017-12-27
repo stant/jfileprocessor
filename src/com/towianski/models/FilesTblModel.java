@@ -101,6 +101,7 @@ public class FilesTblModel extends AbstractTableModel
             } 
         catch( Exception ex )
             {
+            ex.printStackTrace();
             }
         //refresh();   NOTE:  DOING THIS CAUSED IT TO DROP A WHOLE COLUMN ! !
         }

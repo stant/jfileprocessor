@@ -13,10 +13,6 @@ import java.util.ArrayList;
  * @author Stan Towianski - June 2015
  */
 public class ResultsData {
-    public ArrayList<Path> matchedPathsList = new ArrayList<Path>();
-//    private ArrayList<String> headerList = new ArrayList<>(Arrays.asList( "File" ));
-//    private ArrayList<ArrayList> rowsList = new ArrayList<>(Arrays.asList( new ArrayList() ));
-//    private FilesTblModel filesTblModel = new FilesTblModel( headerList, rowsList );
     private Boolean searchWasCanceled = false;
     private Boolean fillWasCanceled = false;
     private long filesVisited = 0;
@@ -31,10 +27,9 @@ public class ResultsData {
         {
         }
     
-    public ResultsData( ArrayList<Path> matchedPathsList, Boolean searchWasCanceled, Boolean fillWasCanceled, long filesVisited
+    public ResultsData( Boolean searchWasCanceled, Boolean fillWasCanceled, long filesVisited
             , long filesMatched, long foldersMatched, long filesTested, long foldersTested )
         {
-        this.matchedPathsList = matchedPathsList;
         this.searchWasCanceled = searchWasCanceled;
         this.fillWasCanceled = fillWasCanceled;
         this.filesVisited = filesVisited;
@@ -72,22 +67,6 @@ public class ResultsData {
         this.processStatus = processStatus;
         this.message = message;
         }
-    
-    public ArrayList<Path> getMatchedPathsList() {
-        return matchedPathsList;
-    }
-
-    public void setMatchedPathsList(ArrayList<Path> matchedPathsList) {
-        this.matchedPathsList = matchedPathsList;
-    }
-
-//    public FilesTblModel getFilesTblModel() {
-//        return filesTblModel;
-//    }
-//
-//    public void setFilesTblModel(FilesTblModel filesTblModel) {
-//        this.filesTblModel = filesTblModel;
-//    }
     
     public Boolean getSearchWasCanceled() {
         return searchWasCanceled;

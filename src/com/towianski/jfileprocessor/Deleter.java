@@ -9,6 +9,7 @@ import com.towianski.utils.DesktopUtils;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
@@ -77,8 +78,9 @@ public class Deleter extends SimpleFileVisitor<Path>
                 Path trashparent = trashFolder.resolve( fromPath.relativize( fpath ) ).getParent();
                 //System.out.println( "trashparent =" + trashparent );
                 trashparent.toFile().mkdirs();
-                Files.copy( fpath, trashFolder.resolve( fromPath.relativize( fpath ) ), StandardCopyOption.REPLACE_EXISTING );
+                Files.copy( fpath, trashFolder.resolve( fromPath.relativize( fpath ) ), StandardCopyOption.REPLACE_EXISTING, LinkOption.NOFOLLOW_LINKS );
                 }
+            System.out.println( "del fpath =" + fpath );
             Files.delete( fpath );
             }
         catch ( java.nio.file.AccessDeniedException exAccessDenied ) 

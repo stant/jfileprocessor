@@ -32,11 +32,12 @@ public class JFileCopy //  implements Runnable
     String toPath = null;
     Boolean dataSyncLock = false;
     Copier copier = null;
+    EnumSet<FileVisitOption> fileVisitOptions = null;
     private CopyOption[] copyOptions = null;
     CopyFrame copyFrame = null;
     JFileFinderWin jFileFinderWin = null;
     
-    public JFileCopy( JFileFinderWin jFileFinderWin, CopyFrame copyFrame, Boolean isDoingCutFlag, String startingPath, ArrayList<Path> copyPaths, String toPath, CopyOption[] copyOptions )
+    public JFileCopy( JFileFinderWin jFileFinderWin, CopyFrame copyFrame, Boolean isDoingCutFlag, String startingPath, ArrayList<Path> copyPaths, String toPath, EnumSet<FileVisitOption> fileVisitOptions, CopyOption[] copyOptions )
     {
         this.jFileFinderWin = jFileFinderWin;
         this.copyFrame = copyFrame;
@@ -44,6 +45,7 @@ public class JFileCopy //  implements Runnable
         this.startingPath = startingPath;
         this.copyPaths = copyPaths;
         this.toPath = toPath;
+        this.fileVisitOptions = fileVisitOptions;
         this.copyOptions = copyOptions;
         cancelFlag = false;
     }
@@ -91,9 +93,8 @@ public class JFileCopy //  implements Runnable
                 for ( Path fpath : copyPaths )
                     {
                     System.out.println( "\n-------  new filewalk: copy path =" + fpath + "=" );
-                    EnumSet<FileVisitOption> opts = EnumSet.of( FOLLOW_LINKS );
                     copier.setPaths( fpath, startingPath, toPath );
-                    Files.walkFileTree( fpath, opts, Integer.MAX_VALUE, copier );
+                    Files.walkFileTree( fpath, fileVisitOptions, Integer.MAX_VALUE, copier );
                     
                     //break;  for testing to do just 1st path
                     }

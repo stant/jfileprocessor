@@ -5,7 +5,6 @@
  */
 package com.towianski.jfileprocessor;
 
-import com.towianski.jfileprocess.actions.CloseWinOnTimer;
 import com.towianski.utils.MyLogger;
 import java.io.File;
 import java.io.IOException;

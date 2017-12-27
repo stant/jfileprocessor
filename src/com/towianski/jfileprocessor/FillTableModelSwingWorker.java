@@ -15,11 +15,11 @@ import javax.swing.SwingWorker;
  */
 public class FillTableModelSwingWorker extends SwingWorker<ResultsData, Object> {
 
-    static JFileFinderWin jFileFinderWin = null;
-    static String startingPath = null;
-    static String patternType = null;
-    static String filePattern = null;
-    JFileFinder jfilefinder = null;
+    private JFileFinderWin jFileFinderWin = null;
+    private String startingPath = null;
+    private String patternType = null;
+    private String filePattern = null;
+    private JFileFinder jfilefinder = null;
 
     public FillTableModelSwingWorker( JFileFinderWin jFileFinderWinArg, JFileFinder jfilefinderArg )
         {
@@ -41,7 +41,7 @@ public class FillTableModelSwingWorker extends SwingWorker<ResultsData, Object> 
 //                System.out.println( "entered FillTableModelSwingWorker.doInBackground() set my own DoneFlag" );
 //            }
 //        });
-        return JFileFinder.getResultsData();
+        return jfilefinder.getResultsData();
     }
 
     @Override
@@ -66,9 +66,6 @@ public class FillTableModelSwingWorker extends SwingWorker<ResultsData, Object> 
             //jFileFinderWin.fillInFilesTable( resultsData );
             //jFileFinderWin.setResultsData( resultsData );
 
-//            resultsData = null;  // to free up memory 
-//            jFileFinderWin.cleanup();
-//            
             jFileFinderWin.stopDirWatcher();
             jFileFinderWin.startDirWatcher();
             
@@ -77,6 +74,11 @@ public class FillTableModelSwingWorker extends SwingWorker<ResultsData, Object> 
                 {
                 jFileFinderWin.takeAfterFillSwingWorker().execute();    
                 }
+
+            jfilefinder = null;
+//            jFileFinderSwingWorker = null;
+            resultsData = null;
+//            jFileFinderWin.cleanup();
 
             System.out.println( "exiting FillTableModelSwingWorker.done()" );
             } 
